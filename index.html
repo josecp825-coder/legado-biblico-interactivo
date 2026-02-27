@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEGADO BÍBLICO | Experiencia Digital</title>
-    <link rel="stylesheet" href="style.css?v=11">
-    <link rel="stylesheet" href="mobile.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="mobile.css?v=12">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -14,7 +14,7 @@
         rel="stylesheet">
 
     <!-- ✅ PWA CONFIGURACION -->
-    <link rel="manifest" href="manifest.json?v=11">
+    <link rel="manifest" href="manifest.json?v=12">
     <meta name="theme-color" content="#6c5ce7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js?v=11"></script>
+    <script src="firebase-config.js?v=12"></script>
     <script>
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -87,13 +87,13 @@
 
     <div id="pantalla-estudio" class="container-estudio"></div>
 
-    <script src="firebase-service.js?v=11"></script>
-    <script src="data_motor.js?v=11"></script>
-    <script src="data_kids.js?v=11"></script>
-    <script src="data_jovenes.js?v=11"></script>
-    <script src="data_adultos.js?v=11"></script>
-    <script src="data_teens_v5.js?v=11"></script>
-    <script src="versus_engine.js?v=11"></script>
+    <script src="firebase-service.js?v=12"></script>
+    <script src="data_motor.js?v=12"></script>
+    <script src="data_kids.js?v=12"></script>
+    <script src="data_jovenes.js?v=12"></script>
+    <script src="data_adultos.js?v=12"></script>
+    <script src="data_teens_v5.js?v=12"></script>
+    <script src="versus_engine.js?v=12"></script>
 
     <script>
         let usuarioActual = { nombre: localStorage.getItem('legado_user_name') || "Invitado", nivel: "" };
@@ -141,7 +141,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=11').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=12').then(reg => {
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
                         installingWorker.onstatechange = () => {

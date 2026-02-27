@@ -1,6 +1,6 @@
 ﻿// ==========================================
-// LEGADO BIBLICO - MOTOR ADOLESCENTES v11.0
-// CORRECCION CRITICA: RANGO DE CAPITULOS Y FORMATO
+// LEGADO BIBLICO - MOTOR ADOLESCENTES v12.0
+// TRIVIA DINAMICA MULTI-MODO: COMPLETAR, VERDADERO/FALSO, REFERENCIA
 // ==========================================
 const BIBLIA_API_URL = "https://bible-api.deno.dev/api/read/";
 
@@ -170,7 +170,7 @@ function renderConfiguradorTrivia() {
     }));
     area.innerHTML = `
         <div style="padding:20px">
-            <h2 style="text-align:center;color:#55efc4">CONFIGURA TU EXAMEN EXCLUSIVO</h2>
+            <h2 style="text-align:center;color:#55efc4">CONFIGURA TU EXAMEN DINAMICO</h2>
             <div style="display:flex;margin-bottom:25px;margin-top:20px">
                 <button onclick="mostrarTestamentoTrivia('ANTIGUO TESTAMENTO')" class="test-tab active" id="tab-ANTIGUO_TESTAMENTO">ANTIGUO</button>
                 <button onclick="mostrarTestamentoTrivia('NUEVO TESTAMENTO')" class="test-tab" id="tab-NUEVO_TESTAMENTO">NUEVO</button>
@@ -205,7 +205,7 @@ function renderConfiguradorTrivia() {
                 <select id="trivia-tiempo" class="config-select">
                     <option value="10">10s (Modo Pro)</option><option value="20" selected>20s (Estandar)</option><option value="30">30s (Tranquilo)</option>
                 </select>
-                <button onclick="iniciarTriviaLibro()" style="width:100%;padding:15px;margin-top:10px;background:#55efc4;color:#000;font-weight:900;border-radius:10px">GENERAR EXAMEN DEL LIBRO</button>
+                <button onclick="iniciarTriviaLibro()" style="width:100%;padding:15px;margin-top:10px;background:#55efc4;color:#000;font-weight:900;border-radius:10px">GENERAR EXAMEN VARIADO</button>
             </div>
         </div>
     `;
@@ -228,37 +228,61 @@ async function iniciarTriviaLibro() {
     const rangoActual = `${desde}-${hasta}`;
 
     if (preguntasRepetir && !juegoState.aprobado && ultimoLibroTrivia === currentLibroSlug && ultimoRangoTrivia === rangoActual) {
-        mostrarToast("Repitiendo preguntas para mejorar...");
+        mostrarToast("Repitiendo examen con el mismo formato...");
         iniciarGameEngine(preguntasRepetir, cant, tiempo);
         return;
     }
 
-    mostrarToast("Generando preguntas de los capitulos seleccionados...");
+    mostrarToast("Generando preguntas variadas...");
     let pool = [];
     for (let c = desde; c <= hasta; c++) {
         const d = await buscarEnBiblia(currentLibroSlug, c);
         if (d && d.vers) {
-            // Guardamos el capitulo en cada versiculo para la pregunta
             const versWithCap = d.vers.map(v => ({ ...v, chapter: c }));
             pool = pool.concat(versWithCap);
         }
     }
 
-    if (pool.length < 5) return mostrarToast("Error: Pocos versiculos en este rango.");
+    if (pool.length < 5) return mostrarToast("Error: Pocos datos.");
 
     const pregs = [];
     const poolS = pool.sort(() => Math.random() - 0.5);
+
     for (let i = 0; i < cant && i < poolS.length; i++) {
         const v = poolS[i];
         const words = v.verse.split(' ');
-        if (words.length < 8) continue;
-        const correct = `...${words.slice(-4).join(' ')}`;
-        pregs.push({
-            p: `Segun ${currentLibroNombre} ${v.chapter}:${v.number}, ¿como termina este texto: "${words.slice(0, 5).join(' ')}..."?`,
-            o: [correct, "...y se fue pronto", "...en aquel tiempo", "...dijo el Profeta"].sort(() => Math.random() - 0.5),
-            c: 0
-        });
-        pregs[pregs.length - 1].c = pregs[pregs.length - 1].o.indexOf(correct);
+        if (words.length < 10) continue;
+
+        // MODOS DE PREGUNTA AL AZAR PARA ADOLESCENTES
+        const modo = Math.floor(Math.random() * 3);
+
+        if (modo === 0) { // MODO COMPLETAR FINAL
+            const correct = `...${words.slice(-4).join(' ')}`;
+            pregs.push({
+                p: `En ${currentLibroNombre} ${v.chapter}:${v.number}, ¿como termina: "${words.slice(0, 5).join(' ')}..."?`,
+                o: [correct, "...y desapareció", "...en aquel día", "...dijo el Señor"].sort(() => Math.random() - 0.5),
+                c: 0
+            });
+            pregs[pregs.length - 1].c = pregs[pregs.length - 1].o.indexOf(correct);
+        }
+        else if (modo === 1) { // MODO VERDADERO O FALSO (SUTILTÉ)
+            const esReal = Math.random() > 0.5;
+            const textoPregunta = esReal ? v.verse : v.verse.replace(words[Math.floor(words.length / 2)], "NUNCA");
+            pregs.push({
+                p: `¿Es VERDAD que ${currentLibroNombre} ${v.chapter}:${v.number} dice: "${textoPregunta}"?`,
+                o: ["VERDADERO", "FALSO"],
+                c: esReal ? 0 : 1
+            });
+        }
+        else { // MODO IDENTIFICAR REFERENCIA
+            const incorrectas = [`${v.chapter}:${v.number + 1}`, `${v.chapter + 1}:${v.number}`, `${v.chapter}:${v.number - 1}`];
+            pregs.push({
+                p: `¿A que capitulo y versiculo de ${currentLibroNombre} pertenece este texto: "${words.slice(0, 10).join(' ')}..."?`,
+                o: [`${v.chapter}:${v.number}`, ...incorrectas].sort(() => Math.random() - 0.5),
+                c: 0
+            });
+            pregs[pregs.length - 1].c = pregs[pregs.length - 1].o.indexOf(`${v.chapter}:${v.number}`);
+        }
     }
 
     ultimoLibroTrivia = currentLibroSlug;
@@ -286,11 +310,11 @@ function renderPantallaPregunta() {
                 <span id="timer-display" style="color:#55efc4; font-weight:900">TIEMPO: ${juegoState.tiempoRestante}s</span>
             </div>
             <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; border:1px solid #55efc4">
-                <p style="font-size:0.7rem; opacity:0.6">PREGUNTA ${juegoState.preguntaIdx + 1} DE ${juegoState.total}</p>
-                <h2 style="font-size:1.1rem">${p.p}</h2>
+                <p style="font-size:0.7rem; opacity:0.6">PREGUNTA ${juegoState.preguntaIdx + 1}</p>
+                <h2 style="font-size:1.1rem; color:#fff">${p.p}</h2>
             </div>
             <div style="display:grid; gap:10px; margin-top:20px">
-                ${p.o.map((o, i) => `<button onclick="verificarRespuesta(${i})" style="padding:15px; background:rgba(255,255,255,0.1); color:#fff; border-radius:10px; border:1px solid #444; text-align:left">${o}</button>`).join('')}
+                ${p.o.map((o, i) => `<button onclick="verificarRespuesta(${i})" style="padding:15px; background:rgba(255,255,255,0.1); color:#fff; border-radius:10px; border:1px solid #444; text-align:left; font-weight:700">${o}</button>`).join('')}
             </div>
         </div>
     `;
@@ -312,11 +336,11 @@ function verificarRespuesta(i) {
     clearInterval(juegoState.timer);
     if (juegoState.preguntas[juegoState.preguntaIdx] && i === juegoState.preguntas[juegoState.preguntaIdx].c) {
         juegoState.puntos += 100;
-        mostrarToast("¡CORRECTO!");
+        mostrarToast("¡CORRECTO! 🦾");
     }
     else {
         juegoState.vidas--;
-        mostrarToast("INCORRECTO");
+        mostrarToast("FALLASTE 🛑");
     }
     juegoState.preguntaIdx++;
     setTimeout(renderPantallaPregunta, 800);
@@ -327,9 +351,9 @@ function finalizarExamen() {
     juegoState.aprobado = p >= 70;
     document.getElementById('teen-content-area').innerHTML = `
         <div style="padding:40px; text-align:center">
-            <h1 style="color:${juegoState.aprobado ? '#55efc4' : '#ff4757'}">${juegoState.aprobado ? '¡APROBADO!' : 'REPROBADO'}</h1>
-            <div style="font-size:3rem; margin:20px 0">${Math.round(p)}%</div>
-            <button onclick="renderJuegoTeens()" style="width:100%; padding:20px; background:#55efc4; font-weight:900; color:#000; border-radius:15px; border:none">VOLVER</button>
+            <h1 style="color:${juegoState.aprobado ? '#55efc4' : '#ff4757'}">${juegoState.aprobado ? '¡APROBADO!' : 'MEJORA TU ESTUDIO'}</h1>
+            <div style="font-size:3rem; margin:20px 0; font-weight:900">${Math.round(p)}%</div>
+            <button onclick="renderJuegoTeens()" style="width:100%; padding:20px; background:#55efc4; font-weight:900; color:#000; border-radius:15px; border:none; box-shadow:0 5px 20px rgba(85,239,196,0.3)">FINALIZAR</button>
         </div>
     `;
 }
