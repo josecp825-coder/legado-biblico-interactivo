@@ -1,10 +1,9 @@
 ﻿// ==========================================
-// LEGADO BIBLICO - MOTOR ADOLESCENTES v10.0
-// 100% ESPECIFICO: GENERADOR DINAMICO DE PREGUNTAS
+// LEGADO BIBLICO - MOTOR ADOLESCENTES v11.0
+// CORRECCION CRITICA: RANGO DE CAPITULOS Y FORMATO
 // ==========================================
 const BIBLIA_API_URL = "https://bible-api.deno.dev/api/read/";
 
-// Banco para Trivia Rapida
 const JUEGOS_BANCO_GENERAL = [
     { p: "Cual es el Sabado biblico segun el 4to mandamiento?", o: ["Viernes", "Sabado", "Domingo"], c: 1 },
     { p: "En que capitulo de Apocalipsis esta el mensaje de los Tres Angeles?", o: ["Capitulo 7", "Capitulo 14", "Capitulo 12"], c: 1 },
@@ -43,6 +42,7 @@ let currentCapitulo = 1;
 
 let preguntasRepetir = null;
 let ultimoLibroTrivia = "";
+let ultimoRangoTrivia = "";
 
 let juegoState = {
     preguntaIdx: 0,
@@ -141,8 +141,8 @@ function renderLecturaInmersivaReal(data) {
                 <button onclick="renderSelectorLibros()" style="background:none;border:none;color:#55efc4;font-weight:900">< SALIR</button>
                 <span style="font-weight:900">${data.name} ${data.chapter}</span>
                 <div style="display:flex;gap:10px">
-                    <button onclick="buscarEnBiblia('${currentLibroSlug}', ${currentCapitulo - 1}).then(d => renderLecturaInmersivaReal(d))" style="padding:5px 10px;background:#333;color:#fff;border:none"> < </button>
-                    <button onclick="buscarEnBiblia('${currentLibroSlug}', ${currentCapitulo + 1}).then(d => renderLecturaInmersivaReal(d))" style="padding:5px 10px;background:#333;color:#fff;border:none"> > </button>
+                    <button onclick="buscarEnBiblia('${currentLibroSlug}', ${currentCapitulo - 1}).then(d => { if(d) { currentCapitulo--; renderLecturaInmersivaReal(d); } })" style="padding:5px 10px;background:#333;color:#fff;border:none"> < </button>
+                    <button onclick="buscarEnBiblia('${currentLibroSlug}', ${currentCapitulo + 1}).then(d => { if(d) { currentCapitulo++; renderLecturaInmersivaReal(d); } })" style="padding:5px 10px;background:#333;color:#fff;border:none"> > </button>
                 </div>
             </div>
             <div style="margin-top:30px;line-height:1.8;font-size:1.1rem">
@@ -197,7 +197,7 @@ function renderConfiguradorTrivia() {
             <div id="config-avanzada" style="display:none;margin-top:25px;padding:25px;background:rgba(255,255,255,0.05);border-radius:20px; border:1px solid #55efc4">
                 <p style="font-weight:900; color:#55efc4; margin-bottom:15px">PARAMETROS DEL LIBRO</p>
                 <div style="display:flex;gap:10px;align-items:center; margin-bottom:15px">
-                    <input id="cap-desde" type="number" value="1" style="width:50px"> AL <input id="cap-hasta" type="number" value="3" style="width:50px">
+                    <input id="cap-desde" type="number" value="1" style="width:50px; background:#000; color:#fff; border:1px solid #333"> AL <input id="cap-hasta" type="number" value="3" style="width:50px; background:#000; color:#fff; border:1px solid #333">
                 </div>
                 <select id="trivia-cantidad" class="config-select">
                     <option value="5">5 Preguntas</option><option value="10">10 Preguntas</option><option value="15">15 Preguntas</option><option value="20">20 Preguntas</option>
@@ -215,7 +215,8 @@ function seleccionarLibroTrivia(libro) {
     currentLibroNombre = libro;
     currentLibroSlug = normalizarLibro(libro);
     document.querySelectorAll('.libro-card').forEach(b => b.classList.remove('sel-verde', 'sel-morado'));
-    document.getElementById('libtrivia-' + libro.replace(/\s/g, '_')).className += ' sel-' + document.getElementById('libtrivia-' + libro.replace(/\s/g, '_')).dataset.color;
+    const btn = document.getElementById('libtrivia-' + libro.replace(/\s/g, '_'));
+    btn.className += ' sel-' + btn.dataset.color;
     document.getElementById('config-avanzada').style.display = 'block';
 }
 
@@ -224,20 +225,26 @@ async function iniciarTriviaLibro() {
     const tiempo = parseInt(document.getElementById('trivia-tiempo').value);
     const desde = parseInt(document.getElementById('cap-desde').value);
     const hasta = parseInt(document.getElementById('cap-hasta').value);
+    const rangoActual = `${desde}-${hasta}`;
 
-    if (preguntasRepetir && !juegoState.aprobado && ultimoLibroTrivia === currentLibroSlug) {
+    if (preguntasRepetir && !juegoState.aprobado && ultimoLibroTrivia === currentLibroSlug && ultimoRangoTrivia === rangoActual) {
+        mostrarToast("Repitiendo preguntas para mejorar...");
         iniciarGameEngine(preguntasRepetir, cant, tiempo);
         return;
     }
 
-    mostrarToast("Buscando versiculos para tu examen...");
+    mostrarToast("Generando preguntas de los capitulos seleccionados...");
     let pool = [];
     for (let c = desde; c <= hasta; c++) {
         const d = await buscarEnBiblia(currentLibroSlug, c);
-        if (d && d.vers) pool = pool.concat(d.vers);
+        if (d && d.vers) {
+            // Guardamos el capitulo en cada versiculo para la pregunta
+            const versWithCap = d.vers.map(v => ({ ...v, chapter: c }));
+            pool = pool.concat(versWithCap);
+        }
     }
 
-    if (pool.length < 5) return mostrarToast("Pocos datos en este rango.");
+    if (pool.length < 5) return mostrarToast("Error: Pocos versiculos en este rango.");
 
     const pregs = [];
     const poolS = pool.sort(() => Math.random() - 0.5);
@@ -247,14 +254,15 @@ async function iniciarTriviaLibro() {
         if (words.length < 8) continue;
         const correct = `...${words.slice(-4).join(' ')}`;
         pregs.push({
-            p: `Segun ${currentLibroNombre} ${v.number}, ¿como termina: "${words.slice(0, 5).join(' ')}..."?`,
-            o: [correct, "...y paso asi", "...en aquel dia", "...dijo el Señor"].sort(() => Math.random() - 0.5),
+            p: `Segun ${currentLibroNombre} ${v.chapter}:${v.number}, ¿como termina este texto: "${words.slice(0, 5).join(' ')}..."?`,
+            o: [correct, "...y se fue pronto", "...en aquel tiempo", "...dijo el Profeta"].sort(() => Math.random() - 0.5),
             c: 0
         });
         pregs[pregs.length - 1].c = pregs[pregs.length - 1].o.indexOf(correct);
     }
 
     ultimoLibroTrivia = currentLibroSlug;
+    ultimoRangoTrivia = rangoActual;
     preguntasRepetir = pregs;
     iniciarGameEngine(pregs, cant, tiempo);
 }
@@ -274,15 +282,15 @@ function renderPantallaPregunta() {
     document.getElementById('teen-content-area').innerHTML = `
         <div style="padding:20px; text-align:center">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px">
-                <span>VIDAS: ${'❤️'.repeat(juegoState.vidas)}</span>
-                <span id="timer-display">TIEMPO: ${juegoState.tiempoRestante}s</span>
+                <span style="font-weight:900">VIDAS: ${'❤️'.repeat(juegoState.vidas)}</span>
+                <span id="timer-display" style="color:#55efc4; font-weight:900">TIEMPO: ${juegoState.tiempoRestante}s</span>
             </div>
             <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; border:1px solid #55efc4">
-                <p>PREGUNTA ${juegoState.preguntaIdx + 1} DE ${juegoState.total}</p>
-                <h2>${p.p}</h2>
+                <p style="font-size:0.7rem; opacity:0.6">PREGUNTA ${juegoState.preguntaIdx + 1} DE ${juegoState.total}</p>
+                <h2 style="font-size:1.1rem">${p.p}</h2>
             </div>
             <div style="display:grid; gap:10px; margin-top:20px">
-                ${p.o.map((o, i) => `<button onclick="verificarRespuesta(${i})" style="padding:15px; background:rgba(255,255,255,0.1); color:#fff; border-radius:10px; border:1px solid #444">${o}</button>`).join('')}
+                ${p.o.map((o, i) => `<button onclick="verificarRespuesta(${i})" style="padding:15px; background:rgba(255,255,255,0.1); color:#fff; border-radius:10px; border:1px solid #444; text-align:left">${o}</button>`).join('')}
             </div>
         </div>
     `;
@@ -294,15 +302,22 @@ function iniciarTemporizador() {
     juegoState.tiempoRestante = juegoState.tiempoConfig;
     juegoState.timer = setInterval(() => {
         juegoState.tiempoRestante--;
-        if (document.getElementById('timer-display')) document.getElementById('timer-display').innerText = `TIEMPO: ${juegoState.tiempoRestante}s`;
+        const disp = document.getElementById('timer-display');
+        if (disp) disp.innerText = `TIEMPO: ${juegoState.tiempoRestante}s`;
         if (juegoState.tiempoRestante <= 0) { clearInterval(juegoState.timer); verificarRespuesta(-1); }
     }, 1000);
 }
 
 function verificarRespuesta(i) {
     clearInterval(juegoState.timer);
-    if (i === juegoState.preguntas[juegoState.preguntaIdx].c) { juegoState.puntos += 100; mostrarToast("¡SI!"); }
-    else { juegoState.vidas--; mostrarToast("NO"); }
+    if (juegoState.preguntas[juegoState.preguntaIdx] && i === juegoState.preguntas[juegoState.preguntaIdx].c) {
+        juegoState.puntos += 100;
+        mostrarToast("¡CORRECTO!");
+    }
+    else {
+        juegoState.vidas--;
+        mostrarToast("INCORRECTO");
+    }
     juegoState.preguntaIdx++;
     setTimeout(renderPantallaPregunta, 800);
 }
@@ -312,9 +327,9 @@ function finalizarExamen() {
     juegoState.aprobado = p >= 70;
     document.getElementById('teen-content-area').innerHTML = `
         <div style="padding:40px; text-align:center">
-            <h1>${juegoState.aprobado ? '¡APROBADO!' : 'REPROBADO'}</h1>
-            <div style="font-size:3rem">${Math.round(p)}%</div>
-            <button onclick="renderJuegoTeens()" style="width:100%; padding:20px; background:#55efc4; margin-top:30px">VOLVER</button>
+            <h1 style="color:${juegoState.aprobado ? '#55efc4' : '#ff4757'}">${juegoState.aprobado ? '¡APROBADO!' : 'REPROBADO'}</h1>
+            <div style="font-size:3rem; margin:20px 0">${Math.round(p)}%</div>
+            <button onclick="renderJuegoTeens()" style="width:100%; padding:20px; background:#55efc4; font-weight:900; color:#000; border-radius:15px; border:none">VOLVER</button>
         </div>
     `;
 }
@@ -324,7 +339,43 @@ function normalizarLibro(l) {
     return m[l] || l.toLowerCase();
 }
 
-async function buscarEnBiblia(s, c = 1, t = "rv1960") { try { const r = await fetch(`${BIBLIA_API_URL}${t}/${s}/${c}`); return await r.json(); } catch (e) { return null; } }
-function mostrarToast(m) { const t = document.createElement('div'); t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#55efc4;color:#000;padding:15px;border-radius:10px;font-weight:900;z-index:9999'; t.innerText = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
-function toggleCat(h) { h.nextElementSibling.style.display = h.nextElementSibling.style.display === 'block' ? 'none' : 'block'; }
-function mostrarTestamentoTrivia(n) { document.querySelectorAll('.test-tab').forEach(t => t.classList.remove('active')); document.getElementById('tab-' + n.replace(/\s/g, '_')).classList.add('active'); document.querySelectorAll('.testamento-panel').forEach(p => p.style.display = 'none'); document.getElementById('panel-' + n.replace(/\s/g, '_')).style.display = 'block'; }
+async function buscarEnBiblia(s, c = 1, t = "rv1960") {
+    try {
+        const r = await fetch(`${BIBLIA_API_URL}${t}/${s}/${c}`);
+        if (!r.ok) return null;
+        return await r.json();
+    } catch (e) { return null; }
+}
+
+function mostrarToast(m) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#55efc4;color:#000;padding:15px;border-radius:10px;font-weight:900;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.5)';
+    t.innerText = m;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2000);
+}
+
+function toggleCat(h) {
+    const b = h.nextElementSibling;
+    b.style.display = b.style.display === 'block' ? 'none' : 'block';
+}
+
+function mostrarTestamentoTrivia(n) {
+    document.querySelectorAll('.test-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + n.replace(/\s/g, '_')).classList.add('active');
+    document.querySelectorAll('.testamento-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('panel-' + n.replace(/\s/g, '_')).style.display = 'block';
+}
+
+function renderExplorador() {
+    document.getElementById('teen-content-area').innerHTML = `
+        <div style="padding:20px">
+            <h2>BUSCAR EN LA PALABRA</h2>
+            <input id="bible-search" type="text" placeholder="Juan 3:16" style="width:100%;padding:15px;background:#000;color:#fff;border:1px solid #333;border-radius:10px">
+            <button onclick="ejecutarBusqueda()" style="width:100%;margin-top:10px;padding:15px;background:#55efc4;color:#000;font-weight:900;border:none;border-radius:10px">BUSCAR</button>
+            <div id="search-results" style="margin-top:20px"></div>
+        </div>
+    `;
+}
+
+function ejecutarBusqueda() { mostrarToast("Buscando..."); }
