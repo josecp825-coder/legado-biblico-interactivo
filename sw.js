@@ -1,38 +1,40 @@
 // ==========================================
-// SERVICE WORKER — LEGADO BÍBLICO PWA v2
+// SERVICE WORKER — LEGADO BÍBLICO PWA v3
 // Permite uso OFFLINE y instalación en
 // celular y escritorio como app nativa
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v2';
+const BASE = '/legado-biblico-interactivo';
+const CACHE_NAME = 'legado-biblico-v3';
 
 // Archivos que se guardan para uso sin internet
 const ARCHIVOS_CACHE = [
-    './',
-    './index.html',
-    './style.css',
-    './data_motor.js',
-    './data_kids.js',
-    './data_jovenes.js',
-    './data_adultos.js',
-    './data_teens.js',
-    './versus_engine.js',
-    './firebase-service.js',
-    './manifest.json',
-    './icon-192.png',
-    './icon-512.png',
+    `${BASE}/`,
+    `${BASE}/index.html`,
+    `${BASE}/style.css`,
+    `${BASE}/mobile.css`,
+    `${BASE}/data_motor.js`,
+    `${BASE}/data_kids.js`,
+    `${BASE}/data_jovenes.js`,
+    `${BASE}/data_adultos.js`,
+    `${BASE}/data_teens.js`,
+    `${BASE}/versus_engine.js`,
+    `${BASE}/firebase-service.js`,
+    `${BASE}/manifest.json`,
+    `${BASE}/icon-192.png`,
+    `${BASE}/icon-512.png`,
     // Imágenes del módulo Niños
-    './biblia_ninos_hero_1772168630395.png',
-    './daniel_leones_cartoon_1772168642765.png',
-    './noe_arca_cartoon_1772168653149.png',
+    `${BASE}/biblia_ninos_hero_1772168630395.png`,
+    `${BASE}/daniel_leones_cartoon_1772168642765.png`,
+    `${BASE}/noe_arca_cartoon_1772168653149.png`,
     // Imágenes del módulo Jóvenes
-    './jovenes_profecia_hero_1772169591746.png',
-    './daniel_profecia_timeline_1772169603328.png',
+    `${BASE}/jovenes_profecia_hero_1772169591746.png`,
+    `${BASE}/daniel_profecia_timeline_1772169603328.png`,
     // Imágenes del módulo Adultos
-    './adultos_seminario_hero_1772170415343.png',
-    './egw_portrait_adventista_1772170430747.png',
+    `${BASE}/adultos_seminario_hero_1772170415343.png`,
+    `${BASE}/egw_portrait_adventista_1772170430747.png`,
     // Imagen Game Over
-    './nino_triste.png.png'
+    `${BASE}/nino_triste.png.png`
 ];
 
 // INSTALACIÓN — guarda todos los archivos en cache
