@@ -175,6 +175,32 @@ function renderConfiguradorTrivia() {
         nombre: test, color: info.color, categorias: info.categorias
     }));
     area.innerHTML = `
+        <style>
+            .libro-card { 
+                background: rgba(255,255,255,0.08); 
+                border: 1px solid rgba(255,255,255,0.15); 
+                color: #fff; 
+                padding: 10px; 
+                border-radius: 12px; 
+                cursor: pointer; 
+                font-size: 0.85rem; 
+                height: 50px; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                font-weight: 700;
+                transition: all 0.2s;
+            }
+            .libro-card:active { transform: scale(0.95); }
+            .libro-card.sel-verde { border-color: #55efc4; color: #55efc4; background: rgba(85,239,196,0.2); box-shadow: 0 0 10px rgba(85,239,196,0.1); }
+            .libro-card.sel-morado { border-color: #a29bfe; color: #a29bfe; background: rgba(162,155,254,0.2); box-shadow: 0 0 10px rgba(162,155,254,0.1); }
+            .cat-header { display: flex; padding: 15px; cursor: pointer; color: #55efc4; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); margin-top: 10px; border-radius: 10px 10px 0 0; }
+            .cat-body { display: none; padding: 15px; background: rgba(255,255,255,0.02); border-radius: 0 0 10px 10px; margin-bottom: 10px; }
+            .cat-body.open { display: block; }
+            .test-tab { padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; margin-right: 8px; flex: 1; font-weight: 900; }
+            .test-tab.active { background: #fff; color: #000; border-color: #fff; }
+            .config-select { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #55efc4; border-radius: 12px; margin-bottom: 15px; }
+        </style>
         <div style="padding:20px">
             <h2 style="text-align:center;color:#55efc4">CONFIGURA TU EXAMEN DINAMICO</h2>
             <div style="display:flex;margin-bottom:25px;margin-top:20px">
