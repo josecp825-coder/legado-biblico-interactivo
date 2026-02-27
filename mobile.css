@@ -1,297 +1,342 @@
 /* ============================================================
-   📱 RESPONSIVE MOBILE — LEGADO BÍBLICO
-   Correcciones completas para pantallas pequeñas (< 480px)
+   📱 RESPONSIVE MOBILE — LEGADO BÍBLICO v2
+   Correcciones específicas para pantallas pequeñas
+   Breakpoints: 768px (tablets) y 480px (móviles)
    ============================================================ */
 
-/* === PANTALLA DE INICIO === */
-@media (max-width: 480px) {
+/* ===== BASE MÓVIL ===== */
+@media (max-width: 768px) {
+
+    /* === PANTALLA DE INICIO === */
     .intro-container {
-        padding: 20px 16px;
+        padding: 30px 16px 20px;
         justify-content: flex-start;
         padding-top: 40px;
+        min-height: 100svh;
     }
 
     .welcome-text {
-        margin-bottom: 28px;
+        margin-bottom: 24px;
     }
 
     .welcome-text h1 {
-        font-size: 1.9rem;
+        font-size: 2rem;
         letter-spacing: -0.5px;
     }
 
     .welcome-text p {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
-    /* Input de nombre más cómodo en móvil */
     #nombre-usuario {
         width: 100% !important;
-        max-width: 320px !important;
-        font-size: 1rem !important;
+        max-width: 300px !important;
     }
 
-    /* Cards de categoría: 2 columnas en móvil */
+    /* Cards: 2 columnas compactas en móvil */
     .category-grid {
         grid-template-columns: 1fr 1fr !important;
-        gap: 12px;
+        gap: 10px;
     }
 
     .category-card {
-        height: 140px;
-        border-radius: 18px;
-    }
-
-    .category-card h2 {
-        font-size: 1.1rem;
-    }
-
-    .category-card p {
-        font-size: 0.72rem;
-    }
-
-    .card-bg-icon {
-        font-size: 3.5rem;
-    }
-
-    .card-content {
-        padding: 16px;
-    }
-}
-
-/* === PANTALLA DE ESTUDIO (GENERAL) === */
-@media (max-width: 768px) {
-    .container-estudio {
-        padding: 20px 12px !important;
-    }
-
-    .estudio-header {
-        gap: 12px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-
-    .header-info h1 {
-        font-size: 1.6rem !important;
-    }
-
-    .estudio-body {
-        grid-template-columns: 1fr !important;
-        gap: 16px;
-    }
-
-    .glass-panel {
-        padding: 18px;
+        height: 130px;
         border-radius: 16px;
     }
 
-    .seccion-accion {
-        grid-column: span 1 !important;
+    .category-card h2 {
+        font-size: 1rem;
     }
 
-    /* Biblia premium - textos más manejables */
-    .v-text-dynamic {
+    .category-card p {
+        font-size: 0.68rem;
+    }
+
+    .card-content {
+        padding: 12px;
+    }
+
+    .card-bg-icon {
+        font-size: 3rem;
+    }
+
+    /* === PANTALLA DE ESTUDIO === */
+    .container-estudio {
+        padding: 16px 12px !important;
+    }
+
+    /* Teens: header compacto */
+    .teen-header {
+        margin-bottom: 16px !important;
+    }
+
+    .header-main h1 {
+        font-size: 1.5rem !important;
+        margin: 4px 0 !important;
+    }
+
+    /* Nav tabs: scroll horizontal */
+    .teen-nav {
+        gap: 6px !important;
+        overflow-x: auto;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .teen-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .teen-nav button {
+        padding: 10px 18px !important;
+        font-size: 0.82rem !important;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* === SELECTOR DE LIBROS === */
+    .bible-selector-container {
+        padding: 12px 4px !important;
+    }
+
+    /* --- PANELES TESTAMENTO: Diseño tipo botón, NO imagen de fondo --- */
+    #bible-main-grid.dual-landing-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        height: auto !important;
+        margin-bottom: 24px !important;
+    }
+
+    #bible-main-grid .hero-panel {
+        height: 90px !important;
+        border-radius: 16px !important;
+        /* Paneles más visibles en móvil */
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 2px solid rgba(255, 255, 255, 0.12) !important;
+        /* Eliminar imagen de fondo difuminada en móvil */
+    }
+
+    /* El ::before genera la imagen difuminada — la apagamos en móvil */
+    #bible-main-grid .hero-panel::before {
+        opacity: 0.25 !important;
+        filter: brightness(0.5) !important;
+    }
+
+    /* Remover transform del hover en móvil (causa doble-tap) */
+    #bible-main-grid .hero-panel:hover {
+        transform: none !important;
+    }
+
+    #bible-main-grid .hero-panel .hero-info {
+        bottom: 12px !important;
+        left: 14px !important;
+    }
+
+    #bible-main-grid .hero-panel .hero-info h3 {
+        font-size: 1.1rem !important;
+        letter-spacing: 0 !important;
+    }
+
+    #bible-main-grid .hero-panel .hero-info p {
+        font-size: 0.6rem !important;
+        letter-spacing: 1px !important;
+        margin-top: 2px !important;
+    }
+
+    /* Antiguo = verde, Nuevo = morado — indicador de color visible */
+    #nav-antiguo {
+        border-color: rgba(85, 239, 196, 0.4) !important;
+    }
+
+    #nav-nuevo {
+        border-color: rgba(162, 155, 254, 0.4) !important;
+    }
+
+    /* --- GRID DE CATEGORÍAS DE LIBROS --- */
+    /* Reemplazar minmax(380px) roto por columna única */
+    #libros-dinamicos-root [style*="grid-template-columns:repeat(auto-fit,minmax(380px"],
+    #libros-dinamicos-root>div>div[style*="minmax(380px"] {
+        display: block !important;
+    }
+
+    /* Los bloques de categorías uno arriba del otro */
+    #libros-dinamicos-root [style*="padding:25px;border-radius:20px"] {
+        margin-bottom: 16px !important;
+        padding: 16px !important;
+    }
+
+    /* Grids de libros dentro de cada categoría */
+    #libros-dinamicos-root [style*="grid-template-columns:repeat(auto-fill,minmax(160px"] {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+    }
+
+    /* Botones de libros más compactos */
+    .btn-libro-premium {
+        padding: 10px 6px !important;
+        font-size: 0.78rem !important;
+        border-radius: 10px !important;
+        min-height: 44px !important;
+        /* Área táctil mínima */
+    }
+
+    /* Título del testamento seleccionado */
+    #libros-dinamicos-root h2[style*="letter-spacing:8px"] {
         font-size: 1.3rem !important;
-        line-height: 1.6 !important;
+        letter-spacing: 3px !important;
+    }
+
+    /* === LECTOR INMERSIVO === */
+    .reader-hero {
+        height: 180px !important;
+        padding: 16px !important;
+        background-attachment: scroll !important;
+    }
+
+    .hero-content h2 {
+        font-size: 1.5rem !important;
+        letter-spacing: -0.5px !important;
     }
 
     .verses-container-dynamic {
-        padding: 25px 16px !important;
+        padding: 20px 14px !important;
     }
 
-    .v-num-badge {
-        left: 0 !important;
-        position: relative !important;
-        top: auto !important;
+    .v-text-dynamic {
+        font-size: 1.25rem !important;
+        line-height: 1.65 !important;
     }
 
     .verse-block {
-        padding-left: 14px !important;
-        margin-bottom: 30px !important;
+        padding-left: 12px !important;
+        margin-bottom: 28px !important;
     }
 
     .verse-block:hover {
         transform: none !important;
     }
 
-    /* Header selector de biblia */
-    .selector-header-modern h2 {
-        font-size: 2rem !important;
-        letter-spacing: -1px !important;
-    }
-
-    .bible-selector-container {
-        padding: 16px !important;
-    }
-
-    .testamento-section {
-        padding: 20px !important;
-        border-radius: 20px !important;
-    }
-
-    .libros-grid-premium {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
-        gap: 10px !important;
-    }
-
-    .btn-libro-premium {
-        padding: 14px 8px !important;
-        font-size: 0.8rem !important;
-        border-radius: 14px !important;
-    }
-
-    .libro-icono {
-        font-size: 1.2rem !important;
-    }
-
-    /* Reader hero (imagen de fondo) */
-    .reader-hero {
-        height: 220px !important;
-        padding: 20px !important;
-        background-attachment: scroll !important;
-        /* Fixed no funciona bien en iOS */
-    }
-
-    .hero-content h2 {
-        font-size: 1.8rem !important;
-        letter-spacing: -1px !important;
-    }
-
-    /* Dual landing panels */
-    .dual-landing-grid {
-        grid-template-columns: 1fr !important;
-        height: auto !important;
-        gap: 16px !important;
-    }
-
-    .hero-panel {
-        height: 200px !important;
-        border-radius: 28px !important;
-    }
-
-    .hero-info {
-        bottom: 20px !important;
-        left: 20px !important;
-    }
-
-    .hero-info h3 {
-        font-size: 2rem !important;
-        letter-spacing: -1px !important;
-    }
-
-    .hero-info p {
-        font-size: 0.8rem !important;
-        letter-spacing: 2px !important;
-    }
-
-    /* Search bar */
-    .search-bar-premium {
-        padding: 5px 18px !important;
-    }
-
-    .search-bar-premium input {
-        font-size: 1rem !important;
-        padding: 12px 0 !important;
-    }
-
-    .category-chips-container {
-        gap: 8px !important;
-    }
-
-    .category-chip {
-        padding: 8px 14px !important;
-        font-size: 0.72rem !important;
-        letter-spacing: 1px !important;
-    }
-
-    /* Footer del reader */
-    .reader-footer {
-        flex-direction: column !important;
-        gap: 16px !important;
-        align-items: flex-start !important;
-    }
-
-    /* Controles flotantes */
-    .immersive-controls {
-        top: 10px !important;
-        right: 10px !important;
-    }
-
-    .btn-reader-tool {
-        width: 38px !important;
-        height: 38px !important;
-        font-size: 1rem !important;
-    }
-
-    /* IA analysis card */
-    .ia-analysis-card {
-        padding: 18px !important;
-        font-size: 1rem !important;
-    }
-}
-
-/* === TEMA ADOLESCENTES MÓVIL === */
-@media (max-width: 768px) {
-    .teen-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .theme-adolescentes .header-info h1 {
-        font-size: 2rem !important;
-    }
-
-    .teen-nav {
-        gap: 8px !important;
-    }
-
-    .teen-nav button {
-        padding: 9px 16px !important;
+    /* Barra de navegación sticky */
+    #nav-bar-reader {
+        padding: 8px 12px !important;
         font-size: 0.8rem !important;
     }
 
-    .game-container {
-        padding: 20px 12px !important;
+    /* Flechas de navegación lateral — moverlas abajo */
+    #float-nav {
+        right: 8px !important;
+        top: auto !important;
+        bottom: 70px !important;
+        transform: none !important;
     }
 
-    .game-header {
-        flex-direction: column !important;
-        gap: 10px !important;
-        align-items: flex-start !important;
+    /* Botones de nav más grandes para tocar */
+    #float-nav button,
+    #float-nav div {
+        width: 44px !important;
+        height: 44px !important;
     }
 
-    .question-text {
-        font-size: 1.1rem !important;
-    }
-
-    .option-btn {
-        padding: 12px !important;
-        font-size: 0.9rem !important;
-    }
-
-    .search-area {
-        padding: 20px 12px !important;
-    }
-
-    .search-box {
-        flex-direction: column !important;
-    }
-
-    .search-box button {
-        padding: 12px !important;
+    /* Botones inferior prev/next */
+    .verses-container-dynamic [style*="padding:15px 30px"] {
+        padding: 11px 14px !important;
+        font-size: 0.8rem !important;
         border-radius: 10px !important;
     }
 
-    .bible-text-result {
+    /* === JUEGOS === */
+    /* Grid 2 modos de juego: columna única en móvil muy pequeño */
+    [style*="grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* Pregunta más grande y legible */
+    [style*="font-size:1.4rem;font-weight:700"] {
         font-size: 1.1rem !important;
+    }
+
+    /* Opciones de respuesta: área táctil adecuada */
+    [id^="opt-"] {
+        padding: 14px 16px !important;
+        font-size: 0.92rem !important;
+        min-height: 52px !important;
+    }
+
+    /* === BÚSQUEDA PREMIUM === */
+    .search-bar-premium {
+        padding: 4px 14px !important;
+        border-radius: 14px !important;
+    }
+
+    .search-bar-premium input {
+        font-size: 0.95rem !important;
+        padding: 10px 0 !important;
+    }
+
+    /* === TARJETA DE CONTEXTO FLOTANTE === */
+    .context-card {
+        width: 96% !important;
+        padding: 16px !important;
+        bottom: 12px !important;
+        border-radius: 16px !important;
+    }
+
+    /* === HEADER ESTUDIO GENERAL === */
+    .estudio-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .header-info h1 {
+        font-size: 1.4rem !important;
+    }
+
+    .estudio-body {
+        grid-template-columns: 1fr !important;
+        gap: 14px;
+    }
+
+    .glass-panel {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .seccion-accion {
+        grid-column: span 1 !important;
     }
 }
 
-/* === TARJETA DE CONTEXTO (FLOTANTE) === */
-@media (max-width: 480px) {
-    .context-card {
-        width: 95% !important;
-        padding: 18px !important;
-        border-radius: 18px !important;
-        bottom: 16px !important;
+/* ===== MÓVILES MUY PEQUEÑOS (< 360px) ===== */
+@media (max-width: 360px) {
+    .welcome-text h1 {
+        font-size: 1.6rem;
+    }
+
+    .category-card {
+        height: 110px;
+    }
+
+    .category-card h2 {
+        font-size: 0.9rem;
+    }
+
+    #bible-main-grid .hero-panel {
+        height: 75px !important;
+    }
+
+    .btn-libro-premium {
+        font-size: 0.7rem !important;
+        padding: 8px 4px !important;
+    }
+
+    /* 3 columnas muy apretadas → 2 columnas */
+    #libros-dinamicos-root [style*="grid-template-columns:repeat(auto-fill,minmax(160px"] {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }

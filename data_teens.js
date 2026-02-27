@@ -170,10 +170,10 @@ function renderSelectorLibros() {
                 <p style="opacity:0.3;font-size:0.8rem;letter-spacing:3px;margin-top:15px">LA PALABRA DE DIOS A TU ALCANCE</p>
             </div>
             <div id="bible-main-grid" class="dual-landing-grid" style="gap:20px;max-width:1200px;margin:0 auto;height:160px;margin-bottom:40px">
-                <div id="nav-antiguo" class="hero-panel antiguo" onclick="mostrarSeccionTestamento('ANTIGUO TESTAMENTO')" style="border-radius:20px">
+                <div id="nav-antiguo" class="hero-panel antiguo" onclick="mostrarSeccionTestamento('ANTIGUO TESTAMENTO')" ontouchstart="mostrarSeccionTestamento('ANTIGUO TESTAMENTO')" style="border-radius:20px;cursor:pointer">
                     <div class="hero-info" style="left:20px;bottom:20px"><h3 style="font-size:1.6rem;margin:0">ANTIGUO</h3><p style="font-size:0.65rem;letter-spacing:2px;margin:0;opacity:0.7">PROMESAS</p></div>
                 </div>
-                <div id="nav-nuevo" class="hero-panel nuevo" onclick="mostrarSeccionTestamento('NUEVO TESTAMENTO')" style="border-radius:20px">
+                <div id="nav-nuevo" class="hero-panel nuevo" onclick="mostrarSeccionTestamento('NUEVO TESTAMENTO')" ontouchstart="mostrarSeccionTestamento('NUEVO TESTAMENTO')" style="border-radius:20px;cursor:pointer">
                     <div class="hero-info" style="left:20px;bottom:20px"><h3 style="font-size:1.6rem;margin:0">NUEVO</h3><p style="font-size:0.65rem;letter-spacing:2px;margin:0;opacity:0.7">REVELACIÓN</p></div>
                 </div>
             </div>
@@ -200,7 +200,7 @@ function mostrarSeccionTestamento(testamento) {
                 <h2 style="color:${info.color};font-size:2rem;font-weight:300;letter-spacing:8px;text-transform:uppercase;margin:0">${testamento}</h2>
                 <div style="width:60px;height:3px;background:${info.color};margin:15px auto;border-radius:10px;opacity:0.6"></div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:25px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px">
                 ${Object.entries(info.categorias).map(([cat, libros]) => `
                     <div style="padding:25px;border-radius:20px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)">
                         <h4 style="color:${info.color};font-size:0.8rem;margin-bottom:20px;opacity:0.6;letter-spacing:2px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:10px">${cat.toUpperCase()}</h4>
