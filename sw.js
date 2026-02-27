@@ -1,10 +1,10 @@
 // ==========================================
-// SERVICE WORKER — LEGADO BIBLICO PWA v5
+// SERVICE WORKER — LEGADO BIBLICO PWA v6
 // AUTO-UPDATE: Network First strategy
 // ==========================================
 
 const BASE = '/legado-biblico-interactivo';
-const CACHE_NAME = 'legado-biblico-v5';
+const CACHE_NAME = 'legado-biblico-v6';
 
 const ARCHIVOS_CACHE = [
     `${BASE}/`,
@@ -15,7 +15,7 @@ const ARCHIVOS_CACHE = [
     `${BASE}/data_kids.js`,
     `${BASE}/data_jovenes.js`,
     `${BASE}/data_adultos.js`,
-    `${BASE}/data_teens.js`,
+    `${BASE}/data_teens_v5.js`,
     `${BASE}/versus_engine.js`,
     `${BASE}/firebase-service.js`,
     `${BASE}/manifest.json`,
