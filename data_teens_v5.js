@@ -64,7 +64,7 @@ function renderBibliaDinamicaTeens() {
             <nav class="teen-nav">
                 <button id="nav-btn-lectura" onclick="cambiarSeccionTeen('lectura')" class="nav-active">LECTURA</button>
                 <button id="nav-btn-explorar" onclick="cambiarSeccionTeen('explorar')">BUSCAR</button>
-                <button id="nav-btn-jugar" onclick="cambiarSeccionTeen('jugar')">ARENA</button>
+                <button id="nav-btn-jugar" onclick="cambiarSeccionTeen('jugar')">JUEGOS</button>
             </nav>
             <div id="teen-content-area"></div>
         </div>
@@ -215,7 +215,7 @@ function mostrarToast(msg) {
 function renderJuegoTeens() {
     document.getElementById('teen-content-area').innerHTML = `
         <div style="padding:20px;text-align:center">
-            <h2 style="margin-bottom:30px">ARENA DE ENTRENAMIENTO</h2>
+            <h2 style="margin-bottom:30px">ZONA DE JUEGOS</h2>
             <button onclick="iniciarJuego()" style="width:100%;padding:40px;background:#a29bfe;color:#000;font-weight:900;margin-bottom:15px;border:none;border-radius:20px">TRIVIA RAPIDA (EXAMEN)</button>
             <button onclick="renderConfiguradorTrivia()" style="width:100%;padding:40px;background:#55efc4;color:#000;font-weight:900;border:none;border-radius:20px">TRIVIA POR LIBRO (CONFIGURABLE)</button>
         </div>
