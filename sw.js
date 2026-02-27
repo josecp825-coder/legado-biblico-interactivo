@@ -1,10 +1,10 @@
 // ==========================================
-// SERVICE WORKER — LEGADO BIBLICO PWA v6
+// SERVICE WORKER — LEGADO BIBLICO PWA v8
 // AUTO-UPDATE: Network First strategy
 // ==========================================
 
 const BASE = '/legado-biblico-interactivo';
-const CACHE_NAME = 'legado-biblico-v6';
+const CACHE_NAME = 'legado-biblico-v8';
 
 const ARCHIVOS_CACHE = [
     `${BASE}/`,
