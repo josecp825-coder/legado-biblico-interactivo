@@ -148,6 +148,12 @@ function renderLecturaInmersivaReal(data) {
             <div style="margin-top:30px;line-height:1.8;font-size:1.1rem">
                 ${data.vers.map(v => `<p><span style="color:#55efc4;font-weight:900;margin-right:10px">${v.number}</span>${v.verse}</p>`).join('')}
             </div>
+
+            <div style="margin-top:50px; display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                <button onclick="buscarEnBiblia('${currentLibroSlug}', ${currentCapitulo - 1}).then(d => { if(d) { currentCapitulo--; renderLecturaInmersivaReal(d); window.scrollTo(0,0); } })" style="padding:20px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid #444; border-radius:15px; font-weight:900"> < ANTERIOR</button>
+                <button onclick="buscarEnBiblia('${currentLibroSlug}', ${currentCapitulo + 1}).then(d => { if(d) { currentCapitulo++; renderLecturaInmersivaReal(d); window.scrollTo(0,0); } })" style="padding:20px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid #444; border-radius:15px; font-weight:900">SIGUIENTE ></button>
+                <button onclick="renderSelectorLibros()" style="grid-column: span 2; padding:20px; background:#55efc4; color:#000; border:none; border-radius:15px; font-weight:900; margin-top:10px">SELECCIONAR OTRO LIBRO</button>
+            </div>
         </div>
     `;
     window.scrollTo(0, 0);
