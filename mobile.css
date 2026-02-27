@@ -1,0 +1,297 @@
+/* ============================================================
+   📱 RESPONSIVE MOBILE — LEGADO BÍBLICO
+   Correcciones completas para pantallas pequeñas (< 480px)
+   ============================================================ */
+
+/* === PANTALLA DE INICIO === */
+@media (max-width: 480px) {
+    .intro-container {
+        padding: 20px 16px;
+        justify-content: flex-start;
+        padding-top: 40px;
+    }
+
+    .welcome-text {
+        margin-bottom: 28px;
+    }
+
+    .welcome-text h1 {
+        font-size: 1.9rem;
+        letter-spacing: -0.5px;
+    }
+
+    .welcome-text p {
+        font-size: 0.95rem;
+    }
+
+    /* Input de nombre más cómodo en móvil */
+    #nombre-usuario {
+        width: 100% !important;
+        max-width: 320px !important;
+        font-size: 1rem !important;
+    }
+
+    /* Cards de categoría: 2 columnas en móvil */
+    .category-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .category-card {
+        height: 140px;
+        border-radius: 18px;
+    }
+
+    .category-card h2 {
+        font-size: 1.1rem;
+    }
+
+    .category-card p {
+        font-size: 0.72rem;
+    }
+
+    .card-bg-icon {
+        font-size: 3.5rem;
+    }
+
+    .card-content {
+        padding: 16px;
+    }
+}
+
+/* === PANTALLA DE ESTUDIO (GENERAL) === */
+@media (max-width: 768px) {
+    .container-estudio {
+        padding: 20px 12px !important;
+    }
+
+    .estudio-header {
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .header-info h1 {
+        font-size: 1.6rem !important;
+    }
+
+    .estudio-body {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .glass-panel {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .seccion-accion {
+        grid-column: span 1 !important;
+    }
+
+    /* Biblia premium - textos más manejables */
+    .v-text-dynamic {
+        font-size: 1.3rem !important;
+        line-height: 1.6 !important;
+    }
+
+    .verses-container-dynamic {
+        padding: 25px 16px !important;
+    }
+
+    .v-num-badge {
+        left: 0 !important;
+        position: relative !important;
+        top: auto !important;
+    }
+
+    .verse-block {
+        padding-left: 14px !important;
+        margin-bottom: 30px !important;
+    }
+
+    .verse-block:hover {
+        transform: none !important;
+    }
+
+    /* Header selector de biblia */
+    .selector-header-modern h2 {
+        font-size: 2rem !important;
+        letter-spacing: -1px !important;
+    }
+
+    .bible-selector-container {
+        padding: 16px !important;
+    }
+
+    .testamento-section {
+        padding: 20px !important;
+        border-radius: 20px !important;
+    }
+
+    .libros-grid-premium {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    .btn-libro-premium {
+        padding: 14px 8px !important;
+        font-size: 0.8rem !important;
+        border-radius: 14px !important;
+    }
+
+    .libro-icono {
+        font-size: 1.2rem !important;
+    }
+
+    /* Reader hero (imagen de fondo) */
+    .reader-hero {
+        height: 220px !important;
+        padding: 20px !important;
+        background-attachment: scroll !important;
+        /* Fixed no funciona bien en iOS */
+    }
+
+    .hero-content h2 {
+        font-size: 1.8rem !important;
+        letter-spacing: -1px !important;
+    }
+
+    /* Dual landing panels */
+    .dual-landing-grid {
+        grid-template-columns: 1fr !important;
+        height: auto !important;
+        gap: 16px !important;
+    }
+
+    .hero-panel {
+        height: 200px !important;
+        border-radius: 28px !important;
+    }
+
+    .hero-info {
+        bottom: 20px !important;
+        left: 20px !important;
+    }
+
+    .hero-info h3 {
+        font-size: 2rem !important;
+        letter-spacing: -1px !important;
+    }
+
+    .hero-info p {
+        font-size: 0.8rem !important;
+        letter-spacing: 2px !important;
+    }
+
+    /* Search bar */
+    .search-bar-premium {
+        padding: 5px 18px !important;
+    }
+
+    .search-bar-premium input {
+        font-size: 1rem !important;
+        padding: 12px 0 !important;
+    }
+
+    .category-chips-container {
+        gap: 8px !important;
+    }
+
+    .category-chip {
+        padding: 8px 14px !important;
+        font-size: 0.72rem !important;
+        letter-spacing: 1px !important;
+    }
+
+    /* Footer del reader */
+    .reader-footer {
+        flex-direction: column !important;
+        gap: 16px !important;
+        align-items: flex-start !important;
+    }
+
+    /* Controles flotantes */
+    .immersive-controls {
+        top: 10px !important;
+        right: 10px !important;
+    }
+
+    .btn-reader-tool {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 1rem !important;
+    }
+
+    /* IA analysis card */
+    .ia-analysis-card {
+        padding: 18px !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* === TEMA ADOLESCENTES MÓVIL === */
+@media (max-width: 768px) {
+    .teen-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .theme-adolescentes .header-info h1 {
+        font-size: 2rem !important;
+    }
+
+    .teen-nav {
+        gap: 8px !important;
+    }
+
+    .teen-nav button {
+        padding: 9px 16px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .game-container {
+        padding: 20px 12px !important;
+    }
+
+    .game-header {
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: flex-start !important;
+    }
+
+    .question-text {
+        font-size: 1.1rem !important;
+    }
+
+    .option-btn {
+        padding: 12px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .search-area {
+        padding: 20px 12px !important;
+    }
+
+    .search-box {
+        flex-direction: column !important;
+    }
+
+    .search-box button {
+        padding: 12px !important;
+        border-radius: 10px !important;
+    }
+
+    .bible-text-result {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* === TARJETA DE CONTEXTO (FLOTANTE) === */
+@media (max-width: 480px) {
+    .context-card {
+        width: 95% !important;
+        padding: 18px !important;
+        border-radius: 18px !important;
+        bottom: 16px !important;
+    }
+}
