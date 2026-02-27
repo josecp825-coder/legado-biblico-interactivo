@@ -163,6 +163,7 @@ function renderJuegoTeens() {
     document.getElementById('teen-content-area').innerHTML = `
         <div style="padding:20px;text-align:center">
             <h2 style="margin-bottom:30px">ZONA DE JUEGOS</h2>
+            <button onclick="renderVersusLobby()" style="width:100%;padding:40px;background:linear-gradient(135deg,#ff6b6b,#feca57);color:#000;font-weight:900;margin-bottom:15px;border:none;border-radius:20px">🆚 MODO VERSUS (2 JUGADORES)</button>
             <button onclick="iniciarTriviaRapida()" style="width:100%;padding:40px;background:#a29bfe;color:#000;font-weight:900;margin-bottom:15px;border:none;border-radius:20px">TRIVIA RAPIDA (EXAMEN)</button>
             <button onclick="renderConfiguradorTrivia()" style="width:100%;padding:40px;background:#55efc4;color:#000;font-weight:900;border:none;border-radius:20px">TRIVIA POR LIBRO (EXCLUSIVO)</button>
         </div>
