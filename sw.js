@@ -1,34 +1,36 @@
 // ==========================================
-// SERVICE WORKER — LEGADO BÍBLICO PWA
+// SERVICE WORKER — LEGADO BÍBLICO PWA v2
 // Permite uso OFFLINE y instalación en
 // celular y escritorio como app nativa
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v1';
+const CACHE_NAME = 'legado-biblico-v2';
 
 // Archivos que se guardan para uso sin internet
 const ARCHIVOS_CACHE = [
     './',
     './index.html',
+    './style.css',
     './data_motor.js',
     './data_kids.js',
     './data_jovenes.js',
     './data_adultos.js',
     './data_teens.js',
     './versus_engine.js',
+    './firebase-service.js',
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
     // Imágenes del módulo Niños
-    './biblia_ninos_hero.png.png',
-    './daniel_leones_cartoon.png.png',
-    './noe_arca_cartoon.png.png',
+    './biblia_ninos_hero_1772168630395.png',
+    './daniel_leones_cartoon_1772168642765.png',
+    './noe_arca_cartoon_1772168653149.png',
     // Imágenes del módulo Jóvenes
-    './jovenes_profecia_hero.png.png',
-    './daniel_profecia_timeline.png.png',
+    './jovenes_profecia_hero_1772169591746.png',
+    './daniel_profecia_timeline_1772169603328.png',
     // Imágenes del módulo Adultos
-    './adultos_seminario_hero.png.png',
-    './egw_portrait_adventista.png.png',
+    './adultos_seminario_hero_1772170415343.png',
+    './egw_portrait_adventista_1772170430747.png',
     // Imagen Game Over
     './nino_triste.png.png'
 ];
