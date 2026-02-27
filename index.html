@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGADO BÍBLICO | Elige tu Experiencia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- ✅ PWA — Instalable en celular y escritorio -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Legado Bíblico">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Verificar conexión
+        db.collection(".health_check").doc("status").set({
+            last_online: new Date(),
+            app: "Legado Bíblico"
+        }, { merge: true })
+            .then(() => {
+                console.log("🔥 CONECTADO A FIREBASE - Legado Bíblico está en linea");
+                document.getElementById('db-dot').style.backgroundColor = '#2ed573';
+                document.getElementById('db-text').innerText = 'NUBE CONECTADA';
+            })
+            .catch(e => {
+                console.error("❌ Fallo de conexión a Firebase:", e);
+                document.getElementById('db-dot').style.backgroundColor = '#ff4757';
+                document.getElementById('db-text').innerText = 'MODO OFFLINE';
+            });
+    </script>
+</head>
+
+<body>
+    <div class="intro-container">
+        <div class="welcome-text">
+            <div class="db-status"
+                style="font-size: 0.7rem; opacity: 0.6; display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 10px;">
+                <span id="db-dot"
+                    style="height: 8px; width: 8px; background-color: #bbb; border-radius: 50%; display: inline-block;"></span>
+                <span id="db-text">CONECTANDO A LA NUBE...</span>
+            </div>
+            <h1>LEGADO BÍBLICO</h1>
+            <p>Selecciona tu nivel para comenzar el viaje por la Palabra</p>
+
+            <div class="user-id-box"
+                style="margin-top: 20px; display:flex; flex-direction:column; align-items:center; gap:10px">
+                <input type="text" id="nombre-usuario" placeholder="Tu nombre o apodo..."
+                    style="padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 250px; text-align: center;">
+                <button onclick="entrarComoInvitado()"
+                    style="background:transparent; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.55); padding:8px 22px; border-radius:20px; cursor:pointer; font-size:0.82rem; letter-spacing:1px; transition:0.2s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+                    onmouseout="this.style.background='transparent'">&#128100; Entrar como Invitado</button>
+            </div>
+        </div>
+
+        <div class="category-grid">
+            <!-- NIÑOS -->
+            <div class="category-card card-kids" onclick="seleccionarNivel('niños')">
+                <div class="card-bg-icon">🎨</div>
+                <div class="card-content">
+                    <h2>NIÑOS</h2>
+                    <p>Historias animadas y juegos divertidos</p>
+                </div>
+            </div>
+
+            <!-- ADOLESCENTES -->
+            <div class="category-card card-teens" onclick="seleccionarNivel('adolescentes')">
+                <div class="card-bg-icon">🎧</div>
+                <div class="card-content">
+                    <h2>ADOLESCENTES</h2>
+                    <p>Música, retos y conexión digital</p>
+                </div>
+            </div>
+
+            <!-- JÓVENES -->
+            <div class="category-card card-youth" onclick="seleccionarNivel('jovenes')">
+                <div class="card-youth card-bg-icon">🚀</div>
+                <div class="card-content">
+                    <h2>JÓVENES</h2>
+                    <p>Análisis real para desafíos de hoy</p>
+                </div>
+            </div>
+
+            <!-- ADULTOS -->
+            <div class="category-card card-adults" onclick="seleccionarNivel('adultos')">
+                <div class="card-bg-icon">📜</div>
+                <div class="card-content">
+                    <h2>ADULTOS</h2>
+                    <p>Estudio profundo y sistemático</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pantalla-estudio" class="container-estudio">
+        <!-- El contenido se cargará dinámicamente desde data_motor.js o data_teens.js -->
+    </div>
+
+    <script src="firebase-service.js"></script>
+    <script src="data_motor.js"></script>
+    <script src="data_kids.js"></script>
+    <script src="data_jovenes.js"></script>
+    <script src="data_adultos.js"></script>
+    <script src="data_teens.js"></script>
+    <script src="versus_engine.js"></script>
+    <script>
+        let usuarioActual = {
+            nombre: localStorage.getItem('legado_user_name') || "Invitado",
+            nivel: ""
+        };
+
+        // Si ya hay un nombre guardado, lo ponemos en el input automáticamente
+        window.onload = () => {
+            const savedName = localStorage.getItem('legado_user_name');
+            if (savedName) {
+                document.getElementById('nombre-usuario').value = savedName;
+            }
+        };
+
+        function seleccionarNivel(nivel) {
+            let nombre = document.getElementById('nombre-usuario').value.trim();
+            if (!nombre) {
+                nombre = 'Invitado' + Math.floor(Math.random() * 900 + 100);
+            }
+
+            // Guardar localmente
+            localStorage.setItem('legado_user_name', nombre);
+            usuarioActual.nombre = nombre;
+            usuarioActual.nivel = nivel;
+
+            // 🔥 Iniciar sesión en Firebase (anónimo + perfil en nube)
+            iniciarSesionFirebase(nombre, nivel).then(() => {
+                mostrarToastNube(`¡Bienvenido, ${nombre}! Conectado a la nube ☁️`, 'exito');
+            });
+
+            // Ocultar pantalla de inicio con animación
+            const intro = document.querySelector('.intro-container');
+            intro.style.transition = 'opacity 0.5s ease-out';
+            intro.style.opacity = '0';
+
+            setTimeout(() => {
+                intro.style.display = 'none';
+                const pantallaEstudio = document.getElementById('pantalla-estudio');
+                pantallaEstudio.classList.add('is-active');
+
+                // Aplicar el tema visual según el nivel
+                pantallaEstudio.className = `container-estudio theme-${nivel} is-active`;
+
+                // Carga diferenciada
+                if (nivel === 'adolescentes') {
+                    renderBibliaDinamicaTeens();
+                } else if (nivel === 'niños') {
+                    renderModuloNinos();
+                } else if (nivel === 'jovenes') {
+                    renderModuloJovenes();
+                } else if (nivel === 'adultos') {
+                    renderModuloAdultos();
+                } else {
+                    cargarContenidoPorNivel(nivel);
+                }
+
+                // Scroll al inicio
+                window.scrollTo(0, 0);
+            }, 500);
+        }
+
+        function entrarComoInvitado() {
+            // Asigna nombre de invitado aleatorio y muestra selector de nivel
+            const nombre = 'Invitado' + Math.floor(Math.random() * 900 + 100);
+            document.getElementById('nombre-usuario').value = nombre;
+
+            // Resalta los cards para que el usuario sepa que debe elegir nivel
+            document.querySelectorAll('.category-card').forEach(c => {
+                c.style.animation = 'pulseCard 0.6s ease-in-out 2';
+                c.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.3)';
+                setTimeout(() => { c.style.boxShadow = ''; }, 1500);
+            });
+
+            // Pequeño toast indicador
+            const t = document.createElement('div');
+            t.innerText = '👆 Ahora elige tu sección para continuar';
+            t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#6c5ce7;color:#fff;padding:12px 24px;border-radius:30px;font-size:0.85rem;font-weight:700;z-index:9999;animation:fadeIn 0.3s ease;letter-spacing:1px;';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+    </script>
+</body>
+
+<!-- ✅ REGISTRO DEL SERVICE WORKER PWA -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('[PWA] ✅ Listo para instalar como app'))
+                .catch(err => console.warn('[PWA] Error:', err));
+        });
+    }
+</script>
+
+</html>

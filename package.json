@@ -1,0 +1,19 @@
+{
+    "name": "legado-biblico-interactivo",
+    "version": "1.0.0",
+    "description": "Plataforma interactiva de estudio bíblico profundo - Libro de Isaías",
+    "main": "index.html",
+    "scripts": {
+        "start": "npx serve .",
+        "dev": "npx serve ."
+    },
+    "keywords": [
+        "bible",
+        "study",
+        "education",
+        "isaias",
+        "interactive"
+    ],
+    "author": "Eliteservic",
+    "license": "MIT"
+}

@@ -1,0 +1,20 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (NUNCA subir)
+.env
+.env.local
+
+# Archivos de grabación temporales del agente (.webp)
+*.webp
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
