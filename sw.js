@@ -1,13 +1,11 @@
 // ==========================================
-// SERVICE WORKER — LEGADO BÍBLICO PWA v3
-// Permite uso OFFLINE y instalación en
-// celular y escritorio como app nativa
+// SERVICE WORKER — LEGADO BIBLICO PWA v4
+// AUTO-UPDATE: Network First strategy
 // ==========================================
 
 const BASE = '/legado-biblico-interactivo';
-const CACHE_NAME = 'legado-biblico-v3';
+const CACHE_NAME = 'legado-biblico-v4';
 
-// Archivos que se guardan para uso sin internet
 const ARCHIVOS_CACHE = [
     `${BASE}/`,
     `${BASE}/index.html`,
@@ -22,78 +20,81 @@ const ARCHIVOS_CACHE = [
     `${BASE}/firebase-service.js`,
     `${BASE}/manifest.json`,
     `${BASE}/icon-192.png`,
-    `${BASE}/icon-512.png`,
-    // Imágenes del módulo Niños
-    `${BASE}/biblia_ninos_hero_1772168630395.png`,
-    `${BASE}/daniel_leones_cartoon_1772168642765.png`,
-    `${BASE}/noe_arca_cartoon_1772168653149.png`,
-    // Imágenes del módulo Jóvenes
-    `${BASE}/jovenes_profecia_hero_1772169591746.png`,
-    `${BASE}/daniel_profecia_timeline_1772169603328.png`,
-    // Imágenes del módulo Adultos
-    `${BASE}/adultos_seminario_hero_1772170415343.png`,
-    `${BASE}/egw_portrait_adventista_1772170430747.png`,
-    // Imagen Game Over
-    `${BASE}/nino_triste.png.png`
+    `${BASE}/icon-512.png`
 ];
 
-// INSTALACIÓN — guarda todos los archivos en cache
+// INSTALACION
 self.addEventListener('install', evento => {
-    console.log('[SW] Instalando Legado Bíblico PWA...');
     evento.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('[SW] Guardando archivos en cache...');
             return cache.addAll(ARCHIVOS_CACHE).catch(err => {
-                console.warn('[SW] Algunos archivos no se pudieron cachear:', err);
+                console.warn('[SW] Cache parcial:', err);
             });
         })
     );
+    // Activa inmediatamente sin esperar
     self.skipWaiting();
 });
 
-// ACTIVACIÓN — limpia caches anteriores
+// ACTIVACION — elimina caches viejas y toma control
 self.addEventListener('activate', evento => {
-    console.log('[SW] Activando nueva versión...');
     evento.waitUntil(
         caches.keys().then(claves => {
             return Promise.all(
                 claves
                     .filter(clave => clave !== CACHE_NAME)
-                    .map(clave => {
-                        console.log('[SW] Eliminando cache antigua:', clave);
-                        return caches.delete(clave);
-                    })
+                    .map(clave => caches.delete(clave))
             );
         })
     );
+    // Toma control de todas las pestanas abiertas inmediatamente
     self.clients.claim();
 });
 
-// FETCH — responde con cache si no hay internet
+// FETCH — Network First: siempre intenta la red primero
+// Si no hay internet, usa el cache como respaldo
 self.addEventListener('fetch', evento => {
+    // Solo intercepta peticiones GET
+    if (evento.request.method !== 'GET') return;
+
+    // Para APIs externas (Firebase, Biblia API) — solo red
+    const url = evento.request.url;
+    if (url.includes('firebase') || url.includes('bible-api') || url.includes('firestore')) {
+        return;
+    }
+
     evento.respondWith(
-        caches.match(evento.request).then(respuesta => {
-            if (respuesta) {
-                return respuesta; // Sirve desde cache
-            }
-            // Si no está en cache, intenta la red
-            return fetch(evento.request).then(respuestaRed => {
-                // Solo cachea respuestas válidas
-                if (!respuestaRed || respuestaRed.status !== 200 || respuestaRed.type !== 'basic') {
-                    return respuestaRed;
+        // 1. Intenta la red primero
+        fetch(evento.request)
+            .then(respuestaRed => {
+                // Si la respuesta es valida, actualiza el cache
+                if (respuestaRed && respuestaRed.status === 200) {
+                    const clon = respuestaRed.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(evento.request, clon);
+                    });
                 }
-                const respuestaClon = respuestaRed.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.put(evento.request, respuestaClon);
-                });
                 return respuestaRed;
-            }).catch(() => {
-                // Sin internet y sin cache — muestra página offline básica
-                return new Response(
-                    '<h1 style="color:white;text-align:center;padding:50px;background:#1a0a2e;height:100vh;margin:0;font-family:sans-serif;">📖 Legado Bíblico<br><small style="font-size:0.5em;opacity:0.6;">Conecta a internet para cargar los módulos</small></h1>',
-                    { headers: { 'Content-Type': 'text/html' } }
-                );
-            });
-        })
+            })
+            .catch(() => {
+                // 2. Sin internet — usa el cache
+                return caches.match(evento.request).then(respuestaCache => {
+                    if (respuestaCache) return respuestaCache;
+                    // Sin cache tampoco — pagina offline
+                    if (evento.request.headers.get('accept').includes('text/html')) {
+                        return new Response(
+                            '<html><body style="background:#0F172A;color:#fff;text-align:center;padding:60px;font-family:sans-serif"><h1>Legado Biblico</h1><p style="opacity:0.5">Sin conexion. Reconecta para acceder.</p></body></html>',
+                            { headers: { 'Content-Type': 'text/html' } }
+                        );
+                    }
+                });
+            })
     );
+});
+
+// MENSAJE desde la app para forzar actualizacion
+self.addEventListener('message', evento => {
+    if (evento.data === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
