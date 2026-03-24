@@ -231,10 +231,10 @@
             tarjContainer.innerHTML = `
                 <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; padding:20px; text-align:left;">
                     
-                    <!-- ENCABEZADO MINIMALISTA -->
+                    <!-- ENCABEZADO CON LOGO GLOBO TERRÁQUEO -->
                     <div style="text-align:center; margin-bottom:45px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:30px;">
-                        <span style="font-size:75px; display:block; margin-bottom:15px;">${icono}</span>
-                        <p style="color:#94A3B8; font-size:20px; letter-spacing:4px; font-weight:700; margin:0 0 12px 0;">LEGADO BÍBLICO</p>
+                        <img src="icon-512.png" style="width:160px; height:160px; border-radius:50%; margin:0 auto 20px auto; display:block; object-fit:cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border:4px solid #1E293B; outline:2px solid #fdcb6e;" />
+                        <p style="color:#94A3B8; font-size:22px; letter-spacing:6px; font-weight:900; margin:0 0 12px 0;">LEGADO BÍBLICO</p>
                         <h1 style="font-size:48px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
@@ -261,8 +261,8 @@
             document.body.appendChild(tarjContainer);
 
             try {
-                // Generar Canvas súper rápido (no daña el DOM principal)
-                const canvas = await html2canvas(tarjContainer, { scale: 2, backgroundColor: '#0B0B0E' });
+                // Generar Canvas rápido (useCORS asegura la imagen)
+                const canvas = await html2canvas(tarjContainer, { scale: 2, backgroundColor: '#1E293B', useCORS: true });
                 document.body.removeChild(tarjContainer); // Limpieza instantánea para evitar lag
                 
                 canvas.toBlob(async (blob) => {
