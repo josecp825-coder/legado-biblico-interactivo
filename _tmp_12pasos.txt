@@ -1,0 +1,79 @@
+function _html12PasosSabado() {
+    const ORO = '253,203,110';
+    const banner = `<div style="background:rgba(${ORO},0.08);border:1.5px solid rgba(${ORO},0.35);border-radius:16px;padding:14px;">
+        <div style="color:#fdcb6e;font-weight:900;font-size:0.72rem;letter-spacing:2px;text-align:center;">\u26ea CULTO DE S\u00c1BADO \u2014 PROGRAMA LIT\u00daRGICO</div>
+        <div style="color:rgba(255,255,255,0.3);font-size:0.62rem;text-align:center;margin-top:3px;">12 pasos del programa oficial</div>
+    </div>`;
+    const himnoAdoracion = `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+            <span style="font-size:1.1rem;">\u{1f3b5}</span>
+            <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">6</span>
+            HIMNO DE ADORACI\u00d3N
+        </label>
+        <input type="text" id="culto-sab_himno_anuncia" placeholder="\u00bfQui\u00e9n anuncia el himno?"
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
+        <input type="text" id="culto-sab_himno6" placeholder="# del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.4);color:#fdcb6e;border-radius:8px;outline:none;font-size:0.9rem;font-weight:bold;">
+        <div id="himno-titulo-sab_himno6" style="color:#feca57;font-size:0.75rem;margin-top:5px;font-style:italic;"></div>
+    </div>`;
+    const predicador = `<div style="background:rgba(${ORO},0.1);border:2px solid rgba(${ORO},0.5);border-radius:14px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;color:#fdcb6e;font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+            <span style="font-size:1.1rem;">\u{1f3a4}</span>
+            <span style="color:rgba(0,0,0,0.7);font-size:0.6rem;background:#fdcb6e;padding:2px 8px;border-radius:6px;">10</span>
+            TEMA / PREDICADOR
+        </label>
+        <input type="text" id="culto-sab_pred_anuncia" placeholder="\u00bfQui\u00e9n presenta al predicador?"
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
+        <input type="text" id="culto-sab_predicador" placeholder="Nombre del predicador..."
+            style="width:100%;padding:11px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.5);color:#fdcb6e;border-radius:8px;outline:none;font-size:0.9rem;font-weight:900;margin-bottom:6px;">
+        <input type="text" id="culto-sab_tema" placeholder="T\u00edtulo del serm\u00f3n..."
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;font-style:italic;">
+    </div>`;
+    const himnoFinal = `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+            <span style="font-size:1.1rem;">\u{1f3b6}</span>
+            <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">11</span>
+            HIMNO FINAL
+        </label>
+        <input type="text" id="culto-sab_himno_final_quien" placeholder="\u00bfQui\u00e9n anuncia el himno final?"
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
+        <input type="text" id="culto-sab_himno_final" placeholder="# del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.4);color:#fdcb6e;border-radius:8px;outline:none;font-size:0.9rem;font-weight:bold;">
+        <div id="himno-titulo-sab_himno_final" style="color:#feca57;font-size:0.75rem;margin-top:5px;font-style:italic;"></div>
+    </div>`;
+    return banner +
+        `<div style="background:rgba(255,107,107,0.07);border:2px solid rgba(255,107,107,0.45);border-radius:14px;padding:14px;">
+            <label style="display:flex;align-items:center;gap:8px;color:rgba(255,107,107,0.9);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+                <span style="font-size:1.1rem;">&#x1F9D3;</span>
+                <span style="color:rgba(0,0,0,0.7);font-size:0.6rem;background:#ff6b6b;padding:2px 8px;border-radius:6px;font-weight:900;">&#x2605;</span>
+                ANCIANO(S) DE TURNO
+            </label>
+            <select id="culto-sab_anciano_tipo"
+                style="width:100%;padding:11px 12px;background:rgba(0,0,0,0.45);border:1.5px solid rgba(255,107,107,0.6);color:#ff6b6b;border-radius:10px;outline:none;font-size:0.88rem;font-weight:900;margin-bottom:8px;cursor:pointer;">
+                <option value="">&#x2014; Seleccionar categor&#237;a &#x2014;</option>
+                <option value="Anciano de Turno">&#x1F9D3; Anciano de Turno</option>
+                <option value="Ancianos de Turno">&#x1F9D3;&#x1F9D3; Ancianos de Turno</option>
+                <option value="Anciana de Turno">&#x1F9D2; Anciana de Turno</option>
+                <option value="Ancianas de Turno">&#x1F9D2;&#x1F9D2; Ancianas de Turno</option>
+                <option value="Anciano y Anciana de Turno">&#x1F9D3;&#x1F9D2; Anciano y Anciana de Turno</option>
+            </select>
+            <input type="text" id="culto-sab_anciano" placeholder="Nombre(s) del anciano/a de turno..."
+                style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,107,107,0.5);color:#fff;border-radius:10px;outline:none;font-size:0.95rem;font-weight:700;">
+        </div>` +
+        _campoItem('sab_doxologia', '1', '\u2728', 'DOXOLOG\u00cdA', 'Nombre del responsable...', ORO) +
+        _campoItem('sab_invocacion', '2', '\u{1f64f}', 'INVOCACI\u00d3N', 'Nombre del responsable...', ORO) +
+        _campoItem('sab_bienvenida', '3', '\u{1f64c}', 'BIENVENIDA', 'Nombre del responsable...', ORO) +
+        `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
+            <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+                <span style="font-size:1.1rem;">\u{1f476}</span>
+                <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">4</span>
+                RINC\u00d3N INFANTIL
+            </label>
+            <input type="text" id="culto-sab_infantil_anuncia" placeholder="\u00bfQui\u00e9n anuncia el rinc\u00f3n infantil?"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.25);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
+            <input type="text" id="culto-sab_infantil" placeholder="\u00bfQui\u00e9n conduce el rinc\u00f3n infantil?"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;">
+        </div>` +
+        _campoItem('sab_ofrendas', '5', '\u{1f4b0}', 'DIEZMOS Y OFRENDAS', 'Nombre del encargado...', ORO) +
+        himnoAdoracion +
+        

@@ -1,0 +1,12 @@
+﻿window.compartirCultoActual = function () {
+    const fecha = document.getElementById('culto-fecha')?.value || '';
+    const tipo = document.getElementById('culto-tipo')?.value || '';
+    const fechaF = formatearFechaCulto(fecha);
+    const l = [];
+    l.push('\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550');
+    l.push(`  \u26EA CULTO DE ${tipo.toUpperCase()}`);
+    l.push(`  \u{1F4C5} ${fechaF}`);
+    l.push('\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550');
+    l.push('');
+    const mapa = [['anciano', '\u{1F9D3} Anciano de turno'], ['bienvenida', '\u{1F91D} Bienvenida'], ['oracion1', '\u{1F64F} Oraci\u00f3n'], ['himno1_quien', '\u{1F3B5} Anuncia himno'], ['himno1', '    N\u00famero'], ['lectura', '\u{1F4D6} Lectura'], ['lectura_quien', '    Lector'], ['especial', '\u2B50 Parte Especial'], ['especial_desc', '    Descripci\u00f3n'], ['intercesora', '\u{1F64F} Oraci\u00f3n Intercesora'], ['pred_anuncia', '\u{1F3A4} Presenta al predicador'], ['predicador', '\u{1F399}\uFE0F Predicador'], ['pred_tema', '\u{1F4D1} Tema'], ['pred_texto', '\u{1F4D6} Texto Base'], ['himno2', '\u{1F3B5} Himno Final'], ['oracion_final', '\u{1F64F} Oraci\u00f3n Final'], ['sonido', '\u{1F39B}\uFE0F Sonido'], ['obs', '\u{1F4DD} Observaciones']];
+    mapa.forEach(([id, label]) => { const el = document.getElementById('culto-' + id); const val = el ? el.value.trim() : ''; if (val) { let extra = ''; if (id === 'himno1' || id === 'himno2') { const n = parseInt(val.replace('#', '')); if (typeof HIMNARIO_ADVENTISTA !== 'undefined' && HIMNARIO_ADVENTISTA[n]) extra = ` \u2014 ${

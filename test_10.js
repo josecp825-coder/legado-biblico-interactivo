@@ -1,0 +1,1 @@
+document.getElementById('html-ver-badge').textContent = _HTML_VERSION;

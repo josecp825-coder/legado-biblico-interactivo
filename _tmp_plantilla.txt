@@ -1,0 +1,50 @@
+﻿==========================================
+window.compartirCultoPlantilla = function(id) {
+    var historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    var reg = historial.find(function(h) { return h.id === id; });
+    if (!reg) return;
+    if (typeof mostrarToast === 'function') mostrarToast('Generando imagen...');
+    var fechaF = formatearFechaCulto(reg.fecha);
+    var tipo = (reg.tipo || '').toUpperCase();
+    var container = document.createElement('div');
+    container.style.cssText = 'position:fixed;left:-9999px;top:0;width:650px;z-index:-1;';
+        var s = '';
+    function fila(icono, label, valor, color) { return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span style="color:rgba(255,255,255,0.9);font-size:22px;font-weight:800">' + icono + ' ' + label + '</span><span style="color:' + (color || '#fff') + ';font-size:26px;font-weight:900">' + valor + '</span></div>'; }
+    function secTitulo(icono, titulo, green) { var col = green ? '85,239,196' : '253,203,110'; return '<div style="color:rgba(' + col + ',0.8);font-size:20px;font-weight:900;letter-spacing:2px;padding:14px 20px;background:rgba(' + col + ',0.08);border-radius:10px 10px 0 0;border-bottom:1px solid rgba(' + col + ',0.15)">' + icono + ' ' + titulo + '</div>'; }
+    function cardStart(gold) { return '<div style="background:rgba(' + (gold ? '253,203,110,0.06' : '255,255,255,0.04') + ');border:1px solid rgba(' + (gold ? '253,203,110,0.2' : '255,255,255,0.08') + ');border-radius:0 0 14px 14px;padding:20px 22px">'; }
+    // DIRECCIÃ“N - solo si hay anciano o bienvenida
+    var dir = '';
+    if (reg.anciano) dir += fila('\u{1F9D3}', 'Anciano de turno', reg.anciano, '#ffeaa7');
+    if (reg.bienvenida) dir += fila('\u{1F91D}', 'Bienvenida', reg.bienvenida);
+    if (dir) s += '<div style="margin-bottom:10px">' + secTitulo('\u2720', 'DIRECCI\u00d3N DEL CULTO') + cardStart(true) + dir + '</div></div>';
+    // INICIO - solo si hay oraciÃ³n o himno
+    var ini = '';
+    if (reg.oracion1) ini += fila('\u{1F64F}', 'Primera oraci\u00f3n', reg.oracion1);
+    if (reg.himno1_quien) ini += fila('\u{1F3B5}', 'Anuncia el himno', reg.himno1_quien);
+    if (reg.himno1) { ini += fila('\u{1F3B6}', 'Himno de apertura', reg.himno1, '#ffeaa7'); if (reg.himno1_titulo) ini += '<div style="text-align:right;color:rgba(254,202,87,0.7);font-size:20px;font-style:italic;padding-bottom:6px">' + reg.himno1_titulo + '</div>'; }
+    if (ini) s += '<div style="margin-bottom:10px">' + secTitulo('\u{1F3B5}', 'INICIO DEL CULTO') + cardStart(false) + ini + '</div></div>';
+    // LECTURA - solo si hay lectura
+    var lec = '';
+    if (reg.lectura) lec += fila('\u{1F4D6}', 'Lectura b\u00edblica', reg.lectura, '#7effd4');
+    if (reg.lectura_quien) lec += fila('\u{1F464}', 'Lector', reg.lectura_quien);
+    if (lec) s += '<div style="margin-bottom:10px"><div style="color:rgba(85,239,196,0.8);font-size:20px;font-weight:900;letter-spacing:2px;padding:14px 20px;background:rgba(85,239,196,0.08);border-radius:10px 10px 0 0;border-bottom:1px solid rgba(85,239,196,0.15)">\u{1F4D6} LECTURA B\u00cdBLICA</div><div style="background:rgba(85,239,196,0.05);border:1px solid rgba(85,239,196,0.15);border-radius:0 0 14px 14px;padding:20px 22px">' + lec + '</div></div>';
+    // DESARROLLO - solo si hay algo
+    var des = '';
+    if (reg.especial) des += fila('\u2B50', 'Parte especial', reg.especial);
+    if (reg.especial_desc) des += fila('\u{1F4DD}', 'Descripci\u00f3n', reg.especial_desc);
+    if (reg.intercesora) des += fila('\u{1F64F}', 'Oraci\u00f3n intercesora', reg.intercesora);
+    if (des) s += '<div style="margin-bottom:10px">' + secTitulo('\u2B50', 'DESARROLLO') + cardStart(false) + des + '</div></div>';
+    // PREDICACIÃ“N - solo si hay predicador
+    var pred = '';
+    if (reg.pred_anuncia) pred += fila('\u{1F3A4}', 'Presenta al predicador', reg.pred_anuncia);
+    if (reg.predicador) pred += fila('\u{1F399}\uFE0F', 'Predicador/a', reg.predicador, '#ffeaa7');
+    if (reg.pred_tema) pred += fila('\u{1F4CB}', 'Tema', '"' + reg.pred_tema + '"');
+    if (reg.pred_texto) pred += fila('\u{1F4D6}', 'Texto base', reg.pred_texto, '#7effd4');
+    if (pred) s += '<div style="margin-bottom:10px">' + secTitulo('\u{1F3A4}', 'PREDICACI\u00d3N') + cardStart(true) + pred + '</div></div>';
+    // CIERRE - solo si hay algo
+    var cie = '';
+    if (reg.himno2) { cie += fila('\u{1F3B5}', 'Himno final', reg.himno2, '#ffeaa7'); if (reg.himno2_titulo) cie += '<div style="text-align:right;color:rgba(254,202,87,0.7);font-size:20px;font-style:italic;padding-bottom:6px">' + reg.himno2_titulo + '</div>'; }
+    if (reg.himno2_quien) cie += fila('\u{1F4E2}', 'Anuncia', reg.himno2_quien);
+    if (reg.oracion_final) cie += fila('\u{1F64F}', 'Oraci\u00f3n final', reg.oracion_final);
+    if (reg.sonido) cie += fila('\u{1F39B}\uFE0F', 'Sonido', reg.sonido);
+    if (cie) s += '<div style="margin-bottom:10

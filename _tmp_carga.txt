@@ -1,0 +1,51 @@
+function cargarCultosSemana() {
+    let historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    const query = document.getElementById('search-culto')?.value?.toLowerCase() || '';
+    const contenedor = document.getElementById('historico-cultos');
+    if (!contenedor) return;
+    if (historial.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No hay cultos registrados.</div>`;
+        return;
+    }
+    const filtrados = historial.filter(h => JSON.stringify(h).toLowerCase().includes(query));
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">Sin resultados.</div>`;
+        return;
+    }
+    contenedor.innerHTML = filtrados.map(reg => {
+        const esSab = reg.tipo === 'S\u00e1bado';
+        const color = reg.tipo === 'Mi\u00e9rcoles' ? '#55efc4' : (esSab ? '#fdcb6e' : (reg.tipo === 'Viernes' ? '#ff6b6b' : '#a29bfe'));
+        const camposCheck = esSab
+            ? ['sab_doxologia','sab_invocacion','sab_bienvenida','sab_predicador','sab_tema','sab_himno6','sab_himno_final','sab_oracion_final']
+            : ['anciano','bienvenida','oracion1','himno1','lectura','especial','intercesora','predicador','pred_tema','himno2','oracion_final'];
+        const llenos = camposCheck.filter(c => reg[c] && reg[c].trim()).length;
+        const estado = llenos >= camposCheck.length * 0.7 ? '\u2705 Completo' : `\u26A0\uFE0F ${llenos}/${camposCheck.length}`;
+        const estadoColor = llenos >= camposCheck.length * 0.7 ? '#55efc4' : '#fdcb6e';
+        let resumen = '';
+        if (esSab) {
+            const predicador = reg.sab_predicador || '';
+            const tema = reg.sab_tema || '';
+            const anciano = reg.sab_anciano ? `${reg.sab_anciano_tipo || '\u{1F9D3}'}: ${reg.sab_anciano}` : '';
+            resumen = [
+                anciano ? `<div style="color:rgba(255,107,107,0.8);font-size:0.72rem;font-weight:700;margin-bottom:3px;">\u{1F9D3} ${anciano}</div>` : '',
+                predicador ? `<div style="color:#fff;font-weight:900;font-size:0.9rem;margin-bottom:2px;">\u{1F399}\uFE0F ${predicador}</div>` : '',
+                tema ? `<div style="color:rgba(255,255,255,0.55);font-size:0.78rem;font-style:italic;margin-bottom:8px;">\u{1F4D1} &ldquo;${tema}&rdquo;</div>` : ''
+            ].join('');
+        } else {
+            const predicador = reg.predicador || '';
+            const tema = reg.pred_tema || '';
+            resumen = [
+                predicador ? `<div style="color:#fff;font-weight:900;font-size:0.95rem;margin-bottom:4px;">\u{1F3A4} ${predicador}</div>` : '',
+                tema ? `<div style="color:rgba(255,255,255,0.6);font-size:0.8rem;font-style:italic;margin-bottom:10px;">\u{1F4D1} &ldquo;${tema}&rdquo;</div>` : ''
+            ].join('');
+        }
+        // Detalles expandibles
+        let det = '';
+        if (esSab) {
+            det = [
+                reg.sab_anciano ? `\u{1F9D3} ${reg.sab_anciano_tipo||'Anciano/a'}: ${reg.sab_anciano}` : '',
+                reg.sab_doxologia ? `\u2728 1. Doxolog\u00eda: ${reg.sab_doxologia}` : '',
+                reg.sab_invocacion ? `\u{1F64F} 2. Invocaci\u00f3n: ${reg.sab_invocacion}` : '',
+                reg.sab_bienvenida ? `\u{1F64C} 3. Bienvenida: ${reg.sab_bienvenida}` : '',
+                reg.sab_infantil_anuncia ? `\u{1F4E2} 4. Anuncia rinc\u00f3n: ${reg.sab_infantil_anuncia}` : '',
+    

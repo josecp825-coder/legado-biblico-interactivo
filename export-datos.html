@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exportar Datos - Legado Bíblico</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f0f1a;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    background: #1a1a2e;
+    border: 1px solid #4a4a8a;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 { color: #a78bfa; font-size: 1.5rem; margin-bottom: 8px; }
+  p.sub { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+  .result {
+    background: #0d0d1a;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: left;
+    margin: 12px 0;
+    font-size: 0.75rem;
+    font-family: monospace;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #333;
+    word-break: break-all;
+  }
+  .clave { color: #a78bfa; font-weight: bold; margin-top: 10px; }
+  .vacio { color: #ef4444; }
+  .ok { color: #22c55e; }
+  .btn {
+    display: inline-block;
+    margin: 8px;
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: linear-gradient(135deg,#7c3aed,#4f46e5); color: #fff; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px #7c3aed55; }
+  .btn-copy { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+  .btn-copy:hover { background: #334155; }
+  #status { margin: 20px 0; font-size: 0.9rem; }
+  #json-area {
+    width: 100%;
+    background: #0d0d1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #22c55e;
+    font-family: monospace;
+    font-size: 0.7rem;
+    padding: 12px;
+    min-height: 100px;
+    margin: 12px 0;
+    word-break: break-all;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📤 Exportar Datos — Legado Bíblico</h1>
+  <p class="sub">Lee los datos guardados en este dispositivo y los descarga como archivo JSON.</p>
+
+  <div id="status">Presiona el botón para leer los datos.</div>
+
+  <div>
+    <button class="btn btn-primary" onclick="leerDatos()">🔍 Leer Datos</button>
+    <button class="btn btn-primary" onclick="descargarJSON()" id="btn-dl" style="display:none">💾 Descargar JSON</button>
+    <button class="btn btn-copy" onclick="copiarJSON()" id="btn-copy" style="display:none">📋 Copiar al Portapapeles</button>
+  </div>
+
+  <div class="result" id="resultado" style="display:none"></div>
+  <textarea id="json-area" readonly></textarea>
+</div>
+
+<script>
+const CLAVES = ['legado_eventos','legado_cultos_semanales','legado_liturgias','legado_predicaciones'];
+let datosExportados = {};
+
+function leerDatos() {
+  const resDiv = document.getElementById('resultado');
+  const statusDiv = document.getElementById('status');
+  resDiv.style.display = 'block';
+  resDiv.innerHTML = '';
+  datosExportados = {};
+  let hayDatos = false;
+
+  CLAVES.forEach(clave => {
+    const val = localStorage.getItem(clave);
+    const div = document.createElement('div');
+    div.innerHTML = '<div class="clave">📌 ' + clave + '</div>';
+
+    if (val && val.length > 2) {
+      try {
+        const parsed = JSON.parse(val);
+        const count = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
+        div.innerHTML += '<div class="ok">✅ ' + count + ' registro(s) — ' + val.length + ' caracteres</div>';
+        datosExportados[clave] = parsed;
+        hayDatos = true;
+      } catch(e) {
+        div.innerHTML += '<div class="ok">✅ Dato guardado (' + val.length + ' chars)</div>';
+        datosExportados[clave] = val;
+        hayDatos = true;
+      }
+    } else {
+      div.innerHTML += '<div class="vacio">❌ Vacío o no existe</div>';
+      datosExportados[clave] = null;
+    }
+    resDiv.appendChild(div);
+  });
+
+  const jsonStr = JSON.stringify(datosExportados, null, 2);
+  const jsonArea = document.getElementById('json-area');
+  jsonArea.value = jsonStr;
+  jsonArea.style.display = 'block';
+
+  if (hayDatos) {
+    statusDiv.innerHTML = '<span style="color:#22c55e">✅ Datos encontrados. Descarga el archivo JSON.</span>';
+    document.getElementById('btn-dl').style.display = 'inline-block';
+    document.getElementById('btn-copy').style.display = 'inline-block';
+  } else {
+    statusDiv.innerHTML = '<span style="color:#ef4444">⚠️ No se encontraron datos en este dispositivo/navegador.</span>';
+  }
+}
+
+function descargarJSON() {
+  const jsonStr = JSON.stringify(datosExportados, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'legado_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function copiarJSON() {
+  const jsonStr = JSON.stringify(datosExportados, null, 2);
+  navigator.clipboard.writeText(jsonStr).then(() => {
+    document.getElementById('btn-copy').textContent = '✅ Copiado!';
+    setTimeout(() => {
+      document.getElementById('btn-copy').textContent = '📋 Copiar al Portapapeles';
+    }, 2000);
+  }).catch(() => {
+    document.getElementById('json-area').select();
+    document.execCommand('copy');
+  });
+}
+</script>
+</body>
+</html>

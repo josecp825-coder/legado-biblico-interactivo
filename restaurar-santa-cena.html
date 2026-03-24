@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Restaurar Santa Cena</title>
+<style>
+  body{background:#0f172a;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:20px;}
+  .card{background:#1e293b;border-radius:16px;padding:32px;text-align:center;max-width:400px;width:90%;}
+  .icon{font-size:3rem;margin-bottom:12px;}
+  h2{margin:0 0 8px;font-size:1.2rem;}
+  p{color:rgba(255,255,255,0.6);font-size:0.85rem;margin:0;}
+  .ok{color:#00b894;font-weight:900;}
+  .err{color:#e17055;font-weight:900;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">🍞</div>
+  <h2>Restaurando Santa Cena...</h2>
+  <p id="msg">Por favor espera...</p>
+</div>
+<script>
+try {
+  var evento = {
+    id: 1774016206930,
+    tipo: 'santa_cena',
+    emoji: '🍞',
+    color: '#fdcb6e',
+    titulo: 'Santa Cena',
+    fechaInicio: '2026-03-21',
+    duracion: 1,
+    creadoEn: '2026-03-20T14:00:00.000Z',
+    dias: [{
+      fecha: '2026-03-21',
+      diaSemana: 6,
+      datos: {
+        anciano_tipo: 'Anciano(s) de Turno',
+        anciano: 'Nerllys Maza / Cecilia Wilson',
+        ev_diaconos: 'Marcos Figueroa',
+        ev_diaconisas: 'Yulima Maza',
+        ev_llamado: 'Haston Vargas',
+        ev_doxologia: '55',
+        titulo_ev_doxologia: 'Grande, Señor, es tu misericordia',
+        ev_invocacion: 'Pr. Rafael Solano',
+        ev_bienvenida: 'Cecilia Wilson',
+        ev_ofrendas_anuncia: 'Haston Tomas',
+        ev_ofrendas: 'Logan Vargas',
+        ev_ofrendas_diaconisa: 'Fermin Hernandez',
+        ev_himno_anuncia: 'Cecilia Wilson',
+        ev_himno_adoracion: '248',
+        titulo_ev_himno_adoracion: 'Que mi vida entera esté',
+        ev_lectura_quien: 'Luz Lopez',
+        ev_lectura_cita: 'Juan 6: 48-50',
+        ev_oracion_intercesora: 'Nerlys Maza',
+        ev_pred_anuncia: 'Cecilia Wilson',
+        ev_predicador: 'Pr. Rafael Solano',
+        ev_tema: 'El Pan De Vida',
+        ev_himno_final_quien: 'Nerlys Maza',
+        ev_himno_final: '293',
+        titulo_ev_himno_final: '¿Quieres ser salvo de toda maldad ?',
+        ev_oracion_final: 'Pr. Rafael Solano',
+        ev_sonido: 'Freddy',
+        sc_diacono_1_nombre: 'Flavio Candelario',
+        sc_diacono_1_funcion: 'Entregar el Pan',
+        sc_diacono_2_nombre: 'Juan Gutiérrez',
+        sc_diacono_2_funcion: 'Entregar el Pan',
+        sc_diacono_3_nombre: 'Juan Antigua',
+        sc_diacono_3_funcion: 'Entregar el Vino',
+        sc_diacono_4_nombre: 'Ernesto Valencia',
+        sc_diacono_4_funcion: 'Entregar el Vino',
+        sc_diaconiza_1_nombre: 'Donil Ortega',
+        sc_diaconiza_1_funcion: 'Descubrimiento de la Mesa',
+        sc_diaconiza_2_nombre: 'Wanda Núñez',
+        sc_diaconiza_2_funcion: 'Descubrimiento de la Mesa',
+        sc_diaconiza_3_nombre: 'Luz Lopez',
+        sc_diaconiza_3_funcion: 'Cubrimiento de la Mesa',
+        sc_diaconiza_4_nombre: 'Maria Tomas',
+        sc_diaconiza_4_funcion: 'Cubrimiento de la Mesa',
+        sc_lectura_pan: 'José Lopez',
+        sc_oracion_pan: 'José Castillo',
+        sc_lectura_vino: 'José Luis Candelario',
+        sc_oracion_vino: 'Obed Lopez',
+        sc_ordenador: 'Pr. Rafael Solano',
+        sc_oracion_final: 'Pr. Rafael Solano'
+      }
+    }]
+  };
+  var eventosExistentes = JSON.parse(localStorage.getItem('legado_eventos') || '[]');
+  eventosExistentes = eventosExistentes.filter(function(e) { return e.id !== evento.id; });
+  eventosExistentes.unshift(evento);
+  localStorage.setItem('legado_eventos', JSON.stringify(eventosExistentes));
+  document.getElementById('msg').innerHTML = '<span class="ok">✅ Evento guardado correctamente sin borrar otros</span><br><br>Redirigiendo a la app...';
+  setTimeout(function() {
+    window.location.href = 'index.html'; // Para que funcione tanto en dev local como en pro
+
+  }, 2000);
+} catch(e) {
+  document.getElementById('msg').innerHTML = '<span class="err">❌ Error: ' + e.message + '</span>';
+}
+</script>
+</body>
+</html>

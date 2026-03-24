@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥 Recuperar Cultos desde Firebase</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',sans-serif; background:#0a0818; color:#e0e0e0; min-height:100vh; padding:20px; }
+  .card { background:#1a1a2e; border:1px solid #4a4a8a; border-radius:16px; padding:24px; max-width:680px; margin:0 auto 20px; }
+  h1 { color:#a78bfa; font-size:1.4rem; margin-bottom:6px; }
+  p.sub { color:#888; font-size:0.85rem; margin-bottom:20px; }
+  .btn { display:inline-block; padding:12px 28px; border-radius:50px; border:none; cursor:pointer; font-size:1rem; font-weight:700; margin:6px; transition:all 0.2s; }
+  .btn-fire { background:linear-gradient(135deg,#ff6b6b,#ee5a24); color:#fff; }
+  .btn-fire:hover { transform:translateY(-2px); }
+  .btn-save { background:linear-gradient(135deg,#00b894,#00cec9); color:#000; }
+  .btn-dl { background:linear-gradient(135deg,#6c5ce7,#a29bfe); color:#fff; }
+  #status { padding:12px; border-radius:8px; margin:12px 0; font-size:0.9rem; }
+  .ok  { background:rgba(0,184,148,0.15); border:1px solid #00b894; color:#00b894; }
+  .err { background:rgba(255,107,107,0.15); border:1px solid #ff6b6b; color:#ff6b6b; }
+  .info{ background:rgba(162,155,254,0.15); border:1px solid #a29bfe; color:#a29bfe; }
+  .culto-card { background:#0d0d1a; border:1px solid #333; border-radius:10px; padding:14px; margin:8px 0; border-left:4px solid #a29bfe; }
+  .culto-card h3 { color:#a29bfe; font-size:0.85rem; margin-bottom:6px; }
+  .culto-card p  { color:#aaa; font-size:0.75rem; line-height:1.7; }
+  .count-badge { display:inline-block; background:#a29bfe; color:#000; border-radius:50%; width:28px; height:28px; text-align:center; line-height:28px; font-weight:900; margin-right:8px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🔥 Recuperar Cultos desde Firebase</h1>
+  <p class="sub">Consulta directamente la base de datos en la nube de Legado Bíblico sin necesidad de iniciar sesión.</p>
+  <div>
+    <button class="btn btn-fire" onclick="consultarFirebase()">🔥 Consultar Firebase Ahora</button>
+  </div>
+  <div id="status" class="info">Presiona el botón para consultar la base de datos.</div>
+  <div id="resultados"></div>
+  <div id="acciones" style="display:none; margin-top:16px;">
+    <button class="btn btn-save" onclick="restaurarEnLocalStorage()">✅ Restaurar en esta App</button>
+    <button class="btn btn-dl"   onclick="descargarJSON()">💾 Descargar JSON</button>
+  </div>
+</div>
+
+<script>
+const PROJECT_ID  = 'legado-biblico';
+const API_KEY     = 'AIzaSyDfI4gCyaFZkYnTVNlNsQM_ivdjCi9xhOA';
+const IGLESIA_ID  = 'cypress_hills_brooklyn';
+const BASE_URL    = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents';
+
+let cultosRecuperados = [];
+
+function firestoreDocToObj(doc) {
+  const obj   = {};
+  const fields = doc.fields || {};
+  for (const key in fields) {
+    const v = fields[key];
+    if      (v.stringValue  !== undefined) obj[key] = v.stringValue;
+    else if (v.integerValue !== undefined) obj[key] = parseInt(v.integerValue);
+    else if (v.doubleValue  !== undefined) obj[key] = v.doubleValue;
+    else if (v.booleanValue !== undefined) obj[key] = v.booleanValue;
+    else if (v.nullValue    !== undefined) obj[key] = null;
+    else obj[key] = JSON.stringify(v);
+  }
+  return obj;
+}
+
+async function consultarFirebase() {
+  const statusEl    = document.getElementById('status');
+  const resultadosEl = document.getElementById('resultados');
+  statusEl.className = 'info';
+  statusEl.textContent = '⏳ Consultando Firestore via REST API...';
+  resultadosEl.innerHTML = '';
+  document.getElementById('acciones').style.display = 'none';
+  cultosRecuperados = [];
+
+  try {
+    const url = BASE_URL + '/iglesias/' + IGLESIA_ID + '/cultos?key=' + API_KEY + '&pageSize=300';
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      const msg = (data.error && data.error.message) ? data.error.message : JSON.stringify(data);
+      statusEl.className   = 'err';
+      statusEl.textContent = '❌ Error Firestore: ' + msg;
+      return;
+    }
+
+    if (!data.documents || data.documents.length === 0) {
+      statusEl.className  = 'err';
+      statusEl.innerHTML  = '⚠️ <strong>No se encontraron cultos en Firebase.</strong><br>'
+        + '<small>Es probable que el sync de Firebase no estaba activo cuando se registraron los cultos.</small>';
+      return;
+    }
+
+    cultosRecuperados = data.documents
+      .map(firestoreDocToObj)
+      .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    statusEl.className  = 'ok';
+    statusEl.innerHTML  = '<span class="count-badge">' + cultosRecuperados.length + '</span>'
+      + ' <strong>¡Cultos encontrados en Firebase!</strong> Puedes restaurarlos ahora.';
+
+    resultadosEl.innerHTML = cultosRecuperados.map(function(c) {
+      var predicador = c.predicador || c.sab_predicador || '—';
+      var tema       = c.pred_tema  || c.sab_tema       || '—';
+      return '<div class="culto-card">'
+        + '<h3>⛪ ' + (c.tipo || '?') + ' — ' + (c.fecha || '?') + '</h3>'
+        + '<p>🎤 <strong>Predicador:</strong> ' + predicador + '</p>'
+        + '<p>📖 <strong>Tema:</strong> ' + tema + '</p>'
+        + '</div>';
+    }).join('');
+
+    document.getElementById('acciones').style.display = 'block';
+
+  } catch(e) {
+    statusEl.className   = 'err';
+    statusEl.textContent = '❌ Error de red: ' + e.message;
+  }
+}
+
+function restaurarEnLocalStorage() {
+  if (!cultosRecuperados.length) return;
+  var existentes = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+  var idsExist   = new Set(existentes.map(function(c){ return String(c.id); }));
+  var nuevos     = cultosRecuperados.filter(function(c){ return !idsExist.has(String(c.id)); });
+  var combinados = existentes.concat(nuevos).sort(function(a,b){ return new Date(b.fecha) - new Date(a.fecha); });
+  localStorage.setItem('legado_cultos_semanales', JSON.stringify(combinados));
+  alert('✅ ' + combinados.length + ' cultos restaurados.\n\nAbre la app y verlos en el historial de cultos.');
+}
+
+function descargarJSON() {
+  if (!cultosRecuperados.length) return;
+  var blob = new Blob([JSON.stringify(cultosRecuperados, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'cultos_firebase_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TEST CANVAS — Verificacion Pre-Deploy</title>
+  <style>
+    body { background: #0a0a0a; margin: 0; padding: 20px; font-family: monospace; }
+    h2 { color: #00b894; margin: 0 0 10px; }
+    #info { color: #00b894; padding: 10px; font-size: 1.1rem; font-weight: bold; }
+    #checks { color: white; padding: 10px; line-height: 1.8; }
+    .ok   { color: #00b894; }
+    .fail { color: #ff6b6b; }
+    .warn { color: #fdcb6e; }
+    canvas { border: 2px solid #00b894; display: block; max-width: 100%; margin-top: 16px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+<h2>🔬 TEST CANVAS — Pre-Deploy Verificacion</h2>
+<div id="info">⏳ Generando canvas de prueba...</div>
+<div id="checks"></div>
+<canvas id="result-canvas"></canvas>
+
+<script>
+// ================================================================
+// DATOS DE PRUEBA — Semana de Mayordomia
+// ================================================================
+var EV_TEST = {
+    id: 'test-mayordomia',
+    titulo: 'Mayordomia desde la Perspectiva Divina',
+    color: '#00b894',
+    emoji: '\uD83D\uDE4F\uD83D\uDC6A\u231A\uD83D\uDCB0',
+    dias: [{
+        fecha: '2026-03-15',
+        diaSemana: 0,
+        datos: {
+            orador_apertura: 'Obed Lopez',
+            anuncia_himno_apertura: 'Jose Castillo',
+            himno_apertura: '236',
+            titulo_himno_apertura: 'A Jesus entregame todo',
+            cita_biblica: '2 Reyes 4:8-11',
+            orador: 'PR. Rafael Solano',
+            tema: 'El El Mayordomo Administrador Fiel de Dios'
+        }
+    }]
+};
+
+var COLORES_DIA = [
+    {hex:'#e74c3c',nombre:'Domingo'},{hex:'#e67e22',nombre:'Lunes'},
+    {hex:'#f1c40f',nombre:'Martes'},{hex:'#2ecc71',nombre:'Miercoles'},
+    {hex:'#1abc9c',nombre:'Jueves'},{hex:'#3498db',nombre:'Viernes'},
+    {hex:'#9b59b6',nombre:'Sabado'}
+];
+
+// Stub funciones de la app
+function mostrarToast(m) { console.log('Toast:', m); }
+function _evtGetDiasSeleccionados() { return [0]; }
+
+// localStorage simulado
+var _fakeLS = {
+    getItem: function(k) {
+        if (k === 'legado_eventos') return JSON.stringify([EV_TEST]);
+        return null;
+    }
+};
+// ================================================================
+// FUNCION generarPlantillaEvento — copiada de _pdf_eventos.js
+// ================================================================
+window.generarPlantillaEvento = function(eventoId, modo) {
+    var eventos = JSON.parse(_fakeLS.getItem('legado_eventos') || '[]');
+    var ev = eventos.find(function(e) { return e.id === eventoId; });
+    if (!ev) { document.getElementById('info').textContent = 'ERROR: Evento no encontrado'; return; }
+
+    var idxSel = (ev.dias || []).map(function(_, i) { return i; });
+    var dias = (ev.dias || []).filter(function(_, i) { return idxSel.includes(i); });
+
+    var C   = ev.color || '#00b894';
+    var W   = 1080;
+    var PAD = 48;
+    var GAP = 8;
+    var LBL_H = 26;
+    var VAL_H = 34;
+
+    function hexRgb(hex) {
+        var h = hex.replace('#','');
+        return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+    }
+    function rr(ctx, x, y, w, h, r) {
+        if (typeof r === 'number') r = [r,r,r,r];
+        ctx.beginPath();
+        ctx.moveTo(x+r[0], y);
+        ctx.lineTo(x+w-r[1], y); ctx.arcTo(x+w, y, x+w, y+r[1], r[1]);
+        ctx.lineTo(x+w, y+h-r[2]); ctx.arcTo(x+w, y+h, x+w-r[2], y+h, r[2]);
+        ctx.lineTo(x+r[3], y+h); ctx.arcTo(x, y+h, x, y+h-r[3], r[3]);
+        ctx.lineTo(x, y+r[0]); ctx.arcTo(x, y, x+r[0], y, r[0]);
+        ctx.closePath();
+    }
+
+    var cRGB = hexRgb(C);
+    var cR = cRGB[0], cG = cRGB[1], cB = cRGB[2];
+    var mCtx = document.createElement('canvas').getContext('2d');
+
+    function splitLines(txt, font, maxW) {
+        mCtx.font = font;
+        var words = String(txt).split(' ');
+        var lines = [], cur = '';
+        words.forEach(function(w) {
+            var t = cur ? cur + ' ' + w : w;
+            if (mCtx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; }
+            else { cur = t; }
+        });
+        if (cur) lines.push(cur);
+        return lines.length ? lines : [''];
+    }
+    function titleFont(txt, maxW) {
+        var sz = 54;
+        mCtx.font = 'bold ' + sz + 'px Arial,sans-serif';
+        while (mCtx.measureText(txt).width > maxW && sz > 28) {
+            sz -= 2; mCtx.font = 'bold ' + sz + 'px Arial,sans-serif';
+        }
+        return sz;
+    }
+
+    var VAL_FONT  = 'bold 28px Arial,sans-serif';
+    var LBL_FONT  = '22px Arial,sans-serif';
+    var PILL_H    = 64;
+    var HDR_H     = 340;
+    var FOOTER_H  = 70;
+    var CAMPO_MAX = W - PAD*2 - 20;
+
+    var CAMPOS = ['orador_apertura','anuncia_himno_apertura','himno_apertura',
+        'anuncia_lectura','cita_biblica','orador','presenta_orador','tema',
+        'anuncia_especial','musica_especial','presenta_himno_final',
+        'himno_final','orador_oracion','observaciones'];
+    var LABELS = {
+        'orador_apertura':'Apertura','anuncia_himno_apertura':'Anuncia himno',
+        'himno_apertura':'Himno apertura','anuncia_lectura':'Lectura biblica',
+        'cita_biblica':'Cita','orador':'Orador / Predicador',
+        'presenta_orador':'Presenta orador','tema':'Tema',
+        'anuncia_especial':'Parte especial','musica_especial':'Musica especial',
+        'presenta_himno_final':'Presenta himno final','himno_final':'Himno final',
+        'orador_oracion':'Oracion final','observaciones':'Notas'
+    };
+    function getValor(campo, d) {
+        if (campo === 'himno_apertura' && d.himno_apertura)
+            return '#' + d.himno_apertura + (d.titulo_himno_apertura ? ' - ' + d.titulo_himno_apertura : '');
+        if (campo === 'himno_final' && d.himno_final)
+            return '#' + d.himno_final + (d.titulo_himno_final ? ' - ' + d.titulo_himno_final : '');
+        return d[campo] || '';
+    }
+
+    var bodyH = 0;
+    dias.forEach(function(dia) {
+        var d = dia.datos || {};
+        bodyH += PILL_H + GAP + 4;
+        CAMPOS.forEach(function(campo) {
+            var v = getValor(campo, d);
+            if (!v) return;
+            var lines = splitLines(v, VAL_FONT, CAMPO_MAX);
+            bodyH += LBL_H + lines.length * VAL_H + 10 + GAP;
+        });
+        bodyH += 20;
+    });
+    var H = HDR_H + bodyH + FOOTER_H + 20;
+
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // FONDO
+    var bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, 'rgb(' + Math.round(cR*0.10) + ',' + Math.round(cG*0.14) + ',' + Math.round(cB*0.10) + ')');
+    bg.addColorStop(1, 'rgb(3,8,6)');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = C; ctx.fillRect(0, 0, 7, H);
+
+    // CABECERA
+    var hdr = ctx.createLinearGradient(0, 0, W, HDR_H);
+    hdr.addColorStop(0, 'rgba(' + cR + ',' + cG + ',' + cB + ',0.30)');
+    hdr.addColorStop(1, 'rgba(' + cR + ',' + cG + ',' + cB + ',0.04)');
+    ctx.fillStyle = hdr; ctx.fillRect(0, 0, W, HDR_H);
+
+    // 1. Nombre iglesia
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.font = 'bold 28px Arial,sans-serif';
+    ctx.fillText('IGLESIA ADVENTISTA CYPRESS HILLS', W / 2, 46);
+    ctx.strokeStyle = 'rgba(' + cR + ',' + cG + ',' + cB + ',0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(W/2 - 220, 54); ctx.lineTo(W/2 + 220, 54); ctx.stroke();
+
+    // 2. Titulo
+    var titMaxW = W - 80;
+    var titTxt = ev.titulo.toUpperCase();
+    var titSz = titleFont(titTxt, titMaxW);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold ' + titSz + 'px Arial,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(titTxt, W / 2, 72 + titSz);
+
+    // 3. TARJETAS DE CONCEPTO — puro canvas
+    var conceptY = 72 + titSz + 18;
+    if (ev.color === '#00b894') {
+        var CONCEPTS = [
+            { sym: '\u271D', label: 'LO DIVINO',  r: 162, g: 96,  b: 235 },
+            { sym: '\u2665', label: 'FAMILIA',     r: 85,  g: 239, b: 196 },
+            { sym: '\u25F7', label: 'EL TIEMPO',   r: 116, g: 185, b: 255 },
+            { sym: '\u0024', label: 'FINANZAS',    r: cR,  g: cG,  b: cB  }
+        ];
+        var pW = 220, pH = 80, pGap = 16;
+        var totalPW = CONCEPTS.length * pW + (CONCEPTS.length - 1) * pGap;
+        var pStartX = (W - totalPW) / 2;
+        CONCEPTS.forEach(function(c, i) {
+            var px = pStartX + i * (pW + pGap);
+            ctx.fillStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',0.18)';
+            rr(ctx, px, conceptY, pW, pH, 16); ctx.fill();
+            ctx.strokeStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',0.65)';
+            ctx.lineWidth = 2;
+            rr(ctx, px, conceptY, pW, pH, 16); ctx.stroke();
+            ctx.fillStyle = 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
+            ctx.font = 'bold 32px Arial,sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(c.sym, px + pW / 2, conceptY + 38);
+            ctx.fillStyle = 'rgba(255,255,255,0.90)';
+            ctx.font = 'bold 18px Arial,sans-serif';
+            ctx.fillText(c.label, px + pW / 2, conceptY + 64);
+        });
+        conceptY += pH + 14;
+    } else { conceptY += 10; }
+
+    // 4. Badge fecha
+    var f0 = dias[0].fecha.split('-').reverse().join('/');
+    var fN = dias[dias.length-1].fecha.split('-').reverse().join('/');
+    var fechaStr = dias.length === 1 ? f0 : f0 + ' al ' + fN;
+    ctx.font = 'bold 26px Arial,sans-serif'; ctx.textAlign = 'center';
+    var bw = ctx.measureText(fechaStr).width + 56;
+    var bx = (W - bw) / 2;
+    ctx.fillStyle = 'rgba(' + cR + ',' + cG + ',' + cB + ',0.22)';
+    rr(ctx, bx, conceptY, bw, 40, 20); ctx.fill();
+    ctx.strokeStyle = 'rgba(' + cR + ',' + cG + ',' + cB + ',0.7)';
+    ctx.lineWidth = 2; rr(ctx, bx, conceptY, bw, 40, 20); ctx.stroke();
+    ctx.fillStyle = '#ffffff'; ctx.fillText(fechaStr, W / 2, conceptY + 27);
+    ctx.textAlign = 'left';
+
+    // Linea separadora
+    ctx.strokeStyle = 'rgba(' + cR + ',' + cG + ',' + cB + ',0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD, HDR_H - 4); ctx.lineTo(W - PAD, HDR_H - 4); ctx.stroke();
+
+    // DIAS
+    var DIAS_N = ['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+    var MESES  = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    var y = HDR_H + 16;
+
+    dias.forEach(function(dia) {
+        var d = dia.datos || {};
+        var col = COLORES_DIA[dia.diaSemana] || { hex: C };
+        var dRGB = hexRgb(col.hex);
+        var dR = dRGB[0], dG = dRGB[1], dB = dRGB[2];
+        var fObj = new Date(dia.fecha + 'T12:00:00');
+        var textodia = (DIAS_N[dia.diaSemana]||'').toUpperCase() + ' ' + fObj.getDate() + ' DE ' + (MESES[fObj.getMonth()]||'').toUpperCase();
+
+        ctx.fillStyle = 'rgba(' + dR + ',' + dG + ',' + dB + ',0.20)';
+        rr(ctx, PAD, y, W - PAD*2, PILL_H, 20); ctx.fill();
+        ctx.strokeStyle = 'rgba(' + dR + ',' + dG + ',' + dB + ',0.55)';
+        ctx.lineWidth = 1.5; rr(ctx, PAD, y, W - PAD*2, PILL_H, 20); ctx.stroke();
+        ctx.fillStyle = col.hex; ctx.font = 'bold 30px Arial,sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(textodia, PAD + 28, y + 40);
+        y += PILL_H + GAP + 4;
+
+        CAMPOS.forEach(function(campo) {
+            var v = getValor(campo, d);
+            if (!v) return;
+            var label = LABELS[campo] || campo;
+            var lines = splitLines(v, VAL_FONT, CAMPO_MAX);
+            var cardH = LBL_H + lines.length * VAL_H + 10;
+            ctx.fillStyle = 'rgba(' + dR + ',' + dG + ',' + dB + ',0.07)';
+            rr(ctx, PAD, y, W - PAD*2, cardH, 12); ctx.fill();
+            ctx.fillStyle = col.hex; rr(ctx, PAD, y, 5, cardH, [12,0,0,12]); ctx.fill();
+            ctx.fillStyle = 'rgba(' + dR + ',' + dG + ',' + dB + ',0.85)';
+            ctx.font = LBL_FONT; ctx.textAlign = 'left';
+            ctx.fillText(label.toUpperCase() + ':', PAD + 20, y + LBL_H - 2);
+            ctx.fillStyle = '#ffffff'; ctx.font = VAL_FONT;
+            lines.forEach(function(line, li) {
+                ctx.fillText(line, PAD + 20, y + LBL_H + VAL_H * (li + 1) - 4);
+            });
+            y += cardH + GAP;
+        });
+        y += 20;
+    });
+
+    // FOOTER
+    ctx.fillStyle = 'rgba(' + cR + ',' + cG + ',' + cB + ',0.10)';
+    ctx.fillRect(0, H - FOOTER_H, W, FOOTER_H);
+    ctx.fillStyle = 'rgba(' + cR + ',' + cG + ',' + cB + ',0.7)';
+    ctx.font = 'bold 22px Arial,sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('Legado Biblico - Iglesia Adventista Cypress Hills', PAD, H - 26);
+
+    // ============================================================
+    // VERIFICACION AUTOMATICA
+    // ============================================================
+    var divInfo  = document.getElementById('info');
+    var divCheck = document.getElementById('checks');
+    var resultCanvas = document.getElementById('result-canvas');
+    resultCanvas.width  = W;
+    resultCanvas.height = H;
+    resultCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+    var checks = [];
+    var failed = 0;
+
+    function chk(label, pass, detail) {
+        if (pass) {
+            checks.push('<span class="ok">✅ ' + label + (detail ? ' — ' + detail : '') + '</span>');
+        } else {
+            checks.push('<span class="fail">❌ FAIL: ' + label + (detail ? ' — ' + detail : '') + '</span>');
+            failed++;
+        }
+    }
+    function warn(label, detail) {
+        checks.push('<span class="warn">⚠️ WARN: ' + label + (detail ? ' — ' + detail : '') + '</span>');
+    }
+
+    chk('Canvas creado', !!canvas);
+    chk('Ancho 1080px', canvas.width === 1080, 'w=' + canvas.width);
+    chk('Alto > 500px', canvas.height > 500, 'h=' + canvas.height);
+    chk('HDR_H razonable', HDR_H >= 248, 'HDR_H=' + HDR_H);
+    chk('titSz > 0', titSz > 0, 'titSz=' + titSz);
+    chk('titSz <= 54', titSz <= 54, 'titSz=' + titSz);
+
+    // Pixel check header
+    var pxHdr = ctx.getImageData(W/2, 30, 1, 1).data;
+    chk('Header NO negro puro', !(pxHdr[0]===0 && pxHdr[1]===0 && pxHdr[2]===0),
+        'R:'+pxHdr[0]+' G:'+pxHdr[1]+' B:'+pxHdr[2]);
+
+    // Pixel check concepto cards area (y=180 para Mayordomia)
+    var pxCard = ctx.getImageData(W/2, 200, 1, 1).data;
+    chk('Tarjetas concepto con color', !(pxCard[0]===0 && pxCard[1]===0 && pxCard[2]===0),
+        'R:'+pxCard[0]+' G:'+pxCard[1]+' B:'+pxCard[2]);
+
+    // Pixel check contenido de dias (debajo de HDR_H)
+    var pxBody = ctx.getImageData(80, HDR_H + 90, 1, 1).data;
+    if (pxBody[0]===0 && pxBody[1]===0 && pxBody[2]===0) {
+        warn('Zona cuerpo muy oscura', 'R:'+pxBody[0]+' G:'+pxBody[1]+' B:'+pxBody[2]);
+    } else {
+        checks.push('<span class="ok">✅ Zona cuerpo con pixels — OK</span>');
+    }
+
+    chk('4 tarjetas de concepto',
+        ev.color === '#00b894' && conceptY > (72 + titSz + 80),
+        'conceptY=' + conceptY);
+
+    divCheck.innerHTML = '<b style="color:#a29bfe">VERIFICACIONES AUTOMATICAS:</b><br>' + checks.join('<br>');
+    divInfo.textContent = failed === 0
+        ? '✅ LISTO PARA DEPLOY — ' + checks.length + ' checks pasados'
+        : '❌ ' + failed + ' CHECKS FALLARON — NO desplegar sin corregir';
+    divInfo.style.color = failed === 0 ? '#00b894' : '#ff6b6b';
+};
+
+// Ejecutar
+window.generarPlantillaEvento('test-mayordomia', 'todos');
+</script>
+</body>
+</html>
+

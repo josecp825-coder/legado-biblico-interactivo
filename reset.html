@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actualizar Legado Bíblico</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',sans-serif; background:#0a0818; color:#fff;
+         min-height:100vh; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; padding:24px; }
+  .icon { font-size:3.5rem; margin-bottom:14px; }
+  h1 { color:#a29bfe; font-size:1.2rem; margin-bottom:6px; text-align:center; }
+  .sub { color:rgba(255,255,255,0.4); font-size:0.8rem; text-align:center; margin-bottom:20px; }
+  .log { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+         border-radius:12px; padding:14px; width:100%; max-width:380px;
+         font-size:0.72rem; color:#55efc4; font-family:monospace; line-height:2; min-height:80px;}
+  .err { color:#ff6b6b; }
+  .aviso { margin-top:20px; background:rgba(116,185,255,0.1);
+           border:2px solid rgba(116,185,255,0.4); border-radius:14px;
+           padding:16px; text-align:center; max-width:380px; }
+  .aviso strong { color:#74b9ff; font-size:1rem; display:block; margin-bottom:8px; }
+  .aviso p { color:rgba(255,255,255,0.7); font-size:0.85rem; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="icon" id="ico">⏳</div>
+<h1 id="titulo">Limpiando caché...</h1>
+<p class="sub">No cierres esta página todavía</p>
+<div class="log" id="log">Iniciando...</div>
+<div class="aviso" id="aviso" style="display:none;">
+  <strong>✅ ¡Listo! Limpieza completada</strong>
+  <p>Ahora:<br><br>
+  1️⃣ <strong>Cierra esta pestaña de Chrome</strong><br><br>
+  2️⃣ <strong>Abre la app Legado Bíblico</strong> desde tu pantalla de inicio<br><br>
+  Ya tendrás la versión nueva.</p>
+</div>
+
+<script>
+var log = document.getElementById('log');
+var ico = document.getElementById('ico');
+var titulo = document.getElementById('titulo');
+var aviso = document.getElementById('aviso');
+
+function line(txt, tipo) {
+  log.innerHTML += '<br><span class="'+(tipo||'')+'">' + txt + '</span>';
+}
+
+async function doReset() {
+  // 1. Guardar datos
+  var saved = {};
+  ['legado_user_name','legado_cultos_semanales','legado_liturgias',
+   'legado_font_paso','cal_bio_registered','cal_bio_cred_id','cal_director',
+   'plan_ano_biblico','plan_fecha_inicio','plan_dias_leidos',
+   'legado_eventos','legado_predicaciones'
+  ].forEach(function(k) {
+    var v = localStorage.getItem(k);
+    if (v) saved[k] = v;
+  });
+  line('✅ Datos protegidos (' + Object.keys(saved).length + ' claves)');
+
+  // 2. Unregister SW
+  try {
+    var regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(function(r){ return r.unregister(); }));
+    line('✅ Service Workers eliminados: ' + regs.length);
+  } catch(e) { line('⚠️ SW error: ' + e.message, 'err'); }
+
+  // 3. Clear caches
+  try {
+    var keys = await caches.keys();
+    await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+    line('✅ Cachés borrados: ' + keys.length);
+  } catch(e) { line('⚠️ Cache error: ' + e.message, 'err'); }
+
+  // 4. Clear storage
+  localStorage.clear();
+  sessionStorage.clear();
+  Object.keys(saved).forEach(function(k){ localStorage.setItem(k, saved[k]); });
+  line('✅ Almacenamiento limpio');
+
+  // Mostrar resultado — SIN REDIRECT (evita loops)
+  ico.textContent = '✅';
+  titulo.textContent = '¡Limpieza completa!';
+  aviso.style.display = 'block';
+}
+
+doReset();
+</script>
+</body>
+</html>

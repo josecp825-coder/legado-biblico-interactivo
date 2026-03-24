@@ -1,0 +1,1615 @@
+// ==========================================
+// MÓDULO IGLESIA - LEGADO BÍBLICO (v1)
+// ==========================================
+
+function renderModuloIglesia() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:linear-gradient(170deg,#0a0818,#120e2a,#0a0818);font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px 20px;display:flex;align-items:center;gap:15px;border-bottom:1px solid rgba(253,203,110,0.2);position:sticky;top:0;z-index:100;">
+                <button onclick="volverMenuPrincipal()" style="background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.3);color:#fdcb6e;padding:8px 15px;border-radius:8px;cursor:pointer;font-weight:900;font-size:calc(0.8rem * var(--font-scale, 1));">? INICIO</button>
+                <div style="flex:1;">
+                    <div style="color:#fdcb6e;font-size:calc(0.9rem * var(--font-scale, 1));font-weight:900;letter-spacing:2px;">MÓDULO IGLESIA</div>
+                    <div style="font-size:calc(0.6rem * var(--font-scale, 1));color:rgba(255,255,255,0.4);letter-spacing:1px;">LITURGIA Y ADMINISTRACIÓN</div>
+                </div>
+                <div style="font-size:calc(1.5rem * var(--font-scale, 1));">?</div>
+            </div>
+
+            <div style="padding:25px 20px;max-width:800px;margin:0 auto;display:grid;gap:20px;">
+                
+                <h2 style="color:#fff;font-size:calc(1.4rem * var(--font-scale, 1));text-align:center;font-weight:300;letter-spacing:4px;margin-top:10px;">SECCIONES</h2>
+                
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:15px;">
+                    <!-- 1. LITURGIA DE CULTOS (FORMULARIO) -->
+                    <button onclick="renderLiturgia()" style="background:linear-gradient(135deg,rgba(108,92,231,0.2),rgba(162,155,254,0.1));border:1px solid rgba(162,155,254,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">??</div>
+                        <h3 style="color:#a29bfe;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">LITURGIA DE CULTOS</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Organizar programa de Sábado (Diáconos, Cantos, etc)</p>
+                    </button>
+
+                    <!-- 2. CITAS DOXOLOGÍA -->
+                    <button onclick="renderCitasDoxologia()" style="background:linear-gradient(135deg,rgba(253,203,110,0.2),rgba(255,234,167,0.1));border:1px solid rgba(253,203,110,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">?</div>
+                        <h3 style="color:#fdcb6e;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">CITAS DE DOXOLOGÍA</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Las 30 citas de majestad y honor a Dios.</p>
+                    </button>
+
+                    <!-- 3. REGISTRO DE PREDICADORES -->
+                    <button onclick="renderRegistroPredicaciones()" style="background:linear-gradient(135deg,rgba(225,112,85,0.2),rgba(250,177,160,0.1));border:1px solid rgba(250,177,160,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">??</div>
+                        <h3 style="color:#fab1a0;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">REGISTRO DE PREDICADORES</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Agendar nombre, fecha, cita bíblica, himnos.</p>
+                    </button>
+
+                    <!-- 4. CALENDARIO DE IGLESIA -->
+                    <button onclick="renderCalendarioIglesia()" style="background:linear-gradient(135deg,rgba(255,159,67,0.2),rgba(255,159,67,0.1));border:1px solid rgba(255,159,67,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">??</div>
+                        <h3 style="color:#ff9f43;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">CALENDARIO OFICIAL</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Programación mensual y anual de la iglesia.</p>
+                    </button>
+
+                    <!-- 5. MANUAL DE IGLESIA -->
+                    <button onclick="renderMenuDocumento('manual')" style="background:linear-gradient(135deg,rgba(0,184,148,0.2),rgba(85,239,196,0.1));border:1px solid rgba(85,239,196,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">??</div>
+                        <h3 style="color:#55efc4;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">MANUAL DE IGLESIA</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Consultor IA y PDF oficial de la iglesia.</p>
+                    </button>
+
+                    <!-- 6. GUÍA PARA ANCIANOS -->
+                    <button onclick="renderMenuDocumento('guia')" style="background:linear-gradient(135deg,rgba(0,168,255,0.2),rgba(0,168,255,0.1));border:1px solid rgba(0,168,255,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">??</div>
+                        <h3 style="color:#00a8ff;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">GUÍA PARA ANCIANOS</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Consultor IA y PDF oficial para liderazgo.</p>
+                    </button>
+
+                    <!-- 7. CONTROL DE CULTOS (MIE/VIE/SAB) -->
+                    <button onclick="renderControlCultosSemana()" style="background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(255,107,107,0.1));border:1px solid rgba(255,107,107,0.3);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+                        <div style="font-size:calc(2.5rem * var(--font-scale, 1));margin-bottom:15px;">???</div>
+                        <h3 style="color:#ff6b6b;font-size:calc(1.1rem * var(--font-scale, 1));margin-bottom:5px;letter-spacing:1px;">HISTORIAL DE PREDICACIÓN</h3>
+                        <p style="color:rgba(255,255,255,0.5);font-size:calc(0.8rem * var(--font-scale, 1));line-height:1.4;margin:0;">Control total de temas de todos los cultos.</p>
+                    </button>
+
+                    <!-- 8. FÁBRICA DE SERMONES IA (NUEVO) -->
+                    <button onclick="irAPantalla('fabrica', renderFabricaSermones)" style="background:linear-gradient(135deg,rgba(253,203,110,0.2),rgba(255,234,167,0.1));border:1px solid #fdcb6e;padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 10px 30px rgba(0,0,0,0.4);grid-column:1/-1;border-width:2px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
+                            <div style="font-size:calc(3rem * var(--font-scale, 1));">?</div>
+                            <div style="background:#fdcb6e;color:#000;padding:4px 12px;border-radius:50px;font-size:0.7rem;font-weight:900;">NUEVO</div>
+                        </div>
+                        <h3 style="color:#fdcb6e;font-size:calc(1.3rem * var(--font-scale, 1));margin-bottom:8px;letter-spacing:2px;font-weight:900;">FÁBRICA DE SERMONES IA</h3>
+                        <p style="color:rgba(255,255,255,0.8);font-size:calc(0.9rem * var(--font-scale, 1));line-height:1.6;margin:0;">Crea sermones, devocionales y servicios especiales basados en la Biblia con Inteligencia Artificial.</p>
+                    </button>
+
+                    <!-- 9. 28 DOCTRINAS FUNDAMENTALES -->
+                    <button onclick="renderDoctrinas28Iglesia()" style="background:linear-gradient(135deg,rgba(162,155,254,0.2),rgba(108,92,231,0.1));border:1px solid rgba(162,155,254,0.4);padding:25px;border-radius:20px;color:#fff;text-align:left;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 25px rgba(0,0,0,0.4);grid-column:1/-1;">
+                        <div style="display:flex;align-items:center;gap:15px;margin-bottom:12px;">
+                            <div style="font-size:calc(2.8rem * var(--font-scale, 1));">??</div>
+                            <div>
+                                <h3 style="color:#a29bfe;font-size:calc(1.2rem * var(--font-scale, 1));margin:0 0 4px;letter-spacing:2px;font-weight:900;">28 DOCTRINAS FUNDAMENTALES</h3>
+                                <p style="color:rgba(255,255,255,0.6);font-size:calc(0.85rem * var(--font-scale, 1));margin:0;">Creencias adventistas del Séptimo Día — Referencia doctrinal completa.</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <style>
+            button:active { transform: scale(0.97); }
+        </style>
+    `;
+    window.scrollTo(0, 0);
+}
+
+function renderLiturgia() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(162,155,254,0.3);">
+                <button onclick="renderModuloIglesia()" style="background:rgba(162,155,254,0.1);border:1px solid #a29bfe;color:#a29bfe;padding:8px 15px;border-radius:8px;font-weight:900;">? VOLVER</button>
+                <div style="color:#fff;font-weight:900;letter-spacing:1px;">PROGRAMA DE CULTO (SÁBADO)</div>
+            </div>
+
+            <div style="padding:20px;max-width:800px;margin:0 auto;display:grid;gap:15px;">
+                <p style="color:rgba(255,255,255,0.6);font-size:calc(0.9rem * var(--font-scale, 1));text-align:center;">Completa la planilla para generar y guardar el programa oficial del sábado.</p>
+
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(162,155,254,0.2);padding:20px;border-radius:15px;">
+                    <div style="display:grid;gap:15px;">
+                        <input type="date" id="litur-fecha" style="width:100%;padding:12px;background:rgba(0,0,0,0.5);border:1px solid #a29bfe80;color:#fff;border-radius:8px;outline:none;" required>
+                        
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Bienvenida / Inicio</label>
+                            <input type="text" id="litur-bienvenida" placeholder="Nombre..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+                        
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Director de Himnos / Congregacional</label>
+                            <input type="text" id="litur-himnos" placeholder="Nombre..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Oración Intercesora (De Rodillas)</label>
+                            <input type="text" id="litur-oracion" placeholder="Nombre..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+                        
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Diácono (ofrenda de hombres)</label>
+                            <input type="text" id="litur-diacono" placeholder="Nombre del Diácono..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Diaconisa (ofrenda de mujeres)</label>
+                            <input type="text" id="litur-diaconisa" placeholder="Nombre de la Diaconisa..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Rincón Infantil / Historia</label>
+                            <input type="text" id="litur-infantil" placeholder="Nombre..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+                        
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Música Especial / Canto</label>
+                            <input type="text" id="litur-canto" placeholder="Quién cantará..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Lectura de Cita Bíblica</label>
+                            <input type="text" id="litur-lectura" placeholder="Nombre..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;">
+                        </div>
+
+                        <div>
+                            <label style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));font-weight:bold;">Predicador Principal</label>
+                            <input type="text" id="litur-predicador" placeholder="Nombre del predicador..." style="width:100%;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-top:5px;outline:none;font-weight:bold;">
+                        </div>
+                        
+                        <button onclick="guardarLiturgiaFormulario()" style="width:100%;padding:16px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;font-weight:900;border-radius:8px;cursor:pointer;margin-top:10px;font-size:calc(1.1rem * var(--font-scale, 1));box-shadow:0 5px 15px rgba(108,92,231,0.4);">
+                            ?? GUARDAR PROGRAMA
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="color:#fff;text-align:center;margin-top:20px;border-bottom:1px solid rgba(162,155,254,0.3);padding-bottom:10px;">PROGRAMAS GUARDADOS</h3>
+                <div id="lista-liturgias" style="display:grid;gap:15px;margin-bottom:20px;">
+                    <div style="text-align:center;color:rgba(255,255,255,0.5);font-size:calc(0.9rem * var(--font-scale, 1));">Cargando programas...</div>
+                </div>
+            </div>
+        </div>
+    `;
+    cargarLiturgiasFormulario();
+}
+
+function guardarLiturgiaFormulario() {
+    const data = {
+        id: Date.now(),
+        fecha: document.getElementById('litur-fecha').value,
+        bienvenida: document.getElementById('litur-bienvenida').value.trim() || "-",
+        himnos: document.getElementById('litur-himnos').value.trim() || "-",
+        oracion: document.getElementById('litur-oracion').value.trim() || "-",
+        diacono: document.getElementById('litur-diacono').value.trim() || "-",
+        diaconisa: document.getElementById('litur-diaconisa').value.trim() || "-",
+        infantil: document.getElementById('litur-infantil').value.trim() || "-",
+        canto: document.getElementById('litur-canto').value.trim() || "-",
+        lectura: document.getElementById('litur-lectura').value.trim() || "-",
+        predicador: document.getElementById('litur-predicador').value.trim() || "-"
+    };
+
+    if (!data.fecha) {
+        alert("Por favor selecciona una fecha para el programa.");
+        return;
+    }
+
+    let registros = JSON.parse(localStorage.getItem('legado_liturgias') || '[]');
+    registros.push(data);
+    registros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    localStorage.setItem('legado_liturgias', JSON.stringify(registros));
+
+    // Clear inputs
+    document.querySelectorAll("input[id^='litur-']").forEach(i => { if (i.id !== 'litur-fecha') i.value = ''; });
+
+    cargarLiturgiasFormulario();
+    if (typeof mostrarToast === 'function') mostrarToast("¡Programa Guardado!");
+}
+
+function cargarLiturgiasFormulario() {
+    let registros = JSON.parse(localStorage.getItem('legado_liturgias') || '[]');
+    const contenedor = document.getElementById('lista-liturgias');
+
+    if (registros.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.5);font-size:calc(0.9rem * var(--font-scale, 1));padding:20px;">No hay programas registrados.</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = registros.map(reg => `
+        <div style="background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;border-left:5px solid #a29bfe;position:relative;">
+            <button onclick="borrarLiturgiaFormulario(${reg.id})" style="position:absolute;top:15px;right:15px;background:transparent;border:none;color:#ff7675;font-size:calc(1.4rem * var(--font-scale, 1));cursor:pointer;">???</button>
+            <div style="color:#a29bfe;font-weight:900;font-size:calc(0.9rem * var(--font-scale, 1));margin-bottom:15px;border-bottom:1px dashed rgba(162,155,254,0.3);padding-bottom:10px;">?? CULTO DEL ${reg.fecha.split('-').reverse().join('/')}</div>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:calc(0.85rem * var(--font-scale, 1));color:#fff;">
+                <div><span style="color:rgba(255,255,255,0.5);">Bienvenida:</span><br><b>${reg.bienvenida}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Dir. Himnos:</span><br><b>${reg.himnos}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Oración:</span><br><b>${reg.oracion}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Rincón Infantil:</span><br><b>${reg.infantil}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Diácono Ofrenda:</span><br><b>${reg.diacono}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Diaconisa Ofrenda:</span><br><b>${reg.diaconisa}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Canto Especial:</span><br><b>${reg.canto}</b></div>
+                <div><span style="color:rgba(255,255,255,0.5);">Cita Bíblica:</span><br><b>${reg.lectura}</b></div>
+                <div style="grid-column:1/-1;background:rgba(162,155,254,0.1);padding:10px;border-radius:8px;margin-top:5px;border:1px solid rgba(162,155,254,0.3);">
+                    <span style="color:#a29bfe;font-size:calc(0.8rem * var(--font-scale, 1));">Predicador Inivitado:</span><br>
+                    <span style="font-size:calc(1.1rem * var(--font-scale, 1));font-weight:bold;">${reg.predicador}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function borrarLiturgiaFormulario(id) {
+    if (!confirm("¿Eliminar este programa de culto?")) return;
+    let registros = JSON.parse(localStorage.getItem('legado_liturgias') || '[]');
+    registros = registros.filter(r => r.id !== id);
+    localStorage.setItem('legado_liturgias', JSON.stringify(registros));
+    cargarLiturgiasFormulario();
+}
+
+function renderCitasDoxologia() {
+    const contenedor = document.getElementById('pantalla-estudio');
+
+    const citasPoderosas = [
+        { cita: "1 Crónicas 29:11", texto: "Tuya es, oh Jehová, la magnificencia y el poder, la gloria, la victoria y el honor; porque todas las cosas que están en los cielos y en la tierra son tuyas. Tuyo, oh Jehová, es el reino, y tú eres excelso sobre todos." },
+        { cita: "Salmo 8:1", texto: "¡Oh Jehová, Señor nuestro, cuán glorioso es tu nombre en toda la tierra! Has puesto tu gloria sobre los cielos." },
+        { cita: "Salmo 19:1", texto: "Los cielos cuentan la gloria de Dios, y el firmamento anuncia la obra de sus manos." },
+        { cita: "Salmo 24:7, 10", texto: "Alzad, oh puertas, vuestras cabezas, y alzaos vosotras, puertas eternas, y entrará el Rey de gloria. ¿Quién es este Rey de gloria? Jehová de los ejércitos, Él es el Rey de la gloria." },
+        { cita: "Salmo 29:2", texto: "Dad a Jehová la gloria debida a su nombre; adorad a Jehová en la hermosura de la santidad." },
+        { cita: "Salmo 47:7-8", texto: "Porque Dios es el Rey de toda la tierra; cantad con inteligencia. Reinó Dios sobre las naciones; se sentó Dios sobre su santo trono." },
+        { cita: "Salmo 93:1", texto: "Jehová reina; se vistió de magnificencia; Jehová se vistió, se ciñó de poder. Afirmó también el mundo, y no se moverá." },
+        { cita: "Salmo 95:3-6", texto: "Porque Jehová es Dios grande, y Rey grande sobre todos los dioses. Venid, adoremos y postrémonos; arrodillémonos delante de Jehová nuestro Hacedor." },
+        { cita: "Salmo 96:6-9", texto: "Alabanza y magnificencia delante de él; poder y gloria en su santuario. Adorad a Jehová en la hermosura de la santidad." },
+        { cita: "Salmo 104:1", texto: "Bendice, alma mía, a Jehová. Jehová Dios mío, mucho te has engrandecido; te has vestido de gloria y de magnificencia." },
+        { cita: "Salmo 145:3, 5", texto: "Grande es Jehová, y digno de suprema alabanza; y su grandeza es inescrutable. En la hermosura de la gloria de tu magnificencia, y en tus hechos maravillosos meditaré." },
+        { cita: "Salmo 148:13", texto: "Alaben el nombre de Jehová, porque sólo su nombre es excelso. Su gloria es sobre tierra y cielos." },
+        { cita: "Isaías 6:3", texto: "Santo, santo, santo, Jehová de los ejércitos; toda la tierra está llena de su gloria." },
+        { cita: "Isaías 40:22, 26", texto: "Él está sentado sobre el círculo de la tierra... Levantad en alto vuestros ojos, y mirad quién creó estas cosas; él saca y cuenta su ejército; a todas llama por sus nombres." },
+        { cita: "Jeremías 10:6-7", texto: "No hay semejante a ti, oh Jehová; grande eres tú, y grande tu nombre en poder. ¿Quién no te temerá, oh Rey de las naciones?" },
+        { cita: "Daniel 2:20", texto: "Sea bendito el nombre de Dios de siglo en siglo, porque suyos son el poder y la sabiduría." },
+        { cita: "Daniel 4:34", texto: "Bendije al Altísimo, y alabé y glorifiqué al que vive para siempre, cuyo dominio es sempiterno, y su reino por todas las edades." },
+        { cita: "Mateo 6:13", texto: "Porque tuyo es el reino, y el poder, y la gloria, por todos los siglos. Amén." },
+        { cita: "Romanos 11:36", texto: "Porque de él, y por él, y para él, son todas las cosas. A él sea la gloria por los siglos. Amén." },
+        { cita: "Efesios 3:20-21", texto: "Y a Aquel que es poderoso para hacer todas las cosas mucho más abundantemente de lo que pedimos o entendemos... a él sea gloria en la iglesia en Cristo Jesús por todas las edades." },
+        { cita: "Filipenses 2:9-11", texto: "Por lo cual Dios también le exaltó hasta lo sumo, y le dio un nombre que es sobre todo nombre, para que en el nombre de Jesús se doble toda rodilla." },
+        { cita: "1 Timoteo 1:17", texto: "Por tanto, al Rey de los siglos, inmortal, invisible, al único y sabio Dios, sea honor y gloria por los siglos de los siglos. Amén." },
+        { cita: "1 Timoteo 6:15-16", texto: "El bienaventurado y solo Soberano, Rey de reyes, y Señor de señores, el único que tiene inmortalidad, que habita en luz inaccesible." },
+        { cita: "Hebreos 1:3", texto: "El cual, siendo el resplandor de su gloria, y la imagen misma de su sustancia, y quien sustenta todas las cosas con la palabra de su poder." },
+        { cita: "Apocalipsis 4:8", texto: "Santo, santo, santo es el Señor Dios Todopoderoso, el que era, el que es, y el que ha de venir." },
+        { cita: "Apocalipsis 4:11", texto: "Señor, digno eres de recibir la gloria y la honra y el poder; porque tú creaste todas las cosas, y por tu voluntad existen y fueron creadas." },
+        { cita: "Apocalipsis 5:12", texto: "El Cordero que fue inmolado es digno de tomar el poder, las riquezas, la sabiduría, la fortaleza, la honra, la gloria y la alabanza." },
+        { cita: "Apocalipsis 7:12", texto: "Amén. La bendición y la gloria y la sabiduría y la acción de gracias y la honra y el poder y la fortaleza, sean a nuestro Dios por los siglos de los siglos. Amén." },
+        { cita: "Apocalipsis 11:15", texto: "Los reinos del mundo han venido a ser de nuestro Señor y de su Cristo; y él reinará por los siglos de los siglos." },
+        { cita: "Apocalipsis 15:3-4", texto: "Grandes y maravillosas son tus obras, Señor Dios Todopoderoso; justos y verdaderos son tus caminos, Rey de los santos. ¿Quién no te temerá, oh Señor, y glorificará tu nombre?" }
+    ];
+
+    let htmlCitas = citasPoderosas.map((c, i) => `
+        <div style="background:rgba(255,255,255,0.03);border-left:3px solid #fdcb6e;padding:15px;border-radius:8px;margin-bottom:12px;">
+            <div style="color:#fdcb6e;font-weight:900;font-size:calc(0.9rem * var(--font-scale, 1));margin-bottom:5px;">${i + 1}. ${c.cita}</div>
+            <div style="color:rgba(255,255,255,0.9);font-size:calc(0.95rem * var(--font-scale, 1));line-height:1.5;">"${c.texto}"</div>
+        </div>
+    `).join('');
+
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(253,203,110,0.3);">
+                <button onclick="renderModuloIglesia()" style="background:rgba(253,203,110,0.1);border:1px solid #fdcb6e;color:#fdcb6e;padding:8px 15px;border-radius:8px;font-weight:900;">? VOLVER</button>
+                <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:calc(0.9rem * var(--font-scale, 1));">DOXOLOGÍAS E INVOCACIÓN</div>
+            </div>
+
+            <div style="padding:20px;max-width:800px;margin:0 auto;">
+                <h3 style="color:#fff;font-size:calc(1.4rem * var(--font-scale, 1));text-align:center;margin-bottom:5px;">30 CITAS DE MAJESTAD Y PODER</h3>
+                <p style="color:rgba(255,255,255,0.5);text-align:center;font-size:calc(0.85rem * var(--font-scale, 1));margin-bottom:25px;">Selección oficial para uso en plataforma durante o previo a la liturgia del culto de sábado.</p>
+                
+                <div style="display:grid;gap:5px;">
+                    ${htmlCitas}
+                </div>
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+
+function renderManualIglesia() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(85,239,196,0.3);">
+                <button onclick="renderModuloIglesia()" style="background:rgba(85,239,196,0.1);border:1px solid #55efc4;color:#55efc4;padding:8px 15px;border-radius:8px;font-weight:900;">? VOLVER</button>
+                <div style="color:#fff;font-weight:900;letter-spacing:1px;">MANUAL DE IGLESIA (RESUMEN)</div>
+            </div>
+
+            <div style="padding:20px;max-width:800px;margin:0 auto;color:rgba(255,255,255,0.8);">
+                <p style="font-size:calc(0.85rem * var(--font-scale, 1));color:#55efc4;text-align:center;margin-bottom:20px;">*Conceptos básicos basados en el Manual oficial de la IASD.</p>
+                
+                <div style="margin-bottom:15px;background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;border-left:4px solid #55efc4;">
+                    <h3 style="color:#fff;margin:0 0 10px 0;">1. Autoridad y Organización</h3>
+                    <p style="font-size:calc(0.9rem * var(--font-scale, 1));line-height:1.5;margin:0;">La forma representativa es la base de la IASD. La autoridad reside en los miembros registrados. Los niveles son: Iglesia Local, Asociación/Misión Local, Unión, y Asociación General.</p>
+                </div>
+
+                <div style="margin-bottom:15px;background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;border-left:4px solid #0984e3;">
+                    <h3 style="color:#fff;margin:0 0 10px 0;">2. Oficios Principales</h3>
+                    <ul style="font-size:calc(0.9rem * var(--font-scale, 1));line-height:1.5;margin:0;padding-left:15px;">
+                        <li><b>Anciano:</b> Responsable del liderazgo espiritual junto al pastor. Fomenta diezmos, evangelismo y orden en el culto.</li>
+                        <li><b>Diácono/Diaconisa:</b> Cuidado del edificio local, visitas a enfermos, ministración en Santa Cena.</li>
+                        <li><b>Secretario(a):</b> Registros, traslados, cartas de membresía, estadísticas.</li>
+                        <li><b>Tesorero(a):</b> Recepción y custodia fiel de los diezmos (que son del Señor) y ofrendas.</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom:15px;background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;border-left:4px solid #d63031;">
+                    <h3 style="color:#fff;margin:0 0 10px 0;">3. Disciplina de Iglesia</h3>
+                    <p style="font-size:calc(0.9rem * var(--font-scale, 1));line-height:1.5;margin:0 0 10px 0;">Debe administrarse con espíritu de redención y amor, nunca de venganza.</p>
+                    <ul style="font-size:calc(0.9rem * var(--font-scale, 1));line-height:1.5;margin:0;padding-left:15px;">
+                        <li>Negación flagrante de la fe/mandamientos.</li>
+                        <li>Violaciones morales (adulterio, fornicación).</li>
+                        <li>Violencia física/robo/fraude.</li>
+                        <li>*Todo caso pasa primero por la Junta de Iglesia y luego se vota en reunión administrativa de la iglesia.</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom:15px;background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;border-left:4px solid #a29bfe;">
+                    <h3 style="color:#fff;margin:0 0 10px 0;">4. Matrimonio y Votos</h3>
+                    <p style="font-size:calc(0.9rem * var(--font-scale, 1));line-height:1.5;margin:0;">No se realizarán matrimonios entre creyentes y no creyentes. El divorcio solo se permite bajo razones bíblicas claras (Mateo 19) y el abandono (1 Corintios 7).</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ===============================================
+// LÓGICA DE REGISTRO DE PREDICACIONES (Firebase / LocalStorage)
+// ===============================================
+
+function renderRegistroPredicaciones() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(250,177,160,0.3);">
+                <button onclick="renderModuloIglesia()" style="background:rgba(250,177,160,0.1);border:1px solid #fab1a0;color:#fab1a0;padding:8px 15px;border-radius:8px;font-weight:900;">? VOLVER</button>
+                <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:calc(0.9rem * var(--font-scale, 1));">REGISTRO DE PREDICACIONES</div>
+            </div>
+
+            <div style="padding:20px;max-width:800px;margin:0 auto;">
+                
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:15px;padding:20px;margin-bottom:30px;">
+                    <h3 style="color:#fab1a0;margin:0 0 15px 0;font-size:calc(1.1rem * var(--font-scale, 1));">AGREGAR NUEVO CULTO</h3>
+                    
+                    <div style="display:grid;gap:12px;">
+                        <input type="date" id="pred-fecha" style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;outline:none;" required>
+                        <input type="text" id="pred-nombre" placeholder="Nombre del Predicador..." style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;outline:none;" required>
+                        <input type="text" id="pred-titulo" placeholder="Título del Sermón..." style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;outline:none;">
+                        <input type="text" id="pred-cita" placeholder="Cita Bíblica Base..." style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;outline:none;">
+                        <input type="text" id="pred-himnos" placeholder="Himnos cantados (#12, #55)..." style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;outline:none;">
+                        
+                        <button onclick="guardarPredicacion()" style="width:100%;padding:15px;background:linear-gradient(135deg,#e17055,#fab1a0);border:none;color:#000;font-weight:900;border-radius:8px;cursor:pointer;margin-top:10px;">?? GUARDAR REGISTRO</button>
+                    </div>
+                </div>
+
+                <div id="lista-predicaciones" style="display:grid;gap:15px;">
+                    <div style="text-align:center;color:rgba(255,255,255,0.5);font-size:calc(0.9rem * var(--font-scale, 1));">Cargando registros...</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    cargarPredicaciones();
+}
+
+// Funciones CRUD Predicaciones (Usa LocalStorage para agilidad, ideal para PWA offline)
+function guardarPredicacion() {
+    const fecha = document.getElementById('pred-fecha').value;
+    const nombre = document.getElementById('pred-nombre').value.trim();
+    const titulo = document.getElementById('pred-titulo').value.trim();
+    const cita = document.getElementById('pred-cita').value.trim();
+    const himnos = document.getElementById('pred-himnos').value.trim();
+
+    if (!fecha || !nombre) {
+        alert("Por favor completa la fecha y el nombre del predicador.");
+        return;
+    }
+
+    const nuevaPredicacion = { id: Date.now(), fecha, nombre, titulo, cita, himnos };
+
+    let registros = JSON.parse(localStorage.getItem('legado_predicaciones') || '[]');
+    registros.push(nuevaPredicacion);
+
+    // Ordenar de más reciente a más antiguo
+    registros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    localStorage.setItem('legado_predicaciones', JSON.stringify(registros));
+
+    // Limpiar inputs
+    document.getElementById('pred-nombre').value = '';
+    document.getElementById('pred-titulo').value = '';
+    document.getElementById('pred-cita').value = '';
+    document.getElementById('pred-himnos').value = '';
+
+    cargarPredicaciones();
+    // alert o toast visual
+    if (typeof mostrarToast === 'function') mostrarToast("¡Registro guardado!");
+}
+
+function cargarPredicaciones() {
+    let registros = JSON.parse(localStorage.getItem('legado_predicaciones') || '[]');
+    const contenedor = document.getElementById('lista-predicaciones');
+
+    if (registros.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.5);font-size:calc(0.9rem * var(--font-scale, 1));padding:20px;">No hay predicaciones registradas.</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = registros.map(reg => `
+        <div style="background:rgba(255,255,255,0.05);padding:18px;border-radius:12px;border-left:5px solid #e17055;position:relative;">
+            <button onclick="borrarPredicacion(${reg.id})" style="position:absolute;top:15px;right:15px;background:transparent;border:none;color:#ff7675;font-size:calc(1.2rem * var(--font-scale, 1));cursor:pointer;">???</button>
+            <div style="color:#fab1a0;font-weight:900;font-size:calc(0.8rem * var(--font-scale, 1));margin-bottom:8px;">?? ${formatearFecha(reg.fecha)}</div>
+            <div style="color:#fff;font-size:calc(1.1rem * var(--font-scale, 1));font-weight:bold;margin-bottom:5px;">${reg.nombre}</div>
+            ${reg.titulo ? `<div style="color:rgba(255,255,255,0.8);font-size:calc(0.9rem * var(--font-scale, 1));margin-bottom:4px;font-style:italic;">"${reg.titulo}"</div>` : ''}
+            ${reg.cita ? `<div style="color:#55efc4;font-size:calc(0.85rem * var(--font-scale, 1));margin-bottom:4px;">?? Texto: ${reg.cita}</div>` : ''}
+            ${reg.himnos ? `<div style="color:#a29bfe;font-size:calc(0.85rem * var(--font-scale, 1));margin-bottom:4px;">?? Himnos: ${reg.himnos}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+function borrarPredicacion(id) {
+    if (!confirm("¿Deseas eliminar este registro pastoral?")) return;
+    let registros = JSON.parse(localStorage.getItem('legado_predicaciones') || '[]');
+    registros = registros.filter(r => r.id !== id);
+    localStorage.setItem('legado_predicaciones', JSON.stringify(registros));
+    cargarPredicaciones();
+}
+
+function formatearFecha(fechaStr) {
+    if (!fechaStr) return "Sin fecha";
+    const f = new Date(fechaStr + 'T12:00:00Z'); // Evitar timezone issues 
+    return f.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+}
+
+// ===============================================
+// VISOR INTEGRADO DE PDF  PDF.js
+// ===============================================
+
+function cargarPdfJs(callback) {
+    if (window.pdfjsLib) { callback(); return; }
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = function() {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        callback();
+    };
+    document.head.appendChild(script);
+}
+
+var _pdfCacheManual = null;
+var _pdfCacheGuia   = null;
+var _visorTipo      = null;
+var _visorPagActual = 1;
+
+function obtenerPdf(tipo) {
+    var url = tipo === 'manual' ? './manual-de-la-iglesia-2022.pdf' : './guia-ancianos.pdf';
+    if (tipo === 'manual' && _pdfCacheManual) return Promise.resolve(_pdfCacheManual);
+    if (tipo === 'guia'   && _pdfCacheGuia)   return Promise.resolve(_pdfCacheGuia);
+    return window.pdfjsLib.getDocument(url).promise.then(function(doc) {
+        if (tipo === 'manual') _pdfCacheManual = doc;
+        else _pdfCacheGuia = doc;
+        return doc;
+    });
+}
+
+function renderizarPagina(numPagina) {
+    var canvas  = document.getElementById('pdf-canvas');
+    var spinner = document.getElementById('pdf-spinner');
+    var infoPag = document.getElementById('pdf-info-pag');
+    if (!canvas) return;
+    spinner.style.display = 'flex';
+    canvas.style.opacity  = '0.3';
+    obtenerPdf(_visorTipo).then(function(doc) {
+        return doc.getPage(numPagina).then(function(pagina) {
+            var viewport0  = pagina.getViewport({ scale: 1 });
+            var contenedor = document.getElementById('pdf-visor-inner');
+            var ancho      = contenedor ? contenedor.clientWidth - 4 : window.innerWidth - 20;
+            var escala     = ancho / viewport0.width;
+            var viewport   = pagina.getViewport({ scale: escala });
+            canvas.width   = viewport.width;
+            canvas.height  = viewport.height;
+            return pagina.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function() {
+                _visorPagActual = numPagina;
+                canvas.style.opacity  = '1';
+                spinner.style.display = 'none';
+                if (infoPag) infoPag.textContent = 'Pag. ' + numPagina + ' / ' + doc.numPages;
+                var btnPrev = document.getElementById('pdf-btn-prev');
+                var btnNext = document.getElementById('pdf-btn-next');
+                if (btnPrev) btnPrev.disabled = numPagina <= 1;
+                if (btnNext) btnNext.disabled = numPagina >= doc.numPages;
+            });
+        });
+    });
+}
+
+function abrirVisorPdf(tipo, numPagina) {
+    _visorTipo = tipo;
+    var color  = tipo === 'manual' ? '#55efc4' : '#fdcb6e';
+    var titulo = tipo === 'manual' ? 'Manual de la Iglesia' : 'Guia de Ancianos';
+    var overlay = document.getElementById('pdf-visor-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'pdf-visor-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#0a0818;display:flex;flex-direction:column;';
+        document.body.appendChild(overlay);
+    }
+    overlay.innerHTML =
+        '<div style="background:rgba(0,0,0,0.8);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid ' + color + '30;flex-shrink:0;">' +
+            '<button onclick="cerrarVisorPdf()" style="background:' + color + '15;border:1px solid ' + color + '50;color:' + color + ';padding:7px 14px;border-radius:8px;font-weight:900;font-size:0.82rem;cursor:pointer;">&larr; Volver</button>' +
+            '<div style="flex:1;"><div style="color:#fff;font-weight:700;font-size:0.82rem;">&#128218; ' + titulo + '</div><div id="pdf-info-pag" style="color:' + color + ';font-size:0.68rem;font-weight:700;">Cargando...</div></div>' +
+        '</div>' +
+        '<div id="pdf-visor-inner" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:2px;position:relative;background:#1a1a2e;">' +
+            '<div id="pdf-spinner" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;">' +
+                '<div style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.1);border-top-color:' + color + ';border-radius:50%;animation:girar 0.8s linear infinite;"></div>' +
+                '<div style="color:rgba(255,255,255,0.5);font-size:0.8rem;">Cargando pagina...</div>' +
+            '</div>' +
+            '<canvas id="pdf-canvas" style="display:block;width:100%;transition:opacity 0.2s;"></canvas>' +
+        '</div>' +
+        '<div style="background:rgba(0,0,0,0.8);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;">' +
+            '<button id="pdf-btn-prev" onclick="renderizarPagina(_visorPagActual - 1)" style="padding:9px 20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:10px;font-weight:900;cursor:pointer;font-size:0.82rem;">&larr; Anterior</button>' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+                '<input id="pdf-input-pag" type="number" min="1" placeholder="Pag" style="width:65px;padding:8px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;font-size:0.85rem;outline:none;" onkeydown="if(event.key===\'Enter\'){var n=parseInt(this.value);if(n)renderizarPagina(n);}">' +
+                '<button onclick="var n=parseInt(document.getElementById(\'pdf-input-pag\').value);if(n)renderizarPagina(n);" style="padding:8px 12px;background:' + color + '20;border:1px solid ' + color + '40;color:' + color + ';border-radius:8px;font-weight:900;cursor:pointer;font-size:0.78rem;">Ir</button>' +
+            '</div>' +
+            '<button id="pdf-btn-next" onclick="renderizarPagina(_visorPagActual + 1)" style="padding:9px 20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:10px;font-weight:900;cursor:pointer;font-size:0.82rem;">Siguiente &rarr;</button>' +
+        '</div>';
+    new Promise(function(resolve) { cargarPdfJs(resolve); }).then(function() {
+        renderizarPagina(numPagina);
+    });
+}
+
+function cerrarVisorPdf() {
+    var overlay = document.getElementById('pdf-visor-overlay');
+    if (overlay) overlay.remove();
+}
+
+function buscarEnPdf(tipo, termino) {
+    return obtenerPdf(tipo).then(function(doc) {
+        var totalPaginas = doc.numPages;
+        var palabras = termino.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(function(p) { return p.length > 2; });
+        var paginasEncontradas = [];
+        var promesas = [];
+        for (var num = 1; num <= totalPaginas; num++) {
+            (function(n) {
+                promesas.push(doc.getPage(n).then(function(pagina) {
+                    return pagina.getTextContent().then(function(contenido) {
+                        var textoRaw = contenido.items.map(function(i) { return i.str; }).join('');
+                        var textoNorm = textoRaw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                        var hits = 0;
+                        palabras.forEach(function(p) {
+                            try { if (new RegExp(p.split('').join('[\\s\\-]?')).test(textoNorm)) hits++; }
+                            catch(e) { if (textoNorm.indexOf(p) >= 0) hits++; }
+                        });
+                        if (hits > 0) paginasEncontradas.push({ pagina: n, hits: hits });
+                    });
+                }));
+            })(num);
+        }
+        return Promise.all(promesas).then(function() {
+            paginasEncontradas.sort(function(a, b) { return b.hits - a.hits; });
+            return paginasEncontradas.slice(0, 6);
+        });
+    });
+}
+
+function buscarEnManual(tipo) {
+    var input   = document.getElementById('busq-input');
+    var termino = input ? input.value.trim() : '';
+    if (!termino) return;
+    var color   = tipo === 'manual' ? '#55efc4' : '#fdcb6e';
+    var titulo  = tipo === 'manual' ? 'Manual de la Iglesia' : 'Guia de Ancianos';
+    var estadoDiv    = document.getElementById('estado-busqueda');
+    var resultadosDiv = document.getElementById('resultados-pdf');
+    var btnBuscar    = document.getElementById('btn-buscar');
+    estadoDiv.style.display   = 'block';
+    resultadosDiv.innerHTML   = '';
+    if (btnBuscar) { btnBuscar.disabled = true; btnBuscar.textContent = 'Buscando...'; }
+    document.getElementById('msg-busq').textContent = 'Buscando en el documento oficial...';
+    new Promise(function(resolve) { cargarPdfJs(resolve); }).then(function() {
+        return buscarEnPdf(tipo, termino);
+    }).then(function(paginas) {
+        estadoDiv.style.display = 'none';
+        if (btnBuscar) { btnBuscar.disabled = false; btnBuscar.textContent = 'Buscar'; }
+        if (paginas.length === 0) {
+            resultadosDiv.innerHTML = '<div style="text-align:center;padding:30px 20px;background:rgba(255,255,255,0.03);border-radius:14px;border:1px dashed rgba(255,255,255,0.1);"><div style="font-size:2.2rem;margin-bottom:12px;">&#128270;</div><p style="color:rgba(255,255,255,0.55);font-size:calc(0.88rem * var(--font-scale,1));line-height:1.5;">No se encontro <b style="color:#fff;">"' + termino + '"</b> en el documento.</p></div>';
+            return;
+        }
+        var html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><div style="background:' + color + '20;border:1px solid ' + color + '40;border-radius:20px;padding:5px 14px;color:' + color + ';font-size:calc(0.72rem * var(--font-scale,1));font-weight:900;">' + paginas.length + ' PAGINA' + (paginas.length > 1 ? 'S' : '') + ' ENCONTRADA' + (paginas.length > 1 ? 'S' : '') + '</div><div style="color:rgba(255,255,255,0.35);font-size:calc(0.7rem * var(--font-scale,1));">"' + termino + '"</div></div>';
+        paginas.forEach(function(r, idx) {
+            html += '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + color + (idx === 0 ? '45' : '18') + ';border-radius:14px;overflow:hidden;margin-bottom:10px;">' +
+                '<div style="padding:13px 16px;display:flex;align-items:center;gap:14px;">' +
+                '<div style="min-width:54px;height:54px;background:' + (idx === 0 ? color : color + '22') + ';border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">' +
+                '<span style="color:' + (idx === 0 ? '#000' : color) + ';font-size:calc(1.05rem * var(--font-scale,1));font-weight:900;line-height:1;">' + r.pagina + '</span>' +
+                '<span style="color:' + (idx === 0 ? 'rgba(0,0,0,0.55)' : color + '99') + ';font-size:0.5rem;font-weight:700;letter-spacing:0.5px;margin-top:2px;">PAG.</span>' +
+                '</div>' +
+                '<div style="flex:1;min-width:0;">' +
+                '<div style="color:#fff;font-weight:700;font-size:calc(0.83rem * var(--font-scale,1));margin-bottom:3px;">' + (idx === 0 ? '&#11088; Resultado principal' : 'Resultado ' + (idx + 1)) + '</div>' +
+                '<div style="color:rgba(255,255,255,0.4);font-size:calc(0.7rem * var(--font-scale,1));line-height:1.4;">Termino <b style="color:' + color + ';">"' + termino + '"</b> aparece en esta pagina.</div>' +
+                '</div>' +
+                '<button onclick="abrirVisorPdf(\'' + tipo + '\',' + r.pagina + ')" style="min-width:58px;padding:10px 12px;background:' + (idx === 0 ? color : color + '18') + ';border:1px solid ' + (idx === 0 ? 'transparent' : color + '40') + ';color:' + (idx === 0 ? '#000' : color) + ';font-weight:900;border-radius:10px;cursor:pointer;font-size:calc(0.72rem * var(--font-scale,1));text-align:center;line-height:1.4;flex-shrink:0;">Ver<br>aqui &#128065;</button>' +
+                '</div></div>';
+        });
+        resultadosDiv.innerHTML = html;
+    }).catch(function(err) {
+        if (btnBuscar) { btnBuscar.disabled = false; btnBuscar.textContent = 'Buscar'; }
+        estadoDiv.style.display = 'none';
+        resultadosDiv.innerHTML = '<div style="text-align:center;padding:25px;background:rgba(255,80,80,0.05);border:1px solid rgba(255,80,80,0.2);border-radius:14px;"><p style="color:#ff7675;">Error al acceder al documento. Verifica tu conexion.</p></div>';
+    });
+}
+// SISTEMA DE COMPARTIR CALENDARIO (ENLACES 4H)
+// ===============================================
+
+async function compartirCalendario(mesFiltro) {
+    // Generar un token único e irrepetible
+    const token = 'cal_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+    const ahora = Date.now();
+    const expiracion = ahora + (4 * 60 * 60 * 1000); // 4 horas en milisegundos
+
+    // Mostrar indicador de carga inmediatamente
+    const btn = document.getElementById('btn-compartir-cal');
+    const btnMes = document.getElementById('btn-compartir-mes');
+    const botonActivo = btn || btnMes;
+    if (botonActivo) {
+        botonActivo.innerHTML = '? Generando enlace...';
+        botonActivo.disabled = true;
+    }
+
+    try {
+        // Guardar el token en Firestore con expiración
+        await db.collection('enlaces_temporales').doc(token).set({
+            mes: mesFiltro,
+            creadoEn: ahora,
+            expiraEn: expiracion,
+            tipo: 'calendario'
+        });
+
+        // Construir el enlace compartible — apunta a la página pública de solo calendario
+        const enlace = `https://agendatecnicadigital.com/calendario.html?token=${token}`;
+        const expiraHora = new Date(expiracion).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        const tituloMes = mesFiltro && mesFiltro !== 'null' ? 'Mes de ' + mesFiltro : 'Calendario Anual Completo';
+
+        // Texto del mensaje limpio (sin información de expiración — eso es interno)
+        const textoCompartir = `?? CALENDARIO IGLESIA 2026\n` +
+            `?? ${tituloMes}\n\n` +
+            `?? Ver calendario:\n${enlace}`;
+
+        // Reestablecer botón
+        if (botonActivo) {
+            botonActivo.innerHTML = '? ¡Enlace listo!';
+            setTimeout(() => {
+                if (btn) btn.innerHTML = '?? Compartir Calendario';
+                if (btnMes) btnMes.innerHTML = '?? Compartir este mes';
+                if (botonActivo) botonActivo.disabled = false;
+            }, 2500);
+        }
+
+        // ? WEB SHARE API: abre el menú nativo del celular con TODAS las apps instaladas
+        // (WhatsApp, Telegram, SMS, Email, Instagram, etc.)
+        if (navigator.share) {
+            await navigator.share({
+                title: 'Calendario Iglesia 2026 - ' + tituloMes,
+                text: textoCompartir,
+                url: enlace
+            });
+        } else {
+            // FALLBACK para navegadores de escritorio: abrir WhatsApp Web
+            const mensajeWa = `?? *CALENDARIO IGLESIA 2026*\n?? *${tituloMes.toUpperCase()}*\n\n?? Ver calendario:\n${enlace}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(mensajeWa)}`, '_blank');
+        }
+
+    } catch (error) {
+        // Si el usuario cancela el menú nativo, no mostrar error
+        if (error.name === 'AbortError') {
+            if (botonActivo) {
+                botonActivo.innerHTML = '?? Compartir Calendario';
+                botonActivo.disabled = false;
+            }
+            return;
+        }
+        console.error('Error generando enlace:', error);
+        if (botonActivo) {
+            botonActivo.innerHTML = '? Error. Intenta de nuevo';
+            botonActivo.disabled = false;
+            setTimeout(() => {
+                if (btn) btn.innerHTML = '?? Compartir Calendario';
+                if (btnMes) btnMes.innerHTML = '?? Compartir este mes';
+            }, 2000);
+        }
+    }
+}
+
+// Verificar token en la URL al cargar la app (para quien recibe el enlace)
+async function verificarTokenCalendario() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (!token || !token.startsWith('cal_')) return false;
+
+    try {
+        const doc = await db.collection('enlaces_temporales').doc(token).get();
+        if (!doc.exists) {
+            mostrarEnlaceExpirado('Este enlace no existe o ya fue eliminado.');
+            return true;
+        }
+
+        const data = doc.data();
+        const ahora = Date.now();
+
+        if (ahora > data.expiraEn) {
+            // Enlace expirado — eliminar de Firestore para limpieza
+            db.collection('enlaces_temporales').doc(token).delete().catch(() => { });
+            mostrarEnlaceExpirado('Este enlace expiró. Los calendarios compartidos son válidos por solo 4 horas.');
+            return true;
+        }
+
+        // Enlace válido — mostrar el calendario directamente
+        const minRestantes = Math.floor((data.expiraEn - ahora) / 60000);
+        const mesFiltro = data.mes || null;
+
+        // Mostrar el módulo de iglesia primero y luego el calendario
+        document.querySelector('.intro-container').style.display = 'none';
+        const pantalla = document.getElementById('pantalla-estudio');
+        pantalla.className = 'container-estudio theme-adultos is-active';
+
+        // Pequeño aviso de que es un enlace temporal
+        setTimeout(() => {
+            renderCalendarioIglesia(mesFiltro);
+            // Insertar banner de enlace temporal
+            const banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(255,159,67,0.15);border:1px solid #ff9f43;padding:10px 20px;border-radius:12px;color:#ff9f43;font-size:0.8rem;font-weight:900;z-index:9999;text-align:center;backdrop-filter:blur(10px);';
+            banner.innerHTML = `?? Enlace compartido — expira en ${minRestantes} min`;
+            document.body.appendChild(banner);
+        }, 300);
+
+        return true;
+    } catch (error) {
+        console.error('Error verificando token:', error);
+        return false;
+    }
+}
+
+function mostrarEnlaceExpirado(mensaje) {
+    document.querySelector('.intro-container').style.display = 'none';
+    const pantalla = document.getElementById('pantalla-estudio');
+    pantalla.className = 'container-estudio theme-adultos is-active';
+    pantalla.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;font-family:'Segoe UI',sans-serif;">
+            <div style="font-size:4rem;margin-bottom:20px;">?</div>
+            <h2 style="color:#ff9f43;margin-bottom:15px;font-size:1.4rem;">Enlace Expirado</h2>
+            <p style="color:rgba(255,255,255,0.6);line-height:1.6;max-width:300px;margin-bottom:30px;">${mensaje}</p>
+            <p style="color:rgba(255,255,255,0.4);font-size:0.8rem;">Pídele al administrador que comparta un enlace nuevo.</p>
+        </div>
+    `;
+}
+
+// ===============================================
+// LÓGICA DE CALENDARIO
+// ===============================================
+
+const EVENTOS_CALENDARIO = [
+    // ENERO
+    { fecha: "2 Ene", dia: "Vie", titulo: "Obed", tipo: "predica", mes: "Enero" },
+    { fecha: "3 Ene", dia: "Sáb", titulo: "Ministerio Personal", tipo: "predica", mes: "Enero" },
+    { fecha: "7 Ene", dia: "Mié", titulo: "Jose Castillo", tipo: "predica", mes: "Enero" },
+    { fecha: "9 Ene", dia: "Vie", titulo: "Daniel", tipo: "predica", mes: "Enero" },
+    { fecha: "10 Ene", dia: "Sáb", titulo: "Presentación PTR", tipo: "evento", mes: "Enero" },
+    { fecha: "12-17 Ene", dia: "Semana", titulo: "10 días de Oración y Salud", tipo: "especial", mes: "Enero" },
+    { fecha: "14 Ene", dia: "Mié", titulo: "Wanda", tipo: "predica", mes: "Enero" },
+    { fecha: "16 Ene", dia: "Vie", titulo: "Wanda", tipo: "predica", mes: "Enero" },
+    { fecha: "17 Ene", dia: "Sáb", titulo: "Pastor", tipo: "predica", mes: "Enero" },
+    { fecha: "21 Ene", dia: "Mié", titulo: "Nerlys", tipo: "predica", mes: "Enero" },
+    { fecha: "23 Ene", dia: "Vie", titulo: "Jose Lopez", tipo: "predica", mes: "Enero" },
+    { fecha: "24 Ene", dia: "Sáb", titulo: "Iniciación Aventureros / Pastor", tipo: "evento", mes: "Enero" },
+    { fecha: "28 Ene", dia: "Mié", titulo: "Candelario", tipo: "predica", mes: "Enero" },
+    { fecha: "30 Ene", dia: "Vie", titulo: "Cecilia", tipo: "predica", mes: "Enero" },
+    { fecha: "31 Ene", dia: "Sáb", titulo: "Educación", tipo: "predica", mes: "Enero" },
+
+    // FEBRERO
+    { fecha: "4 Feb", dia: "Mié", titulo: "Flavio", tipo: "predica", mes: "Febrero" },
+    { fecha: "6 Feb", dia: "Vie", titulo: "Luis Troya", tipo: "predica", mes: "Febrero" },
+    { fecha: "7 Feb", dia: "Sáb", titulo: "Concurso Bíblico / Iniciación Conquista", tipo: "evento", mes: "Febrero" },
+    { fecha: "11 Feb", dia: "Mié", titulo: "Gilda", tipo: "predica", mes: "Febrero" },
+    { fecha: "13 Feb", dia: "Vie", titulo: "H. Maria", tipo: "predica", mes: "Febrero" },
+    { fecha: "14 Feb", dia: "Sáb", titulo: "Cena Amistad JA / Salud y Temperancia", tipo: "evento", mes: "Febrero" },
+    { fecha: "15-17 Feb", dia: "Semana", titulo: "Capacitación NEC", tipo: "especial", mes: "Febrero" },
+    { fecha: "18 Feb", dia: "Mié", titulo: "Donil", tipo: "predica", mes: "Febrero" },
+    { fecha: "20 Feb", dia: "Vie", titulo: "Wanda", tipo: "predica", mes: "Febrero" },
+    { fecha: "21 Feb", dia: "Sáb", titulo: "Concierto Depto. Canto / Ptr. Solano", tipo: "evento", mes: "Febrero" },
+    { fecha: "25-28 Feb", dia: "Semana", titulo: "Semana de Hogar y Familia", tipo: "especial", mes: "Febrero" },
+    { fecha: "28 Feb", dia: "Sáb", titulo: "Visita de Coordinación", tipo: "evento", mes: "Febrero" },
+
+    // MARZO
+    { fecha: "6 Mar", dia: "Vie", titulo: "Convención de Lideres", tipo: "evento", mes: "Marzo" },
+    { fecha: "7 Mar", dia: "Sáb", titulo: "Convención Min. Mujer", tipo: "evento", mes: "Marzo" },
+    { fecha: "8 Mar", dia: "Dom", titulo: "Concurso Bíblico", tipo: "evento", mes: "Marzo" },
+    { fecha: "11 Mar", dia: "Mié", titulo: "Yulima", tipo: "predica", mes: "Marzo" },
+    { fecha: "13 Mar", dia: "Vie", titulo: "Yeny Morales", tipo: "predica", mes: "Marzo" },
+    { fecha: "14 Mar", dia: "Sáb", titulo: "Cecilia W.", tipo: "predica", mes: "Marzo" },
+    { fecha: "15-21 Mar", dia: "Semana", titulo: "Semana de Mayordomía", tipo: "especial", mes: "Marzo" },
+    { fecha: "15 Mar", dia: "Dom", titulo: "Revisión de Libros", tipo: "evento", mes: "Marzo" },
+    { fecha: "21 Mar", dia: "Sáb", titulo: "Día Mundial de la Juventud", tipo: "evento", mes: "Marzo" },
+    { fecha: "25-28 Mar", dia: "Semana", titulo: "Capacitación Diáconos y Diaconisas", tipo: "especial", mes: "Marzo" },
+    { fecha: "25 Mar", dia: "Mié", titulo: "Nerlys", tipo: "predica", mes: "Marzo" },
+    { fecha: "27 Mar", dia: "Vie", titulo: "Rosani", tipo: "predica", mes: "Marzo" },
+    { fecha: "28 Mar", dia: "Sáb", titulo: "José López", tipo: "predica", mes: "Marzo" },
+    { fecha: "29 Mar", dia: "Dom", titulo: "Desayuno para nuevos", tipo: "evento", mes: "Marzo" },
+
+    // ABRIL
+    { fecha: "1 Abr", dia: "Mié", titulo: "Daniel", tipo: "predica", mes: "Abril" },
+    { fecha: "3 Abr", dia: "Vie", titulo: "Cecilia", tipo: "predica", mes: "Abril" },
+    { fecha: "4 Abr", dia: "Sáb", titulo: "Juego Bíblico", tipo: "evento", mes: "Abril" },
+    { fecha: "5-11 Abr", dia: "Semana", titulo: "SEMANA DE EVANGELISMO", tipo: "especial", mes: "Abril" },
+    { fecha: "5 Abr", dia: "Dom", titulo: "Salida recreativa Aventureros", tipo: "evento", mes: "Abril" },
+    { fecha: "12 Abr", dia: "Dom", titulo: "Honores Conquistadores", tipo: "evento", mes: "Abril" },
+    { fecha: "15 Abr", dia: "Mié", titulo: "Pilar", tipo: "predica", mes: "Abril" },
+    { fecha: "17 Abr", dia: "Vie", titulo: "Daniel", tipo: "predica", mes: "Abril" },
+    { fecha: "18 Abr", dia: "Sáb", titulo: "Junta Administrativa / Ptr. Solano", tipo: "evento", mes: "Abril" },
+    { fecha: "20-25 Abr", dia: "Semana", titulo: "Semana Ministerio Infantil", tipo: "especial", mes: "Abril" },
+    { fecha: "23 Abr", dia: "Jue", titulo: "Día Mundial de la Oración", tipo: "evento", mes: "Abril" },
+    { fecha: "25 Abr", dia: "Sáb", titulo: "Salida JA Interiglesia", tipo: "evento", mes: "Abril" },
+    { fecha: "29 Abr", dia: "Mié", titulo: "Castillo", tipo: "predica", mes: "Abril" },
+
+    // MAYO
+    { fecha: "1 May", dia: "Vie", titulo: "Maria", tipo: "predica", mes: "Mayo" },
+    { fecha: "2 May", dia: "Sáb", titulo: "Acción Misionera", tipo: "evento", mes: "Mayo" },
+    { fecha: "6 May", dia: "Mié", titulo: "Juan Antigua", tipo: "predica", mes: "Mayo" },
+    { fecha: "8 May", dia: "Vie", titulo: "Flavio Candelario", tipo: "predica", mes: "Mayo" },
+    { fecha: "9 May", dia: "Sáb", titulo: "Programa Caballeros", tipo: "evento", mes: "Mayo" },
+    { fecha: "13 May", dia: "Mié", titulo: "Obed", tipo: "predica", mes: "Mayo" },
+    { fecha: "15 May", dia: "Vie", titulo: "Juan Antigua", tipo: "predica", mes: "Mayo" },
+    { fecha: "16 May", dia: "Sáb", titulo: "Día Mundial del Aventurero", tipo: "evento", mes: "Mayo" },
+    { fecha: "20 May", dia: "Mié", titulo: "Pastor Solano", tipo: "predica", mes: "Mayo" },
+    { fecha: "22-25 May", dia: "Semana", titulo: "Campamento Hispano", tipo: "especial", mes: "Mayo" },
+    { fecha: "22 May", dia: "Vie", titulo: "Castillo", tipo: "predica", mes: "Mayo" },
+    { fecha: "27 May", dia: "Mié", titulo: "Wanda", tipo: "predica", mes: "Mayo" },
+    { fecha: "28-31 May", dia: "Semana", titulo: "INTER CAMPOREE AVEN Y CONQ", tipo: "especial", mes: "Mayo" },
+    { fecha: "29 May", dia: "Vie", titulo: "Jose Luis", tipo: "predica", mes: "Mayo" },
+    { fecha: "30 May", dia: "Sáb", titulo: "Obed", tipo: "predica", mes: "Mayo" },
+    { fecha: "31 May", dia: "Dom", titulo: "Retiro Dpto. Caballeros", tipo: "evento", mes: "Mayo" },
+
+    // JUNIO
+    { fecha: "7-13 Jun", dia: "Semana", titulo: "Semana de Oración", tipo: "especial", mes: "Junio" },
+    { fecha: "20 Jun", dia: "Sáb", titulo: "Día del Padre", tipo: "evento", mes: "Junio" }
+];
+
+function renderCalendarioIglesia(mesFiltro = null) {
+    const contenedor = document.getElementById('pantalla-estudio');
+
+    // MODO SELECCIÓN DE MES
+    if (!mesFiltro) {
+        const mesesUnicos = [...new Set(EVENTOS_CALENDARIO.map(e => e.mes))];
+
+        let htmlBotones = mesesUnicos.map(m => `
+            <button onclick="renderCalendarioIglesia('${m}')" style="background:rgba(255,159,67,0.1);border:1px solid #ff9f43;padding:20px;border-radius:12px;color:#fff;font-weight:bold;font-size:calc(1.05rem * var(--font-scale, 1));cursor:pointer;transition:transform 0.2s;">
+                ?? ${m.toUpperCase()}
+            </button>
+        `).join('');
+
+        contenedor.innerHTML = `
+            <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+                <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,159,67,0.3);">
+                    <button onclick="renderModuloIglesia()" style="background:rgba(255,159,67,0.1);border:1px solid #ff9f43;color:#ff9f43;padding:8px 15px;border-radius:8px;font-weight:900;">? VOLVER</button>
+                    <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:calc(0.9rem * var(--font-scale, 1));">CALENDARIO OFICIAL</div>
+                </div>
+
+                <div style="padding:20px;max-width:800px;margin:0 auto;text-align:center;">
+                    <div style="font-size:calc(3rem * var(--font-scale, 1));margin-bottom:10px;">??</div>
+                    <h3 style="color:#ff9f43;font-size:calc(1.3rem * var(--font-scale, 1));margin-bottom:5px;">PROGRAMACIÓN ANUAL 2026</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:calc(0.9rem * var(--font-scale, 1));margin-bottom:25px;">Selecciona el mes que deseas visualizar:</p>
+                    
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:15px;margin-bottom:25px;">
+                        ${htmlBotones}
+                    </div>
+                    
+                    <button onclick="renderCalendarioIglesia('Todos')" style="width:100%;max-width:400px;margin:0 auto;display:block;background:linear-gradient(135deg,#ff9f43,#feca57);border:none;padding:15px;border-radius:12px;color:#000;font-weight:900;font-size:calc(0.95rem * var(--font-scale, 1));cursor:pointer;box-shadow:0 5px 15px rgba(255,159,67,0.3);">
+                        VER TODOS LOS MESES JUNTOS
+                    </button>
+
+                    <!-- BOTÓN COMPARTIR CALENDARIO COMPLETO -->
+                    <div style="margin-top:25px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);">
+                        <p style="color:rgba(255,255,255,0.35);font-size:calc(0.75rem * var(--font-scale, 1));margin-bottom:10px;letter-spacing:1px;">COMPARTIR CALENDARIO</p>
+                        <button id="btn-compartir-cal" onclick="compartirCalendario(null)" style="width:100%;max-width:400px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,rgba(37,211,102,0.2),rgba(37,211,102,0.1));border:1px solid rgba(37,211,102,0.5);padding:14px 20px;border-radius:14px;color:#fff;font-weight:900;font-size:calc(0.9rem * var(--font-scale, 1));cursor:pointer;box-shadow:0 4px 20px rgba(37,211,102,0.15);transition:all 0.2s;letter-spacing:0.5px;">
+                            ?? Compartir Calendario
+                        </button>
+                        <p style="color:rgba(255,255,255,0.25);font-size:calc(0.7rem * var(--font-scale, 1));margin-top:8px;">
+                            ?? El enlace expira en 4 horas automáticamente
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        window.scrollTo(0, 0);
+        return;
+    }
+
+    // MODO VISUALIZACIÓN DE EVENTOS
+    let htmlEventos = "";
+    let currentMonth = "";
+
+    let eventosAmostrar = mesFiltro === "Todos" ? EVENTOS_CALENDARIO : EVENTOS_CALENDARIO.filter(e => e.mes === mesFiltro);
+
+    eventosAmostrar.forEach(ev => {
+        if (ev.mes !== currentMonth) {
+            currentMonth = ev.mes;
+            htmlEventos += `
+                <div style="background:rgba(255,159,67,0.15);color:#ff9f43;padding:10px 15px;border-radius:8px;font-weight:900;font-size:calc(1.1rem * var(--font-scale, 1));margin-top:20px;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;border:1px solid rgba(255,159,67,0.3);">
+                    ?? ${currentMonth} 2026
+                </div>
+            `;
+        }
+
+        let colorBorde = ev.tipo === 'predica' ? '#e74c3c' : (ev.tipo === 'evento' ? '#f39c12' : '#9b59b6');
+        htmlEventos += `
+        <div style="background:rgba(255,255,255,0.05);border-left:4px solid ${colorBorde};padding:15px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;">
+            <div style="min-width:75px;text-align:center;border-right:1px solid rgba(255,255,255,0.1);padding-right:15px;margin-right:15px;">
+                <div style="color:rgba(255,255,255,0.5);font-size:calc(0.75rem * var(--font-scale, 1));text-transform:uppercase;">${ev.dia}</div>
+                <div style="color:#fff;font-weight:900;font-size:calc(0.95rem * var(--font-scale, 1));">${ev.fecha.split(' ')[0]}</div>
+            </div>
+            <div style="flex:1;">
+                <div style="color:#fff;font-size:calc(0.95rem * var(--font-scale, 1));font-weight:bold;">${ev.titulo}</div>
+            </div>
+        </div>`;
+    });
+
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,159,67,0.3);">
+                <button onclick="renderCalendarioIglesia()" style="background:rgba(255,159,67,0.1);border:1px solid #ff9f43;color:#ff9f43;padding:8px 15px;border-radius:8px;font-weight:900;">? MESES</button>
+                <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:calc(0.9rem * var(--font-scale, 1));">${mesFiltro === "Todos" ? "CALENDARIO ANUAL" : "MES DE " + mesFiltro.toUpperCase()}</div>
+            </div>
+
+            <div style="padding:20px;max-width:800px;margin:0 auto;">
+                <div style="display:grid;gap:5px;">
+                    ${htmlEventos}
+                </div>
+                
+                <button onclick="renderCalendarioIglesia()" style="width:100%;margin-top:25px;padding:15px;background:rgba(255,255,255,0.05);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-weight:900;font-size:calc(0.95rem * var(--font-scale, 1));cursor:pointer;">
+                    Regresar a selección de mes
+                </button>
+
+                <!-- BOTÓN COMPARTIR ESTE MES ESPECÍFICO -->
+                <div style="margin-top:15px;padding:15px;background:rgba(37,211,102,0.05);border:1px solid rgba(37,211,102,0.2);border-radius:14px;text-align:center;">
+                    <button id="btn-compartir-mes" onclick="compartirCalendario('${mesFiltro}')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,rgba(37,211,102,0.25),rgba(37,211,102,0.1));border:1px solid rgba(37,211,102,0.5);padding:14px 20px;border-radius:12px;color:#fff;font-weight:900;font-size:calc(0.9rem * var(--font-scale, 1));cursor:pointer;transition:all 0.2s;">
+                        ?? Compartir este mes
+                    </button>
+                    <p style="color:rgba(255,255,255,0.3);font-size:calc(0.7rem * var(--font-scale, 1));margin-top:8px;margin-bottom:0;">
+                        ?? El enlace se autodestruye en 4 horas
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+// ===============================================
+// CONTROL DE CULTOS SEMANALES (MIÉ / VIE)
+// ===============================================
+
+function renderControlCultosSemana() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:#0a0818;font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,107,107,0.3);">
+                <button onclick="renderModuloIglesia()" style="background:rgba(255,107,107,0.1);border:1px solid #ff6b6b;color:#ff6b6b;padding:8px 15px;border-radius:8px;font-weight:900;">? VOLVER</button>
+                <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:calc(0.9rem * var(--font-scale, 1));">CONTROL TOTAL DE CULTOS</div>
+            </div>
+
+            <div style="padding:20px;max-width:800px;margin:0 auto;">
+                
+                <!-- Formulario de Registro -->
+                <div style="background:linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border:1px solid rgba(255,107,107,0.25); border-radius:20px; padding:25px; margin-bottom:35px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <h3 style="color:#ff6b6b;margin:0 0 20px 0;font-size:calc(1.2rem * var(--font-scale, 1)); display:flex; align-items:center; gap:10px;">
+                        <span>??</span> REGISTRO DE PREDICACIÓN
+                    </h3>
+                    
+                    <div style="display:grid;gap:15px;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="display:block;color:rgba(255,255,255,0.4);font-size:0.7rem;margin-bottom:5px;font-weight:bold;">FECHA DEL CULTO</label>
+                                <input type="date" id="culto-fecha" onchange="autoDetectarTipoCulto(this.value)" style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="display:block;color:rgba(255,255,255,0.4);font-size:0.7rem;margin-bottom:5px;font-weight:bold;">TIPO DE CULTO</label>
+                                <select id="culto-tipo" style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;outline:none;">
+                                    <option value="Sábado">Sábado (Sermón)</option>
+                                    <option value="Miércoles">Miércoles de Oración</option>
+                                    <option value="Viernes">Viernes de Consagración</option>
+                                    <option value="Lunes">Lunes (Culto)</option>
+                                    <option value="Martes">Martes (Culto)</option>
+                                    <option value="Jueves">Jueves (Culto)</option>
+                                    <option value="Domingo">Domingo (Evangelismo)</option>
+                                    <option value="Otro">Otro Evento Especial</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="display:block;color:rgba(255,255,255,0.4);font-size:0.7rem;margin-bottom:5px;font-weight:bold;">NOMBRE DEL PREDICADOR</label>
+                            <input type="text" id="culto-predicador" placeholder="¿Quién predica hoy?" style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;outline:none;">
+                        </div>
+
+                        <div>
+                            <label style="display:block;color:rgba(255,255,255,0.4);font-size:0.7rem;margin-bottom:5px;font-weight:bold;">NOMBRE DEL TEMA / MENSAJE</label>
+                            <input type="text" id="culto-tema" placeholder="Título del sermón" style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;outline:none;">
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="display:block;color:rgba(255,255,255,0.4);font-size:0.7rem;margin-bottom:5px;font-weight:bold;">CITA BÍBLICA</label>
+                                <input type="text" id="culto-cita" placeholder="Salmos 23..." style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="display:block;color:rgba(255,255,255,0.4);font-size:0.7rem;margin-bottom:5px;font-weight:bold;">HIMNOS / CANTOS</label>
+                                <input type="text" id="culto-himnos" placeholder="#245, #312" style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;outline:none;">
+                            </div>
+                        </div>
+                        
+                        <button onclick="guardarCultoSemana()" style="width:100%;padding:16px;background:linear-gradient(135deg,#ff6b6b,#ee5253);border:none;color:#fff;font-weight:900;border-radius:12px;cursor:pointer;margin-top:10px; font-size:calc(1rem * var(--font-scale, 1)); box-shadow: 0 5px 20px rgba(238,82,83,0.3);">
+                            ?? GUARDAR EN HISTORIAL
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buscador Histórico -->
+                <div style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 15px; border-radius:15px;">
+                        <span style="font-size:1.2rem;">??</span>
+                        <input type="text" id="search-culto" placeholder="Buscar por fecha, nombre o tema..." oninput="cargarCultosSemana()" style="flex:1; background:transparent; border:none; color:#fff; outline:none; font-size:0.9rem;">
+                    </div>
+                </div>
+
+                <div id="historico-cultos" style="display:grid;gap:15px;">
+                    <div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">Cargando historial...</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Cargar fecha de hoy por defecto y auto-detectar
+    const hoyStr = new Date().toISOString().split('T')[0];
+    document.getElementById('culto-fecha').value = hoyStr;
+    autoDetectarTipoCulto(hoyStr);
+
+    cargarCultosSemana();
+}
+
+function autoDetectarTipoCulto(fechaStr) {
+    if (!fechaStr) return;
+    const select = document.getElementById('culto-tipo');
+    if (!select) return;
+
+    const partes = fechaStr.split('-');
+    const fecha = new Date(partes[0], partes[1] - 1, partes[2], 12, 0, 0);
+    const diaSemana = fecha.getDay(); // 0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sab
+
+    const diasMap = {
+        0: "Domingo",
+        1: "Lunes",
+        2: "Martes",
+        3: "Miércoles",
+        4: "Jueves",
+        5: "Viernes",
+        6: "Sábado"
+    };
+
+    select.value = diasMap[diaSemana] || "Otro";
+}
+
+function guardarCultoSemana() {
+    const fecha = document.getElementById('culto-fecha').value;
+    const tipo = document.getElementById('culto-tipo').value;
+    const predicador = document.getElementById('culto-predicador').value.trim();
+    const tema = document.getElementById('culto-tema').value.trim();
+    const cita = document.getElementById('culto-cita').value.trim();
+    const himnos = document.getElementById('culto-himnos').value.trim();
+
+    if (!fecha || !predicador || !tema) {
+        alert("Por favor completa al menos la Fecha, Predicador y Tema del culto.");
+        return;
+    }
+
+    const nuevoCulto = {
+        id: Date.now(),
+        fecha,
+        tipo,
+        predicador,
+        tema,
+        cita: cita || "—",
+        himnos: himnos || "—"
+    };
+
+    let historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    historial.unshift(nuevoCulto); // Agregar al inicio
+
+    // Mantener ordenado por fecha
+    historial.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    localStorage.setItem('legado_cultos_semanales', JSON.stringify(historial));
+
+    // Limpiar campos
+    document.getElementById('culto-predicador').value = '';
+    document.getElementById('culto-tema').value = '';
+    document.getElementById('culto-cita').value = '';
+    document.getElementById('culto-himnos').value = '';
+
+    cargarCultosSemana();
+
+    if (typeof mostrarToast === 'function') mostrarToast("¡Culto registrado!");
+}
+
+function cargarCultosSemana() {
+    let historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    const query = document.getElementById('search-culto')?.value.toLowerCase() || "";
+    const contenedor = document.getElementById('historico-cultos');
+
+    if (historial.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No hay cultos registrados en el historial.</div>`;
+        return;
+    }
+
+    // Filtrar por búsqueda
+    const filtrados = historial.filter(h =>
+        h.fecha.includes(query) ||
+        h.predicador.toLowerCase().includes(query) ||
+        h.tema.toLowerCase().includes(query) ||
+        h.cita.toLowerCase().includes(query) ||
+        h.tipo.toLowerCase().includes(query)
+    );
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No se encontraron resultados para "${query}".</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = filtrados.map(reg => `
+        <div style="background:rgba(255,255,255,0.04); border-radius:18px; padding:20px; border:1px solid rgba(255,255,255,0.08); border-left:6px solid ${reg.tipo === 'Miércoles' ? '#55efc4' : (reg.tipo === 'Sábado' ? '#fdcb6e' : (reg.tipo === 'Viernes' ? '#ff6b6b' : '#a29bfe'))}; position:relative;">
+            <button onclick="borrarCultoSemana(${reg.id})" style="position:absolute; top:15px; right:15px; background:transparent; border:none; font-size:1.3rem; cursor:pointer; opacity:0.3;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'">???</button>
+            
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:20px; font-size:0.65rem; color:${reg.tipo === 'Miércoles' ? '#55efc4' : (reg.tipo === 'Sábado' ? '#fdcb6e' : (reg.tipo === 'Viernes' ? '#ff6b6b' : '#a29bfe'))}; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">
+                    ${reg.tipo}
+                </div>
+                <div style="color:rgba(255,255,255,0.5); font-size:0.75rem; font-weight:bold;">${formatearFechaCulto(reg.fecha)}</div>
+            </div>
+
+            <div style="color:#fff; font-size:1.1rem; font-weight:900; margin-bottom:5px;">${reg.tema}</div>
+            <div style="color:rgba(255,255,255,0.7); font-size:0.9rem; margin-bottom:12px;">?? Predicador: <b>${reg.predicador}</b></div>
+
+            <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:15px; font-size:0.8rem;">
+                <div>
+                    <span style="color:rgba(255,255,255,0.4); display:block; margin-bottom:2px; font-weight:bold; font-size:0.6rem;">CITA BÍBLICA</span>
+                    <span style="color:#55efc4; font-weight:bold;">?? ${reg.cita}</span>
+                </div>
+                <div>
+                    <span style="color:rgba(255,255,255,0.4); display:block; margin-bottom:2px; font-weight:bold; font-size:0.6rem;">HIMNOS / CANTOS</span>
+                    <span style="color:#a29bfe; font-weight:bold;">?? ${reg.himnos}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function borrarCultoSemana(id) {
+    if (!confirm("¿Deseas eliminar este registro del historial?")) return;
+    let historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    historial = historial.filter(h => h.id !== id);
+    localStorage.setItem('legado_cultos_semanales', JSON.stringify(historial));
+    cargarCultosSemana();
+}
+
+function formatearFechaCulto(fechaStr) {
+    if (!fechaStr) return "Sin fecha";
+    const partes = fechaStr.split('-');
+    const f = new Date(partes[0], partes[1] - 1, partes[2]);
+    return f.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+}
+
+// ===============================================
+// FABRICA DE SERMONES IA : WIZARD 3 PASOS
+// ===============================================
+
+function renderFabricaSermones() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:linear-gradient(170deg,#0a0818,#1a0f3c,#0a0818);font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(253,203,110,0.3);">
+                <button onclick="irAPantalla('iglesia', renderModuloIglesia)" style="background:rgba(253,203,110,0.1);border:1px solid #fdcb6e;color:#fdcb6e;padding:8px 15px;border-radius:8px;font-weight:900;cursor:pointer;">&#8592; VOLVER</button>
+                <div>
+                    <div style="color:#fdcb6e;font-weight:900;font-size:0.9rem;">FABRICA DE SERMONES IA</div>
+                    <div id="wizard-subtitulo" style="color:rgba(255,255,255,0.4);font-size:0.65rem;letter-spacing:1px;">PASO 1 DE 3</div>
+                </div>
+            </div>
+            <div style="height:4px;background:rgba(255,255,255,0.1);">
+                <div id="wizard-barra" style="height:4px;background:linear-gradient(90deg,#fdcb6e,#f1c40f);width:33%;transition:width 0.4s ease;"></div>
+            </div>
+            <div style="padding:20px;max-width:700px;margin:0 auto;">
+
+                <div id="wizard-paso1">
+                    <h2 style="color:#fff;text-align:center;font-weight:300;letter-spacing:3px;font-size:1.2rem;margin:20px 0 8px 0;">QUE NECESITAS HOY?</h2>
+                    <p style="color:rgba(255,255,255,0.4);text-align:center;font-size:0.85rem;margin-bottom:25px;">Toca la opcion que mejor describe lo que vas a preparar</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                        <button onclick="sermonWizardElegirTipo('sermon')" style="background:linear-gradient(145deg,rgba(108,92,231,0.25),rgba(162,155,254,0.1));border:2px solid rgba(162,155,254,0.4);border-radius:20px;padding:28px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2.5rem;margin-bottom:10px;">&#127908;</div>
+                            <div style="color:#a29bfe;font-weight:900;font-size:1rem;margin-bottom:4px;">SERMON</div>
+                            <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;">30 a 45 minutos</div>
+                        </button>
+                        <button onclick="sermonWizardElegirTipo('devocional')" style="background:linear-gradient(145deg,rgba(253,203,110,0.2),rgba(241,196,15,0.1));border:2px solid rgba(253,203,110,0.4);border-radius:20px;padding:28px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2.5rem;margin-bottom:10px;">&#128214;</div>
+                            <div style="color:#fdcb6e;font-weight:900;font-size:1rem;margin-bottom:4px;">DEVOCIONAL</div>
+                            <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;">15 minutos</div>
+                        </button>
+                        <button onclick="sermonWizardElegirTipo('boda')" style="background:linear-gradient(145deg,rgba(255,107,107,0.2),rgba(255,107,107,0.05));border:2px solid rgba(255,107,107,0.3);border-radius:20px;padding:22px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:8px;">&#128141;</div>
+                            <div style="color:#ff6b6b;font-weight:900;font-size:0.9rem;">BODA</div>
+                        </button>
+                        <button onclick="sermonWizardElegirTipo('nino')" style="background:linear-gradient(145deg,rgba(0,184,148,0.2),rgba(85,239,196,0.05));border:2px solid rgba(85,239,196,0.3);border-radius:20px;padding:22px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:8px;">&#128118;</div>
+                            <div style="color:#55efc4;font-weight:900;font-size:0.85rem;">PRESENTACION<br>DE NINO</div>
+                        </button>
+                        <button onclick="sermonWizardElegirTipo('funeral')" style="background:linear-gradient(145deg,rgba(99,110,114,0.3),rgba(99,110,114,0.1));border:2px solid rgba(255,255,255,0.15);border-radius:20px;padding:22px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:8px;">&#128367;</div>
+                            <div style="color:rgba(255,255,255,0.7);font-weight:900;font-size:0.85rem;">SERVICIO<br>FUNEBRE</div>
+                        </button>
+                        <button onclick="sermonWizardElegirTipo('cena')" style="background:linear-gradient(145deg,rgba(156,39,176,0.2),rgba(156,39,176,0.05));border:2px solid rgba(206,147,216,0.3);border-radius:20px;padding:22px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:8px;">&#127863;</div>
+                            <div style="color:#ce93d8;font-weight:900;font-size:0.9rem;">SANTA CENA</div>
+                        </button>
+                        <button onclick="sermonWizardElegirTipo('dificil')" style="grid-column:1/-1;background:linear-gradient(145deg,rgba(255,159,67,0.15),rgba(255,159,67,0.05));border:2px solid rgba(255,159,67,0.3);border-radius:20px;padding:20px 15px;color:#fff;cursor:pointer;text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:6px;">&#9928;</div>
+                            <div style="color:#ff9f43;font-weight:900;font-size:0.9rem;">TIEMPOS DIFICILES / CRISIS</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="wizard-paso2" style="display:none;">
+                    <div style="text-align:center;margin-bottom:25px;padding-top:15px;">
+                        <div id="wizard2-icono" style="font-size:3.5rem;margin-bottom:10px;"></div>
+                        <h2 id="wizard2-titulo" style="color:#fff;font-weight:300;letter-spacing:2px;font-size:1.2rem;margin-bottom:5px;"></h2>
+                        <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Elige un tema de la lista, o escribe el tuyo abajo</p>
+                    </div>
+                    <div id="wizard2-chips" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:25px;justify-content:center;"></div>
+                    <div style="display:flex;align-items:center;gap:15px;margin:20px 0;">
+                        <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+                        <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">O escribe tu propio tema</span>
+                        <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(253,203,110,0.2);border-radius:18px;padding:20px;margin-bottom:15px;">
+                        <label style="color:rgba(255,255,255,0.5);font-size:0.75rem;font-weight:bold;margin-bottom:10px;display:block;">TEMA, IDEA O PERSONAJE BIBLICO</label>
+                        <input type="text" id="sermon-idea" placeholder="Ej: Daniel en el foso, El amor de Dios, Las 2300 tardes..." style="width:100%;padding:14px;background:rgba(0,0,0,0.4);border:1px solid rgba(253,203,110,0.3);color:#fff;border-radius:12px;outline:none;font-size:0.95rem;box-sizing:border-box;">
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:15px;padding:15px;margin-bottom:25px;">
+                        <label style="color:rgba(255,255,255,0.3);font-size:0.7rem;font-weight:bold;margin-bottom:8px;display:block;">NOTA O PARRAFO ADICIONAL (opcional)</label>
+                        <textarea id="sermon-input" placeholder="Si tienes un texto biblico extra, escribelo aqui..." style="width:100%;height:80px;background:transparent;border:none;color:rgba(255,255,255,0.7);outline:none;resize:none;font-size:0.9rem;box-sizing:border-box;"></textarea>
+                    </div>
+                    <input type="hidden" id="sermon-tipo">
+                    <input type="hidden" id="sermon-nombre-biblico" value="">
+                    <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;">
+                        <button onclick="sermonWizardVolver()" style="padding:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:14px;cursor:pointer;font-weight:bold;">&#8592; Atras</button>
+                        <button onclick="generarSermonIA()" id="btn-generar-sermon" style="padding:16px;background:linear-gradient(135deg,#fdcb6e,#f1c40f);border:none;color:#000;font-weight:900;border-radius:14px;cursor:pointer;font-size:1rem;box-shadow:0 8px 20px rgba(253,203,110,0.3);">&#128640; CREAR BOSQUEJO</button>
+                    </div>
+                </div>
+
+                <div id="wizard-paso3" style="display:none;">
+                    <div id="resultado-sermon" style="background:white;color:#333;padding:25px;border-radius:20px;box-shadow:0 15px 40px rgba(0,0,0,0.5);">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;border-bottom:2px solid #fdcb6e;padding-bottom:15px;">
+                            <div style="flex:1;">
+                                <div style="color:#fdcb6e;font-weight:900;font-size:0.65rem;letter-spacing:2px;">IA GENERATIVA - FILOSOFIA ADVENTISTA</div>
+                                <h2 id="tit-sermon" style="margin:5px 0;color:#1a1a2e;font-size:1.3rem;font-weight:900;"></h2>
+                            </div>
+                            <button onclick="compartirSermonIA()" style="background:#25D366;color:white;border:none;padding:10px 14px;border-radius:10px;font-weight:bold;cursor:pointer;margin-left:10px;flex-shrink:0;">&#128242; WA</button>
+                        </div>
+                        <div id="cuerpo-sermon" style="line-height:1.8;font-size:0.95rem;color:#444;"></div>
+                        <div style="margin-top:25px;border-top:1px dashed #ddd;padding-top:15px;text-align:center;font-size:0.7rem;color:#aaa;">
+                            Basado en los principios biblicos y la fe adventista del septimo dia.
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;">
+                        <button onclick="sermonWizardVolver2()" style="padding:15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:14px;cursor:pointer;font-weight:bold;">&#8592; Cambiar tema</button>
+                        <button onclick="irAPantalla('fabrica', renderFabricaSermones)" style="padding:15px;background:linear-gradient(135deg,rgba(108,92,231,0.3),rgba(162,155,254,0.2));border:1px solid #a29bfe;color:#a29bfe;border-radius:14px;cursor:pointer;font-weight:bold;">&#128260; Crear otro</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+
+function sermonWizardElegirTipo(tipo) {
+    const iconos = { sermon: '&#127908;', devocional: '&#128214;', boda: '&#128141;', nino: '&#128118;', funeral: '&#128367;', cena: '&#127863;', dificil: '&#9928;' };
+    const titulos = { sermon: 'SERMON COMPLETO (30-45 MIN)', devocional: 'DEVOCIONAL (15 MIN)', boda: 'SERVICIO DE BODA', nino: 'PRESENTACION DE NINO', funeral: 'SERVICIO FUNEBRE', cena: 'SANTA CENA', dificil: 'TIEMPOS DIFICILES' };
+    const chipSermon = [
+        { label: 'El Amor de Dios', valor: 'El Amor Incondicional de Dios' },
+        { label: 'Las 2300 Tardes', valor: 'Las 2300 Tardes y Mananas' },
+        { label: 'El Origen del Mal', valor: 'El Origen del Mal y el Gran Conflicto' },
+        { label: 'La Segunda Venida', valor: 'La Segunda Venida de Cristo' },
+        { label: 'El Sabado de Dios', valor: 'El Sabado: Sello de Dios' },
+        { label: 'Victoria sobre el pecado', valor: 'Victoria sobre el pecado' }
+    ];
+    const mapaChips = {
+        sermon: chipSermon, devocional: chipSermon,
+        boda: [{ label: 'El amor del matrimonio', valor: 'El amor del matrimonio cristiano' }, { label: 'El hogar cristiano', valor: 'El hogar cristiano fundado en Dios' }],
+        nino: [{ label: 'Dedicar el nino a Dios', valor: 'La dedicacion del nino a Dios' }, { label: 'Responsabilidad de los padres', valor: 'La responsabilidad de los padres' }],
+        funeral: [{ label: 'La resurreccion', valor: 'La resurreccion y la esperanza' }, { label: 'El estado de los muertos', valor: 'El estado de los muertos segun la Biblia' }],
+        cena: [{ label: 'El significado de la Cena', valor: 'El significado de la Santa Cena' }, { label: 'El lavamiento y la humildad', valor: 'El lavamiento de pies y la humildad' }],
+        dificil: [{ label: 'Fe en la tormenta', valor: 'Fe en los tiempos dificiles' }, { label: 'Dios es mi fuerza', valor: 'La fortaleza de Dios en la prueba' }]
+    };
+    document.getElementById('sermon-tipo').value = tipo;
+    document.getElementById('wizard2-icono').innerHTML = iconos[tipo] || '';
+    document.getElementById('wizard2-titulo').innerText = titulos[tipo] || '';
+    const chips = mapaChips[tipo] || chipSermon;
+    document.getElementById('wizard2-chips').innerHTML = chips.map(c =>
+        '<button onclick="sermonSeleccionarChip(this,\'' + c.valor + '\')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:10px 16px;border-radius:50px;cursor:pointer;font-size:0.85rem;transition:all 0.2s;">' + c.label + '</button>'
+    ).join('');
+    document.getElementById('wizard-paso1').style.display = 'none';
+    document.getElementById('wizard-paso2').style.display = 'block';
+    document.getElementById('wizard-barra').style.width = '66%';
+    document.getElementById('wizard-subtitulo').innerText = 'PASO 2 DE 3 — EL TEMA';
+    window.scrollTo(0, 0);
+}
+
+function sermonSeleccionarChip(btn, valor) {
+    document.querySelectorAll('#wizard2-chips button').forEach(b => {
+        b.style.background = 'rgba(255,255,255,0.06)';
+        b.style.borderColor = 'rgba(255,255,255,0.15)';
+        b.style.color = 'rgba(255,255,255,0.8)';
+    });
+    btn.style.background = 'rgba(253,203,110,0.2)';
+    btn.style.borderColor = '#fdcb6e';
+    btn.style.color = '#fdcb6e';
+    document.getElementById('sermon-idea').value = valor;
+}
+
+function sermonWizardVolver() {
+    document.getElementById('wizard-paso2').style.display = 'none';
+    document.getElementById('wizard-paso1').style.display = 'block';
+    document.getElementById('wizard-barra').style.width = '33%';
+    document.getElementById('wizard-subtitulo').innerText = 'PASO 1 DE 3';
+    window.scrollTo(0, 0);
+}
+
+function sermonWizardVolver2() {
+    document.getElementById('wizard-paso3').style.display = 'none';
+    document.getElementById('wizard-paso2').style.display = 'block';
+    document.getElementById('wizard-barra').style.width = '66%';
+    document.getElementById('wizard-subtitulo').innerText = 'PASO 2 DE 3 — EL TEMA';
+    window.scrollTo(0, 0);
+}
+
+function actualizarInputPorTema(val) {
+    if (val) document.getElementById('sermon-idea').value = val;
+}
+
+
+function generarSermonIA() {
+    const tipo = document.getElementById('sermon-tipo').value;
+    const idea = document.getElementById('sermon-idea').value.trim();
+    const nombre = document.getElementById('sermon-nombre-biblico').value.trim();
+    const parrafo = document.getElementById('sermon-input').value.trim();
+    const btn = document.getElementById('btn-generar-sermon');
+    const tituloEl = document.getElementById('tit-sermon');
+    const cuerpo = document.getElementById('cuerpo-sermon');
+
+    if (!idea && !nombre && !parrafo) {
+        alert('Escribe o elige un tema para continuar.');
+        return;
+    }
+
+    btn.innerHTML = 'Generando bosquejo...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        let tituloFinal = idea || (nombre ? `El Legado de ${nombre}` : 'Mensaje de Esperanza');
+        tituloEl.innerText = tituloFinal.toUpperCase();
+
+        const uIdea = idea.toUpperCase();
+        let puntos = '';
+        if (uIdea.includes('2300')) {
+            puntos = '<li><b>La Purificacion del Santuario:</b> Daniel 8:14. El juicio investigador y nuestra preparacion.</li>' +
+                '<li><b>Las 70 Semanas:</b> Conexion entre el bautismo de Cristo (27 d.C.) y la profecia mas larga de la Biblia.</li>' +
+                '<li><b>Nuestra Mision Hoy:</b> El llamado al pueblo del remanente en el tiempo del fin.</li>';
+        } else if (uIdea.includes('AMOR')) {
+            puntos = '<li><b>Amor Agape:</b> Juan 3:16. Un amor que se entrega por el enemigo.</li>' +
+                '<li><b>La Cruz como Centro:</b> La mayor demostracion de justicia y misericordia.</li>' +
+                '<li><b>Viviendo en Amor:</b> Como el amor de Dios nos capacita para amar al projimo.</li>';
+        } else if (uIdea.includes('ORIGEN') || uIdea.includes('MAL')) {
+            puntos = '<li><b>Lucifer y la Caida:</b> Ezequiel 28 e Isaias 14. El inicio del conflicto en el cielo.</li>' +
+                '<li><b>El Gran Conflicto:</b> Como el pecado afecto el Eden y nuestra naturaleza actual.</li>' +
+                '<li><b>El Fin del Mal:</b> La promesa de un mundo donde el pecado no se levantara dos veces.</li>';
+        } else if (nombre) {
+            puntos = `<li><b>El Llamado de ${nombre}:</b> Como Dios eligio a este personaje en un momento critico.</li>` +
+                `<li><b>La Prueba de Fe:</b> El desafio que enfrento ${nombre} y como su fe le dio la victoria.</li>` +
+                `<li><b>Leccion para Nosotros:</b> Que nos ensena ${nombre} sobre la perseverancia hoy?</li>`;
+        } else {
+            puntos = `<li><b>Fundamento:</b> El plan de Dios para tu vida en medio de ${idea || 'la situacion actual'}.</li>` +
+                '<li><b>Accion:</b> Pasos practicos para fortalecer nuestra relacion con el Espiritu Santo.</li>' +
+                '<li><b>Promesa:</b> La seguridad de que Cristo esta al control de la historia.</li>';
+        }
+
+        let html = '';
+        if (tipo === 'sermon') {
+            html = '<p><b>Duracion estimada: 40 minutos</b></p>';
+            html += '<h4 style="color:#e67e22;margin-top:20px;border-left:4px solid #fdcb6e;padding-left:10px;">I. INTRODUCCION</h4>';
+            html += '<p>' + (parrafo ? `La reflexion: "${parrafo}" nos abre a este tema.` : `"${tituloFinal}" nos ancla a la verdad de la Palabra de Dios.`) + '</p>';
+            html += '<h4 style="color:#e67e22;margin-top:20px;border-left:4px solid #fdcb6e;padding-left:10px;">II. FUNDAMENTO BIBLICO</h4>';
+            html += '<p>Dios nos invita a estudiar con diligencia Su revelacion.</p>';
+            html += '<h4 style="color:#e67e22;margin-top:20px;border-left:4px solid #fdcb6e;padding-left:10px;">III. DESARROLLO DOCTRINAL</h4>';
+            html += '<ol>' + puntos + '</ol>';
+            html += '<h4 style="color:#e67e22;margin-top:20px;border-left:4px solid #fdcb6e;padding-left:10px;">IV. CONCLUSION Y LLAMADO</h4>';
+            html += '<p>Hoy el Senor te invita a tomar una decision por el Reino de Dios.</p>';
+        } else if (tipo === 'devocional') {
+            html = '<p><b>Duracion: 15 minutos</b></p>';
+            html += '<div style="background:#fdf9f0;padding:15px;border-radius:15px;margin:15px 0;border-left:4px solid #f1c40f;">';
+            html += '<p style="font-style:italic;margin:0;">Lampara es a mis pies tu palabra. &mdash; Salmos 119:105</p></div>';
+            html += '<p><b>Reflexion:</b> ' + (parrafo || 'La gracia de Dios es suficiente para cada desafio.') + '</p>';
+        } else {
+            const tits = { boda: 'Servicio de Boda', nino: 'Presentacion de Nino', funeral: 'Servicio de Esperanza', cena: 'Santa Cena', dificil: 'Fortaleza en la Prueba' };
+            html = '<h3 style="text-align:center;color:#1a1a2e;">' + (tits[tipo] || 'Servicio Especial') + '</h3>';
+            html += '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">';
+            html += '<p><b>Bosquejo:</b></p><ul>';
+            html += '<li>Bienvenida y Oracion inicial.</li>';
+            html += '<li>Lectura relativa a ' + (idea || 'la ocasion') + '.</li>';
+            html += '<li>Sermon breve centrado en la esperanza biblica.' + (nombre ? ` Ejemplo de fe: ${nombre}.` : '') + '</li>';
+            html += '<li>Ceremonia especifica.</li>';
+            html += '<li>Bendicion final.</li></ul>';
+        }
+
+        cuerpo.innerHTML = html;
+        document.getElementById('wizard-paso2').style.display = 'none';
+        document.getElementById('wizard-paso3').style.display = 'block';
+        document.getElementById('wizard-barra').style.width = '100%';
+        document.getElementById('wizard-subtitulo').innerText = 'PASO 3 DE 3 - TU BOSQUEJO ESTA LISTO';
+        btn.innerHTML = 'CREAR BOSQUEJO';
+        btn.disabled = false;
+        window.scrollTo(0, 0);
+        if (typeof mostrarToast === 'function') mostrarToast('Sermon generado!');
+    }, 2500);
+}
+
+function compartirSermonIA() {
+    const titulo = document.getElementById('tit-sermon').innerText;
+    const cuerpo = document.getElementById('cuerpo-sermon');
+
+    // Formatear el texto para WhatsApp (limpio de etiquetas HTML si es posible, o simple)
+    let mensaje = `?? *${titulo}*\n`;
+    mensaje += `???????????????\n\n`;
+    mensaje += cuerpo.innerText;
+    mensaje += `\n\n???????????????\n`;
+    mensaje += `_?? Generado por IA - Legado Bíblico (Eliteservic)_`;
+
+    const encoded = encodeURIComponent(mensaje);
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+}
+
+// ===============================================
+// 28 DOCTRINAS FUNDAMENTALES - MODULO IGLESIA
+// Agenda Digital - Eliteservic
+// ===============================================
+
+const IGLESIA_DOCTRINAS = [
+    { num: 1, cat: "DIOS", titulo: "Las Sagradas Escrituras", icono: "??", ref: "Sal 119:105; 2 Tim 3:16-17", resumen: "La Palabra escrita de Dios, guia infalible de fe.", detalle: "Las Sagradas Escrituras, Antiguo y Nuevo Testamento, son la Palabra escrita de Dios, dada por inspiracion divina. Los autores inspirados hablaron y escribieron movidos por el Espiritu Santo. En esta Palabra, Dios ha confiado a la humanidad el conocimiento necesario para la salvacion. Las Sagradas Escrituras son la suprema, autoritaria e infalible revelacion de Su voluntad. Son la norma de caracter, la prueba de la experiencia, el revelador definitivo de las doctrinas, y el registro fiable de los actos de Dios en la historia." },
+    { num: 2, cat: "DIOS", titulo: "La Deidad", icono: "??", ref: "Mat 28:19; 2 Cor 13:14", resumen: "Unidad de tres Personas coeternales.", detalle: "Hay un solo Dios: Padre, Hijo, y Espiritu Santo, una unidad de tres Personas coeternales. Dios es inmortal, todopoderoso, omnisciente, sobre todo, y omnipresente. Es infinito y mas alla de la comprension humana, pero conocido a traves de su auto-revelacion. Dios, que es amor, es por siempre digno de adoracion y servicio por parte de toda la creacion." },
+    { num: 3, cat: "DIOS", titulo: "Dios Padre", icono: "??", ref: "Juan 3:16; Apoc 4:11", resumen: "Creador, Proveedor y Sustentador eterno.", detalle: "Dios el Padre eterno es el Creador, Proveedor, Sustentador y Soberano de toda la creacion. El es justo y santo, misericordioso y gentil, lento para la ira, y abundante en amor y fidelidad. Las cualidades y poderes exhibidos en el Hijo y el Espiritu Santo son tambien las del Padre." },
+    { num: 4, cat: "DIOS", titulo: "Dios Hijo (Jesucristo)", icono: "??", ref: "Juan 1:1-3; Heb 8:1-2", resumen: "Dios encarnado para nuestra salvacion.", detalle: "Dios Hijo encarnó en Jesucristo. A traves de El todas las cosas fueron creadas, el caracter de Dios es revelado, la salvacion de la humanidad es alcanzada, y el mundo es enjuiciado. Vivio y experimento la tentacion como un ser humano, pero ejemplifico perfectamente la justicia y el amor de Dios. Sufrio y murio voluntariamente en la cruz en lugar nuestro, resucito de entre los muertos y subio al cielo para ministrar en el santuario celestial en nuestro favor." },
+    { num: 5, cat: "DIOS", titulo: "Dios Espiritu Santo", icono: "???", ref: "Juan 16:7-13; Hechos 1:8", resumen: "Persona activa en la Creacion y Redencion.", detalle: "Dios Espiritu Santo fue parte activa con el Padre y el Hijo en la Creacion, la encarnacion y la redencion. El es tan persona como lo son el Padre y el Hijo. El inspiro a los autores de las Escrituras. Fue enviado por el Padre y el Hijo para estar siempre con sus hijos, extiende los dones espirituales a la iglesia y la conduce a toda la verdad." },
+    { num: 6, cat: "HUMANIDAD", titulo: "Creacion", icono: "??", ref: "Gen 1-2; Ex 20:8-11", resumen: "Relato historico de la actividad creativa de Dios.", detalle: "Dios ha revelado en las Escrituras el autentico e historico relato de su actividad creativa. El creo el universo en seis dias literales y descanso en el septimo dia. Asi establecio el sabado como un recordatorio perpetuo de su obra. El hombre y la mujer fueron hechos a imagen de Dios como obra cumbre." },
+    { num: 7, cat: "HUMANIDAD", titulo: "Naturaleza de la Humanidad", icono: "??", ref: "Gen 1:26-28; 1 Tes 5:23", resumen: "Unidad indivisible de cuerpo, mente y espiritu.", detalle: "El hombre y la mujer fueron hechos a imagen de Dios con individualidad, el poder y la libertad de pensar y hacer. Cada uno es una unidad indivisible de cuerpo, mente y espiritu, que depende de Dios para la vida, el aliento y todo lo demas. Cuando nuestros primeros padres desobedecieron a Dios, cayeron de su alta posicion." },
+    { num: 8, cat: "SALVACION", titulo: "La Gran Controversia", icono: "??", ref: "Apoc 12:4-9; Job 1:6-12", resumen: "Conflicto universal sobre el caracter de Dios.", detalle: "Toda la humanidad esta ahora involucrada en una gran controversia entre Cristo y Satanas con respecto al caracter de Dios, su ley y su soberania sobre el universo. Este conflicto se origino en el cielo cuando un ser creado se convirtio en Satanas. Introdujo el espiritu de rebelion en este mundo. El Dios de amor sera finalmente reivindicado." },
+    { num: 9, cat: "SALVACION", titulo: "Vida, Muerte y Resurreccion de Cristo", icono: "??", ref: "Isa 53; 1 Cor 15:3-4", resumen: "Unico medio de expiacion por el pecado.", detalle: "En la vida de Cristo de perfecta obediencia a la voluntad de Dios, su sufrimiento, muerte y resurreccion, Dios proporciono el unico medio de expiacion por el pecado humano. Esta expiacion perfecta vindica la justicia de la ley de Dios y la gracia de su caracter. La resurrecccion corporal de Cristo proclama el triunfo de Dios sobre las fuerzas del mal." },
+    { num: 10, cat: "SALVACION", titulo: "Experiencia de la Salvacion", icono: "???", ref: "Juan 3:16; Ef 2:4-10", resumen: "Justificados y adoptados por gracia.", detalle: "Guiados por el Espiritu Santo sentimos nuestra necesidad, reconocemos nuestra pecaminosidad, nos arrepentimos de nuestras transgresiones y ejercemos la fe en Jesus como Salvador y Senor. A traves de Cristo somos justificados, adoptados como hijos e hijas de Dios, y liberados del senorio del pecado." },
+    { num: 11, cat: "SALVACION", titulo: "Creciendo en Cristo", icono: "??", ref: "Sal 1:1-2; Col 2:6", resumen: "Victoria sobre las fuerzas del mal.", detalle: "Con su muerte en la cruz, Jesus triunfo sobre las fuerzas del mal. Estamos llamados a crecer a semejanza de su caracter, comulgando con el diariamente en la oracion, alimentandonos de su Palabra y participando en la mision de la Iglesia." },
+    { num: 12, cat: "IGLESIA", titulo: "La Iglesia", icono: "???", ref: "Mat 28:19-20; Ef 1:22", resumen: "Comunidad de creyentes en Jesucristo.", detalle: "La iglesia es la comunidad de creyentes que confiesan a Jesucristo como Senor y Salvador. Somos llamados a diferenciarnos del mundo y nos reunimos para la adoracion, la comunion, la instruccion en la Palabra, para la celebracion de la Cena del Senor, para el servicio a la humanidad y para la proclamacion mundial del evangelio." },
+    { num: 13, cat: "IGLESIA", titulo: "El Remanente y su Mision", icono: "??", ref: "Apoc 12:17; 14:6-12", resumen: "Llamados a guardar los mandamientos en el tiempo del fin.", detalle: "En los ultimos dias, un remanente ha sido llamado a guardar los mandamientos de Dios y la fe de Jesus. Este remanente anuncia la llegada de la hora del juicio, proclama la salvacion a traves de Cristo y anuncia la llegada de su segundo advenimiento, simbolizado por los tres angeles de Apocalipsis 14." },
+    { num: 14, cat: "IGLESIA", titulo: "Unidad en el Cuerpo de Cristo", icono: "??", ref: "Juan 17:20-23; Gal 3:27-29", resumen: "Un cuerpo con muchos miembros sin distinciones.", detalle: "La iglesia es un cuerpo con muchos miembros, llamados de todas las naciones, tribus, lenguas, y pueblos. En Cristo somos una nueva creacion; las distinciones de raza, cultura, nacionalidad no deben ser divisorias entre nosotros. Todos somos iguales en Cristo." },
+    { num: 15, cat: "IGLESIA", titulo: "Bautismo", icono: "??", ref: "Mat 28:19; Rom 6:1-6", resumen: "Simbolo de union con Cristo y perdon de pecados.", detalle: "Por el bautismo confesamos nuestra fe en la muerte y resurreccion de Jesucristo, y damos testimonio de nuestra muerte al pecado. Es un simbolo de nuestra union con Cristo, el perdon de nuestros pecados y la recepcion del Espiritu Santo. Es por inmersion en el agua." },
+    { num: 16, cat: "IGLESIA", titulo: "La Cena del Senor", icono: "??", ref: "1 Cor 11:23-30; Juan 13:1-17", resumen: "Participacion en los emblemas del sacrificio de Cristo.", detalle: "La Cena del Senor es una participacion en los emblemas del cuerpo y la sangre de Jesus como expresion de la fe en El. La preparacion incluye el auto-examen, el arrepentimiento y la confesion. El Maestro ordeno el servicio del lavado de pies para significar una renovada limpieza y humildad de Cristo." },
+    { num: 17, cat: "VIDA DIARIA", titulo: "Dones y Ministerios Espirituales", icono: "??", ref: "1 Cor 12:7-11; Ef 4:11", resumen: "Habilidades otorgadas por el Espiritu para el servicio.", detalle: "Dios otorga a todos los miembros de su iglesia los dones espirituales que cada miembro debe emplear en un ministerio amoroso para el bienestar general de la iglesia y de la humanidad. Los dones incluyen ministerios como la fe, la sanacion, la profecia, la proclamacion, la ensenanza, la administracion y el servicio abnegado." },
+    { num: 18, cat: "VIDA DIARIA", titulo: "El Don de la Profecia", icono: "??", ref: "Apoc 12:17; 19:10", resumen: "Autoridad profetica manifestada en Ellen G. White.", detalle: "Las Escrituras testifican que uno de los dones del Espiritu Santo es la profecia. Este don es una marca identificadora de la iglesia remanente y creemos que se manifesto en el ministerio de Ellen G. White. Sus escritos hablan con autoridad profetica y proveen consuelo, guia, instruccion, y correccion a la iglesia." },
+    { num: 19, cat: "VIDA DIARIA", titulo: "La Ley de Dios", icono: "??", ref: "Ex 20:1-17; Rom 8:3-4", resumen: "Los Diez Mandamientos como expresion del amor divino.", detalle: "Los grandes principios de la ley de Dios estan encarnados en los Diez Mandamientos y ejemplificados en la vida de Cristo. Expresan el amor, la voluntad y los propositos de Dios en relacion con la conducta humana. Son la base del pacto de Dios y la norma en el juicio. La salvacion es enteramente por gracia." },
+    { num: 20, cat: "VIDA DIARIA", titulo: "El Sabado", icono: "??", ref: "Gen 2:1-3; Ex 20:8-11", resumen: "Memorial perpetuo de la Creacion y Redencion.", detalle: "El amable Creador, despues de los seis dias de la Creacion, descanso en el septimo dia e instituyo el Sabado para todas las personas como un memorial de la Creacion. El cuarto mandamiento requiere la observancia del septimo dia como dia de descanso, adoracion y ministerio. Su alegre observancia es de tarde a tarde." },
+    { num: 21, cat: "VIDA DIARIA", titulo: "Mayordoma", icono: "??", ref: "Mal 3:8-12; 2 Cor 9:7", resumen: "Administradores fieles del tiempo y recursos de Dios.", detalle: "Somos los mayordomos de Dios, a quienes El ha confiado tiempo y oportunidades, habilidades y posesiones. Somos responsables ante El por su uso apropiado. Reconocemos la propiedad de Dios por medio del servicio fiel y devolviendo el diezmo y dando ofrendas para la proclamacion de su evangelio." },
+    { num: 22, cat: "VIDA DIARIA", titulo: "Conducta Cristiana", icono: "?", ref: "1 Cor 6:19-20; Rom 12:1-2", resumen: "Viviendo en armonia con los principios biblicos.", detalle: "Estamos llamados a ser un pueblo santo que piensa, siente, y actua en armonia con los principios biblicos. Nos involucramos solo en aquellas cosas que produciran la pureza, la salud y la alegria de Cristo. Como nuestros cuerpos son templos del Espiritu Santo, debemos cuidarlos inteligentemente con dieta saludable." },
+    { num: 23, cat: "VIDA DIARIA", titulo: "El Matrimonio y la Familia", icono: "??", ref: "Gen 2:18-25; Mat 19:3-9", resumen: "Union de por vida establecida por Dios.", detalle: "El matrimonio fue divinamente establecido en el Eden y afirmado por Jesus como una union de por vida entre un hombre y una mujer. El amor mutuo, el honor y el respeto son el tejido de esta relacion. Los padres deben educar a sus hijos en el amor al Senor." },
+    { num: 24, cat: "RESTAURACION", titulo: "Ministerio de Cristo en el Santuario Celestial", icono: "???", ref: "Dan 8:14; Heb 8:1-5", resumen: "Juicio investigador iniciado en 1844.", detalle: "Hay un santuario en el cielo donde Cristo ministra en nuestro nombre. En 1844, al final del periodo profetico de 2300 dias, entro en la segunda y ultima fase de su ministerio expiatorio. Es un trabajo de juicio investigativo que revela quienes entre los muertos y los vivos permanecen en Cristo." },
+    { num: 25, cat: "RESTAURACION", titulo: "La Segunda Venida de Cristo", icono: "??", ref: "Juan 14:1-3; 1 Tes 4:13-18", resumen: "El gran climax del evangelio y esperanza de la iglesia.", detalle: "La segunda venida de Cristo es la bendita esperanza de la iglesia. La venida del Salvador sera literal, personal, visible y mundial. Cuando regrese, los justos muertos resucitaran, y junto con los justos vivos seran glorificados y llevados al cielo. El cumplimiento de la profecia indica que la venida de Cristo esta cerca." },
+    { num: 26, cat: "RESTAURACION", titulo: "Muerte y Resurreccion", icono: "??", ref: "Ecl 9:5; 1 Cor 15:51-54", resumen: "Estado inconsciente hasta la glorificacion final.", detalle: "La paga del pecado es la muerte. Pero Dios concedera la vida eterna a sus redimidos. Hasta ese dia la muerte es un estado inconsciente para todas las personas. Cuando Cristo aparezca, los justos resucitados y los justos vivos seran glorificados y arrebatados al encuentro de su Senor." },
+    { num: 27, cat: "RESTAURACION", titulo: "El Milenio y el Fin del Pecado", icono: "??", ref: "Apoc 20; 21:1-5", resumen: "Reinado de mil anos y erradicacion del mal.", detalle: "El milenio es el reino de mil anos de Cristo con sus santos en el cielo entre la primera y la segunda resurreccion. Al final, la Ciudad Santa descendera y el fuego de Dios limpiara la tierra, liberando al universo del pecado para siempre." },
+    { num: 28, cat: "RESTAURACION", titulo: "La Nueva Tierra", icono: "??", ref: "Isa 65:17-25; Apoc 21:1-7", resumen: "Hogar eterno de los redimidos en presencia de Dios.", detalle: "En la nueva tierra, en la que habita la justicia, Dios proveera un hogar eterno para los redimidos. Alli Dios mismo morara con su pueblo, y el sufrimiento y la muerte habran pasado. La gran controversia terminara, y el pecado ya no existira. Todas las cosas declararan que Dios es amor." }
+];
+
+const IGLESIA_DOCTRINAS_INTROS = {
+    "DIOS": "Nuestro Dios Creador es amor, poder y esplendor. El es tres en uno, misterioso e infinito, y sin embargo desea una conexion intima con la humanidad.",
+    "HUMANIDAD": "Amorosamente disenados como seres perfectos, Dios creo a los humanos a su propia imagen. Pero el pecado se colo. Afortunadamente, Dios tenia un plan para redimirnos.",
+    "SALVACION": "Satanas acuso a Dios de ser injusto. Pero Dios demostro cuanto nos ama enviando a su propio Hijo, Jesucristo, a morir en nuestro lugar.",
+    "IGLESIA": "Jesus comisiono a sus seguidores para contar a otros sobre su amor. Dios nos da el privilegio de ser parte de su ministerio.",
+    "VIDA DIARIA": "La ley de Dios nos muestra el camino a seguir. Responder a su llamada significa ser administradores de la tierra y cuidar de nuestras mentes y cuerpos.",
+    "RESTAURACION": "Antes de la Segunda Venida, Dios esta investigando toda la tierra. Disfrutaremos de un milenio en el cielo y la restauracion de nuestra tierra al paraiso que una vez fue."
+};
+
+function renderDoctrinas28Iglesia() {
+    const contenedor = document.getElementById('pantalla-estudio');
+    const categorias = ["DIOS", "HUMANIDAD", "SALVACION", "IGLESIA", "VIDA DIARIA", "RESTAURACION"];
+
+    contenedor.innerHTML = `
+        <div style="min-height:100vh;background:linear-gradient(170deg,#0a0818,#130f2e,#0d0a22);font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
+            <div style="background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);padding:15px 20px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(162,155,254,0.3);">
+                <button onclick="renderModuloIglesia()" style="background:rgba(162,155,254,0.1);border:1px solid rgba(162,155,254,0.3);color:#a29bfe;padding:8px 15px;border-radius:8px;font-weight:900;cursor:pointer;">&#8592; MODULO</button>
+                <div>
+                    <div style="color:#a29bfe;font-weight:900;letter-spacing:2px;font-size:0.9rem;">?? 28 DOCTRINAS</div>
+                    <div style="color:rgba(255,255,255,0.4);font-size:0.65rem;letter-spacing:1px;">CREENCIAS FUNDAMENTALES ADVENTISTAS</div>
+                </div>
+            </div>
+
+            <div style="padding:20px;max-width:750px;margin:0 auto;">
+                <p style="color:rgba(255,255,255,0.35);text-align:center;font-size:0.8rem;margin:0 0 30px;">Toca cualquier doctrina para leerla completa</p>
+
+                ${categorias.map(cat => `
+                    <div style="margin-bottom:35px;">
+                        <div style="background:rgba(162,155,254,0.05);border-left:4px solid #a29bfe;padding:18px;border-radius:10px;margin-bottom:15px;">
+                            <h2 style="color:#a29bfe;font-size:1rem;letter-spacing:3px;margin:0 0 8px;">${cat}</h2>
+                            <p style="color:rgba(255,255,255,0.55);font-size:0.82rem;line-height:1.5;margin:0;">${IGLESIA_DOCTRINAS_INTROS[cat] || ""}</p>
+                        </div>
+                        <div style="display:grid;gap:10px;">
+                            ${IGLESIA_DOCTRINAS.filter(d => d.cat === cat).map(d => `
+                                <div onclick="abrirDoctrinaIglesia(${d.num})"
+                                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(162,155,254,0.12);border-radius:12px;padding:18px;cursor:pointer;transition:0.3s;"
+                                    onmouseover="this.style.borderColor='rgba(162,155,254,0.35)';this.style.background='rgba(255,255,255,0.06)'"
+                                    onmouseout="this.style.borderColor='rgba(162,155,254,0.12)';this.style.background='rgba(255,255,255,0.03)'">
+                                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                                        <span style="background:rgba(162,155,254,0.15);color:#a29bfe;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.78rem;flex-shrink:0;">${d.num}</span>
+                                        <span style="font-size:1.3rem;">${d.icono}</span>
+                                        <h3 style="color:#fff;font-size:0.92rem;margin:0;">${d.titulo}</h3>
+                                    </div>
+                                    <p style="color:rgba(255,255,255,0.65);font-size:0.83rem;line-height:1.6;margin:0 0 10px;">${d.resumen}</p>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span style="color:#a29bfe;font-size:0.72rem;font-weight:700;">?? ${d.ref}</span>
+                                        <span style="color:#a29bfe;font-size:0.75rem;font-weight:900;">LEER ?</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+
+                <div style="text-align:center;padding:20px;background:rgba(212,175,55,0.05);border-radius:15px;border:1px dashed rgba(212,175,55,0.2);">
+                    <p style="color:#d4af37;font-size:0.82rem;margin:0;">"Y estas palabras que yo te mando hoy, estaran sobre tu corazon..." — Deuteronomio 6:6</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL DOCTRINA DETALLE -->
+        <div id="doctrina-panel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;padding:20px;box-sizing:border-box;" onclick="cerrarDoctrinaPanel(event)">
+            <div id="doctrina-panel-card" style="background:linear-gradient(170deg,#130f2e,#0d0a22);border:1px solid rgba(162,155,254,0.3);border-radius:20px;max-width:700px;margin:0 auto;padding:30px;position:relative;">
+                <button onclick="cerrarDoctrinaPanel(null,true)" style="position:absolute;top:15px;right:15px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;">?</button>
+                <div id="doctrina-panel-num" style="color:#a29bfe;font-size:0.7rem;letter-spacing:3px;margin-bottom:8px;">DOCTRINA N°</div>
+                <h2 id="doctrina-panel-titulo" style="color:#fff;margin:0 0 20px;font-size:1.3rem;"></h2>
+                <div id="doctrina-panel-cuerpo" style="color:rgba(255,255,255,0.8);line-height:1.85;font-size:0.95rem;"></div>
+                <div id="doctrina-panel-ref" style="margin-top:20px;padding-top:15px;border-top:1px solid rgba(162,155,254,0.2);color:#a29bfe;font-size:0.8rem;"></div>
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+
+function abrirDoctrinaIglesia(num) {
+    const d = IGLESIA_DOCTRINAS.find(x => x.num === num);
+    if (!d) return;
+    document.getElementById('doctrina-panel-num').innerText = 'DOCTRINA N° ' + d.num + ' — ' + d.cat;
+    document.getElementById('doctrina-panel-titulo').innerText = d.icono + ' ' + d.titulo;
+    document.getElementById('doctrina-panel-cuerpo').innerText = d.detalle;
+    document.getElementById('doctrina-panel-ref').innerText = '?? Referencias: ' + d.ref;
+    document.getElementById('doctrina-panel-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarDoctrinaPanel(event, forzar) {
+    if (forzar || (event && event.target === document.getElementById('doctrina-panel-overlay'))) {
+        document.getElementById('doctrina-panel-overlay').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}

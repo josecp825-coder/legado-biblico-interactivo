@@ -1,0 +1,52 @@
+﻿function cargarCultosSemana() {
+    let historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    const query = document.getElementById('search-culto')?.value.toLowerCase() || "";
+    const contenedor = document.getElementById('historico-cultos');
+
+    if (historial.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No hay cultos registrados en el historial.</div>`;
+        return;
+    }
+
+    // Filtrar por búsqueda
+    const filtrados = historial.filter(h =>
+        h.fecha.includes(query) ||
+        h.predicador.toLowerCase().includes(query) ||
+        h.tema.toLowerCase().includes(query) ||
+        h.cita.toLowerCase().includes(query) ||
+        h.tipo.toLowerCase().includes(query)
+    );
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No se encontraron resultados para "${query}".</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = filtrados.map(reg => `
+        <div style="background:rgba(255,255,255,0.04); border-radius:18px; padding:20px; border:1px solid rgba(255,255,255,0.08); border-left:6px solid ${reg.tipo === 'Miércoles' ? '#55efc4' : (reg.tipo === 'Sábado' ? '#fdcb6e' : (reg.tipo === 'Viernes' ? '#ff6b6b' : '#a29bfe'))}; position:relative;">
+            <button onclick="borrarCultoSemana(${reg.id})" style="position:absolute; top:15px; right:15px; background:transparent; border:none; font-size:1.3rem; cursor:pointer; opacity:0.3;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'">???</button>
+            
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:20px; font-size:0.65rem; color:${reg.tipo === 'Miércoles' ? '#55efc4' : (reg.tipo === 'Sábado' ? '#fdcb6e' : (reg.tipo === 'Viernes' ? '#ff6b6b' : '#a29bfe'))}; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">
+                    ${reg.tipo}
+                </div>
+                <div style="color:rgba(255,255,255,0.5); font-size:0.75rem; font-weight:bold;">${formatearFechaCulto(reg.fecha)}</div>
+            </div>
+
+            <div style="color:#fff; font-size:1.1rem; font-weight:900; margin-bottom:5px;">${reg.tema}</div>
+            <div style="color:rgba(255,255,255,0.7); font-size:0.9rem; margin-bottom:12px;">?? Predicador: <b>${reg.predicador}</b></div>
+
+            <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:15px; font-size:0.8rem;">
+                <div>
+                    <span style="color:rgba(255,255,255,0.4); display:block; margin-bottom:2px; font-weight:bold; font-size:0.6rem;">CITA BÍBLICA</span>
+                    <span style="color:#55efc4; font-weight:bold;">?? ${reg.cita}</span>
+                </div>
+                <div>
+                    <span style="color:rgba(255,255,255,0.4); display:block; margin-bottom:2px; font-weight:bold; font-size:0.6rem;">HIMNOS / CANTOS</span>
+                    <span style="color:#a29bfe; font-weight:bold;">?? ${reg.himnos}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+

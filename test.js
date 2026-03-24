@@ -1,0 +1,1744 @@
+
+        // �������������������������������������������
+        // 🛡� ESCUDO ANTI-LOOP DE RECARGA v84
+        // Previene congelamientos por recargas infinitas
+        // �������������������������������������������
+        function puedeRecargar() {
+            const COOLDOWN_MS = 15000; // 15 segundos de espera m�nima entre recargas
+            const ultimaRecarga = parseInt(sessionStorage.getItem('legado_reload_ts') || '0');
+            const ahora = Date.now();
+            if (ahora - ultimaRecarga < COOLDOWN_MS) {
+                console.warn('[ANTI-LOOP] ⛔ Recarga bloqueada � cooldown activo (' + Math.round((COOLDOWN_MS - (ahora - ultimaRecarga)) / 1000) + 's restantes)');
+                return false;
+            }
+            sessionStorage.setItem('legado_reload_ts', ahora.toString());
+            return true;
+        }
+
+        // 🔥 RESET NUCLEAR por URL: agendatecnicadigital.com/?reset=1
+        if (window.location.search.includes('reset=1')) {
+            (async function() {
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(function(r){ return r.unregister(); }));
+                }
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+                }
+                localStorage.removeItem('legado_v3');
+                sessionStorage.clear();
+                window.location.replace('./');
+            })();
+        }
+
+        // ���������������������������������������������������
+        // SISTEMA DE VERSI�N EMBEBIDA v247
+        // NO depende de fetch/red � comparaci�n instant�nea
+        // Este n�mero cambia con cada deploy en index.html
+        // ���������������������������������������������������
+        const _HTML_VERSION = '377'; // CORREGIDO
+
+        async function checkVersion() {
+            const versionGuardada = localStorage.getItem('legado_v3') || '0';
+
+            // 1. Verificaci�n instant�nea: �el HTML que se carg� es nuevo?
+            if (versionGuardada !== '0' && versionGuardada !== _HTML_VERSION) {
+                // El index.html actual tiene una versi�n DIFERENTE a la guardada
+                // → Limpiar cach� y recargar
+                console.log('[VERSION] 🆕 HTML v' + _HTML_VERSION + ' vs guardado v' + versionGuardada + ' → ACTUALIZANDO');
+                const msg = document.getElementById('pwa-splash-msg');
+                if (msg) msg.textContent = 'Actualizando a v' + _HTML_VERSION + '...';
+
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(regs.map(r => r.unregister()));
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(k => caches.delete(k)));
+                    }
+                } catch(e) { console.warn('[VERSION] cleanup error:', e); }
+
+                localStorage.setItem('legado_v3', _HTML_VERSION);
+                sessionStorage.removeItem('legado_reload_ts');
+                window.location.replace('./?v=' + _HTML_VERSION + '&t=' + Date.now());
+                return;
+            }
+
+            // 2. Primera vez o versi�n correcta → guardar y confirmar con servidor
+            localStorage.setItem('legado_v3', _HTML_VERSION);
+
+            // 3. Verificaci�n secundaria con servidor (no bloquea el splash)
+            try {
+                const res = await fetch('./version.json?nocache=' + Date.now(), {cache:'no-store'});
+                const data = await res.json();
+                if (data.version !== _HTML_VERSION) {
+                    // El servidor tiene una versi�n A�N m�s nueva que este HTML
+                    // ✅ Guard anti-loop: verificar cooldown antes de recargar
+                    if (!puedeRecargar()) {
+                        console.warn('[VERSION] ⛔ Recarga secundaria bloqueada por cooldown');
+                        window._ocultarSplash();
+                        return;
+                    }
+                    console.log('[VERSION] 🔄 Servidor tiene v' + data.version + ', actualizando...');
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(regs.map(r => r.unregister()));
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(k => caches.delete(k)));
+                    }
+                    localStorage.setItem('legado_v3', data.version);
+                    sessionStorage.removeItem('legado_reload_ts');
+                    window.location.replace('./?v=' + data.version + '&t=' + Date.now());
+                    return;
+                }
+            } catch (e) {
+                console.warn('[VERSION] Sin acceso al servidor (modo offline ok):', e);
+            }
+
+            // ✅ Todo bien � ocultar splash
+            window._ocultarSplash();
+        }
+
+        checkVersion();
+        window.addEventListener('online', () => checkVersion());
+
+        // ✅ Escuchar cuando el Service Worker se actualiza → recargar p�gina
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', function(ev) {
+                if (ev.data && ev.data.type === 'SW_UPDATED') {
+                    console.log('[PWA] Nuevo SW activo:', ev.data.cache, '→ recargando...');
+                    window.location.replace('./?v=sw&t=' + Date.now());
+                }
+            });
+        }
+
+        // ✅ Funci�n global para forzar actualizaci�n manual (bot�n en la UI)
+        window.forzarActualizacion = async function() {
+            if (!confirm('🔄 Actualizar Legado B�blico\n\nSe descargar� el c�digo m�s reciente.\nTus datos est�n protegidos.\n\n�Continuar?')) return;
+            try {
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(r => r.unregister()));
+                }
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
+                }
+                localStorage.removeItem('legado_v3');
+            } catch(e) { console.warn(e); }
+            window.location.replace('./index.html?nocache=' + Date.now());
+        };
+
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGADO B�BLICO | Experiencia Digital</title>
+    <link rel="stylesheet" href="style.css?v=365">
+    <link rel="stylesheet" href="mobile.css?v=365">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- ✅ PWA CONFIGURACION -->
+    <link rel="manifest" href="/manifest.json?v=180">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="./firebase-config.js?v=300"></script>
+    <script>
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+</head>
+
+<body>
+    <!-- 🛡� SPLASH ANTI-CONTENIDO-VIEJO v245 -->
+    <!-- Cubre la pantalla mientras checkVersion() decide si actualizar o no -->
+    <div id="pwa-splash" style="
+        position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;
+        background:linear-gradient(170deg,#0a0818,#1a0f3c,#0a0818);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        font-family:'Segoe UI',sans-serif;">
+        <div style="font-size:3.5rem;margin-bottom:16px;">📖</div>
+        <div style="color:#a29bfe;font-weight:900;font-size:1.3rem;letter-spacing:3px;margin-bottom:8px;">LEGADO B�BLICO</div>
+        <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;letter-spacing:2px;margin-bottom:28px;">CARGANDO...</div>
+        <div style="width:48px;height:3px;background:rgba(162,155,254,0.2);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;background:#a29bfe;border-radius:4px;animation:splashProg 1.5s ease-in-out infinite;"></div>
+        </div>
+        <div id="pwa-splash-msg" style="color:rgba(255,255,255,0.25);font-size:0.65rem;margin-top:20px;letter-spacing:1px;"></div>
+    </div>
+    <style>
+        @keyframes splashProg {
+            0%   { width:0%;margin-left:0; }
+            50%  { width:80%;margin-left:0; }
+            100% { width:0%;margin-left:100%; }
+        }
+        #pwa-splash.oculto { opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
+    </style>
+    <script>
+        // Funci�n global para ocultar el splash (llamada por checkVersion())
+        window._ocultarSplash = function() {
+            const splash = document.getElementById('pwa-splash');
+            if (splash) {
+                splash.classList.add('oculto');
+                setTimeout(() => splash.remove(), 500);
+            }
+        };
+        // Seguro m�ximo: si checkVersion() tarda m�s de 4s (sin internet), ocultar igual
+        setTimeout(window._ocultarSplash, 4000);
+    </script>
+
+    <!-- 🚀 MOTOR DE ACTUALIZACI�N AT�MICA v90 -->
+    <script>
+        async function superHuracanUpdate() {
+            const btn = document.getElementById('btn-actualizar-pwa');
+            if (btn) { btn.innerHTML = '🔥 RESPALDANDO Y LIMPIANDO...'; btn.disabled = true; btn.style.background='linear-gradient(135deg,#e17055,#d63031)'; }
+
+            try {
+                // 1. FORZAR GUARDADO EN LA NUBE (por si acaso)
+                if (typeof window.superGuardarNubeUniversal === 'function') {
+                    try { await window.superGuardarNubeUniversal(); } catch(e) {}
+                }
+
+                // 2. Destruir SW activo forzando skips y deletes
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                }
+
+                // 3. Desregistrar TODOS los Service Workers (MEGA PURGA)
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for(let r of regs) { await r.unregister(); }
+                }
+
+                // 4. Borrar TODOS los cach�s del navegador
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for(let k of keys) { await caches.delete(k); }
+                }
+
+                // 5. Preservar datos vitales
+                const _save = {};
+                ['legado_user_name','legado_cultos_semanales','legado_liturgias',
+                 'legado_font_paso','cal_bio_registered','cal_bio_cred_id','cal_director',
+                 'plan_ano_biblico','plan_fecha_inicio','plan_dias_leidos',
+                 'legado_eventos','legado_predicaciones'].forEach(k => {
+                    const v = localStorage.getItem(k);
+                    if (v) _save[k] = v;
+                });
+                
+                // Purgar localStorage por completo de basura y cach� antigua
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Restaurar los datos vitales puros
+                Object.keys(_save).forEach(k => localStorage.setItem(k, _save[k]));
+
+                // Forzar reload f�sico desde el servidor
+                if (btn) btn.innerHTML = '🚀 REINICIANDO...';
+                setTimeout(() => {
+                    window.location.href = window.location.pathname + '?hard_reset=' + Date.now();
+                }, 400);
+
+            } catch (err) {
+                // Fallback nuclear
+                window.location.href = window.location.pathname + '?hard_reset_err=' + Date.now();
+            }
+        }
+
+    </script>
+
+    <!-- 🔤 SISTEMA DE FUENTE GLOBAL - Persistente + MutationObserver -->
+    <script>
+        (function () {
+            const CLAVE_PASO = 'legado_font_paso';
+            const PASOS = [0.82, 0.9, 1.0, 1.1, 1.22, 1.38, 1.55, 1.75];
+            let pasoActual = parseInt(localStorage.getItem(CLAVE_PASO) || '2');
+
+            /* ── Aplica el tama�o a UN elemento ── */
+            function aplicarAEl(el, tamRem) {
+                el.style.setProperty('font-size', tamRem + 'rem', 'important');
+            }
+
+            /* ── Aplica a TODOS los .lectura-texto del DOM + actualiza variable ── */
+            function aplicarEscala() {
+                const escala = PASOS[pasoActual];
+                const tamRem = parseFloat((escala * 1.08).toFixed(3));
+
+                // Variable CSS ra�z
+                document.documentElement.style.setProperty('--font-scale', escala);
+                document.documentElement.style.setProperty('--font-lect', tamRem + 'rem');
+
+                // Forzar en todos los elementos actuales (vence inline styles)
+                document.querySelectorAll('.lectura-texto').forEach(el => aplicarAEl(el, tamRem));
+
+                // Actualizar indicador
+                const ind = document.getElementById('font-ind');
+                if (ind) ind.textContent = Math.round(escala * 100) + '%';
+
+                // Guardar preferencia
+                localStorage.setItem(CLAVE_PASO, pasoActual);
+
+                // Guardar tama�o actual globalmente para el Observer
+                window._fontLectRem = tamRem;
+            }
+
+            /* ── MutationObserver: detecta elementos nuevos autom�ticamente ── */
+            const observer = new MutationObserver(mutations => {
+                const tam = window._fontLectRem;
+                if (!tam) return;
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType !== 1) return;
+                        // El propio nodo
+                        if (node.classList && node.classList.contains('lectura-texto')) {
+                            aplicarAEl(node, tam);
+                        }
+                        // Sus hijos
+                        node.querySelectorAll && node.querySelectorAll('.lectura-texto')
+                            .forEach(el => aplicarAEl(el, tam));
+                    });
+                });
+            });
+
+            // Arrancar el observer cuando el body exista
+            function iniciarObserver() {
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+
+            /* ── API p�blica � SISTEMA UNIVERSAL v3 ── */
+            window.fontMas = function () {
+                console.log('[WIDGET] A+ pulsado');
+                // 🔥 Detectar si estamos en el lector b�blico
+                const vb = document.getElementById('verses-body');
+                if (vb) {
+                    // MANIPULACI�N DIRECTA del font-size del lector b�blico
+                    let tam = parseFloat(vb.style.fontSize) || 1.15;
+                    tam = Math.min(2.5, tam + 0.12);
+                    vb.style.fontSize = tam + 'rem';
+                    localStorage.setItem('bibleFontSize', tam);
+                    mostrarToastFuente('🔤 Biblia: ' + Math.round(tam * 100) + '%');
+                    pulsoWidget();
+                    console.log('[WIDGET] Biblia fontSize:', tam);
+                    return;
+                }
+                // Sistema lectura-texto (home, devocional)
+                if (pasoActual < PASOS.length - 1) { pasoActual++; aplicarEscala(); }
+                mostrarToastFuente(pasoActual >= PASOS.length - 1
+                    ? '🔤 M�XIMO' : '🔤 ' + Math.round(PASOS[pasoActual] * 100) + '%');
+                pulsoWidget();
+            };
+
+            window.fontMenos = function () {
+                console.log('[WIDGET] A- pulsado');
+                const vb = document.getElementById('verses-body');
+                if (vb) {
+                    let tam = parseFloat(vb.style.fontSize) || 1.15;
+                    tam = Math.max(0.7, tam - 0.12);
+                    vb.style.fontSize = tam + 'rem';
+                    localStorage.setItem('bibleFontSize', tam);
+                    mostrarToastFuente('🔤 Biblia: ' + Math.round(tam * 100) + '%');
+                    pulsoWidget();
+                    console.log('[WIDGET] Biblia fontSize:', tam);
+                    return;
+                }
+                if (pasoActual > 0) { pasoActual--; aplicarEscala(); }
+                mostrarToastFuente(pasoActual <= 0
+                    ? '🔤 M�NIMO' : '🔤 ' + Math.round(PASOS[pasoActual] * 100) + '%');
+                pulsoWidget();
+            };
+
+            // Llamar esto al final de cualquier funci�n de render din�mica
+            window.refrescarFuente = aplicarEscala;
+
+            /* ── Toast universal ── */
+            function mostrarToastFuente(msg) {
+                let toast = document.getElementById('font-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'font-toast';
+                    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(0.8);background:rgba(13,10,35,0.95);color:#fff;padding:10px 24px;border-radius:30px;font-size:0.85rem;font-weight:900;z-index:100000000;opacity:0;transition:opacity 0.3s ease, transform 0.3s ease;pointer-events:none;backdrop-filter:blur(14px);box-shadow:0 4px 20px rgba(108,92,231,0.5);border:1px solid rgba(162,155,254,0.4);letter-spacing:1px;';
+                    document.body.appendChild(toast);
+                }
+                toast.textContent = msg;
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) scale(1)';
+                clearTimeout(window._fontToastTimer);
+                window._fontToastTimer = setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(-50%) scale(0.8)';
+                }, 1800);
+            }
+
+            function pulsoWidget() {
+                const w = document.getElementById('font-widget');
+                if (!w) return;
+                w.style.transform = 'scale(1.15)';
+                setTimeout(() => { w.style.transform = 'scale(1)'; }, 200);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                aplicarEscala();
+                iniciarObserver();
+            });
+            if (document.readyState !== 'loading') {
+                aplicarEscala();
+                if (document.body) iniciarObserver();
+            }
+        })();
+    </script>
+
+    <style>
+        :root {
+            --font-scale: 1;
+            --font-lect: 1.08rem;
+        }
+
+        .lectura-texto {
+            font-size: var(--font-lect) !important;
+            line-height: 1.78 !important;
+            transition: font-size 0.2s ease, line-height 0.2s ease;
+        }
+
+        #font-widget {
+            position: fixed;
+            bottom: 22px;
+            left: 14px;
+            z-index: 10000001;
+            display: flex;
+            align-items: center;
+            background: rgba(13, 10, 35, 0.93);
+            border: 1px solid rgba(162, 155, 254, 0.4);
+            border-radius: 30px;
+            padding: 4px 3px;
+            box-shadow: 0 4px 22px rgba(0, 0, 0, 0.55), 0 0 18px rgba(108, 92, 231, 0.2);
+            backdrop-filter: blur(14px);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            gap: 0;
+            user-select: none;
+            touch-action: none;
+        }
+        #font-widget.dragging {
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.7);
+            transform: scale(1.05);
+        }
+        #font-drag-handle {
+            width: 22px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(162,155,254,0.4);
+            font-size: 0.75rem;
+            cursor: grab;
+            padding: 0 2px;
+        }
+        #font-drag-handle:active { cursor: grabbing; }
+
+        #font-widget button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            transition: background 0.15s;
+        }
+
+        #font-widget button:hover {
+            background: rgba(162, 155, 254, 0.18);
+        }
+
+        #font-widget button:active {
+            background: rgba(162, 155, 254, 0.35);
+        }
+
+        #font-ind {
+            font-size: 0.6rem;
+            color: #a29bfe;
+            font-family: monospace;
+            font-weight: 900;
+            min-width: 34px;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        /* Ocultar widget cuando el lector biblico esta activo (tiene sus propios botones) */
+        body.lector-biblico-activo #font-widget {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Widget A- / A+ flotante � ARRASTRABLE -->
+    <div id="font-widget">
+        <button id="fw-btn-menos" title="Reducir fuente" style="font-size:0.85rem;color:#ccc;">A−</button>
+        <span id="font-ind">100%</span>
+        <button id="fw-btn-mas" title="Aumentar fuente" style="font-size:1.1rem;">A+</button>
+    </div>
+    <script>
+    (function() {
+        function initDragWidget() {
+            var w = document.getElementById('font-widget');
+            var btnMenos = document.getElementById('fw-btn-menos');
+            var btnMas   = document.getElementById('fw-btn-mas');
+            if (!w) return;
+
+            // Restaurar posicion guardada
+            try {
+                var saved = localStorage.getItem('fw_pos');
+                if (saved) {
+                    var p = JSON.parse(saved);
+                    var maxT = window.innerHeight - 60, maxL = window.innerWidth - 140;
+                    if (p.top >= 0 && p.top <= maxT && p.left >= 0 && p.left <= maxL) {
+                        w.style.bottom = 'auto'; w.style.right = 'auto';
+                        w.style.top = p.top + 'px'; w.style.left = p.left + 'px';
+                    } else { localStorage.removeItem('fw_pos'); }
+                }
+            } catch(e) { localStorage.removeItem('fw_pos'); }
+
+            var sx = 0, sy = 0, ol = 0, ot = 0, moved = false;
+            var lastTap = 0;
+
+            // ---- Botones A- / A+ con proteccion anti-drag ----
+            btnMenos.addEventListener('click', function() { if (!moved && typeof fontMenos === 'function') fontMenos(); });
+            btnMas.addEventListener('click',   function() { if (!moved && typeof fontMas   === 'function') fontMas();   });
+
+            // ---- Drag con Pointer Events (no afecta otros toques) ----
+            w.addEventListener('pointerdown', function(e) {
+                // Doble toque para reset
+                var now = Date.now();
+                if (now - lastTap < 320) {
+                    localStorage.removeItem('fw_pos');
+                    w.style.cssText = w.style.cssText; // no-op forzar repaint
+                    w.style.bottom = '22px'; w.style.left = '14px';
+                    w.style.top = ''; w.style.right = '';
+                    if (typeof mostrarToast === 'function') mostrarToast('Widget reseteado al lugar original');
+                    lastTap = 0; return;
+                }
+                lastTap = now;
+                var rect = w.getBoundingClientRect();
+                sx = e.clientX; sy = e.clientY;
+                ol = rect.left; ot = rect.top; moved = false;
+                w.style.bottom = 'auto'; w.style.right = 'auto';
+                w.style.left = rect.left + 'px'; w.style.top = rect.top + 'px';
+                w.setPointerCapture(e.pointerId); // <-- solo captura ESTE dedo
+            });
+
+            w.addEventListener('pointermove', function(e) {
+                var dx = e.clientX - sx, dy = e.clientY - sy;
+                if (!moved && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+                moved = true;
+                w.classList.add('dragging');
+                var nx = Math.max(0, Math.min(window.innerWidth - w.offsetWidth,  ol + dx));
+                var ny = Math.max(0, Math.min(window.innerHeight - w.offsetHeight, ot + dy));
+                w.style.left = nx + 'px'; w.style.top = ny + 'px';
+            });
+
+            w.addEventListener('pointerup', function() {
+                w.classList.remove('dragging');
+                if (moved) {
+                    localStorage.setItem('fw_pos', JSON.stringify({
+                        top: parseInt(w.style.top), left: parseInt(w.style.left)
+                    }));
+                }
+                setTimeout(function() { moved = false; }, 80);
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDragWidget);
+        } else { initDragWidget(); }
+    })();
+    </script>
+
+
+
+
+    <div class="intro-container">
+
+        <!-- ����������������������������������������������������������� -->
+        <!-- 🔷 HERO � Minimalista, inspirador, sin ruido              -->
+        <!-- ����������������������������������������������������������� -->
+
+        <!-- Bot�n de actualizaci�n prominente y Bot�n Guardar Universal -->
+        <div style="position:fixed; top:10px; right:10px; display:flex; gap:6px; align-items:center; z-index:10001;">
+            <button type="button" id="btn-guardar-universal" onclick="superGuardarNubeUniversal()"
+                style="background:linear-gradient(135deg,#0984e3,#74b9ff);border:none;color:#fff;padding:7px 13px;border-radius:20px;font-size:0.68rem;font-weight:900;cursor:pointer;box-shadow:0 3px 14px rgba(9,132,227,0.5);letter-spacing:0.5px;display:flex;align-items:center;gap:5px;white-space:nowrap;"
+                title="Sincronizar todo a la Nube Segura">
+                💾 GUARDAR TODO
+            </button>
+            <div id="ver-badge" style="font-size:0.75rem; color:#ffffff; font-weight:900; font-family:monospace; background:rgba(255,107,107,0.7); padding:4px 9px; border-radius:12px; border:1px solid #ff6b6b; box-shadow:0 0 10px rgba(255,107,107,0.4);">v<span id="html-ver-badge"></span></div>
+            <script>document.getElementById('html-ver-badge').textContent = _HTML_VERSION;</script>
+            <button type="button" id="btn-actualizar-pwa" onclick="superHuracanUpdate()"
+                style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;padding:7px 13px;border-radius:20px;font-size:0.68rem;font-weight:900;cursor:pointer;box-shadow:0 3px 14px rgba(108,92,231,0.5);letter-spacing:0.5px;display:flex;align-items:center;gap:5px;white-space:nowrap;"
+                title="Forzar actualizaci�n de la app">
+                🔥 MEGA ACTUALIZAR
+            </button>
+        </div>
+
+        <script>
+            window.superGuardarNubeUniversal = async function() {
+                const btn = document.getElementById('btn-guardar-universal');
+                if (!btn) return;
+                const oldHtml = btn.innerHTML;
+                const oldBg = btn.style.background;
+                btn.innerHTML = '�� Guardando Nube...';
+                btn.disabled = true;
+
+                try {
+                    const colecciones = {
+                        'legado_cultos_semanales': 'cultos',
+                        'legado_eventos': 'eventos',
+                        'legado_liturgias': 'liturgias',
+                        'legado_predicaciones': 'predicaciones'
+                    };
+
+                    for (const [clave, colName] of Object.entries(colecciones)) {
+                        const dataStr = localStorage.getItem(clave);
+                        if (!dataStr) continue;
+                        try {
+                            const arr = JSON.parse(dataStr);
+                            if (!Array.isArray(arr)) continue;
+                            
+                            for (const item of arr) {
+                                if (!item.id) continue;
+                                await db.collection('iglesias')
+                                    .doc('cypress_hills_brooklyn')
+                                    .collection(colName)
+                                    .doc(item.id.toString())
+                                    .set(item, { merge: true });
+                            }
+                        } catch(e) { console.warn('[GuardarUniversal] Error con', clave, e); }
+                    }
+
+                    btn.innerHTML = '✅ �Seguro en la Nube!';
+                    btn.style.background = 'linear-gradient(135deg,#00b894,#55efc4)';
+                    setTimeout(() => {
+                        btn.innerHTML = oldHtml;
+                        btn.disabled = false;
+                        btn.style.background = oldBg;
+                    }, 3500);
+
+                } catch (e) {
+                    console.error('[GuardarUniversal] Error:', e);
+                    btn.innerHTML = '�� Error Nube';
+                    btn.style.background = 'linear-gradient(135deg,#d63031,#e17055)';
+                    setTimeout(() => { btn.innerHTML = oldHtml; btn.disabled = false; btn.style.background = oldBg; }, 3500);
+                }
+            };
+        </script>
+
+        <div class="welcome-text" style="padding-top: 14px;">
+            <!-- Estado de conexi�n -->
+            <div class="db-status"
+                style="font-size:0.5rem;opacity:0.3;display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:10px;">
+                <span id="db-dot"
+                    style="height:5px;width:5px;background-color:#2ed573;border-radius:50%;display:inline-block;"></span>
+                <span id="db-text">CENTRO B�BLICO GLOBAL</span>
+            </div>
+
+            <!-- T�tulo principal -->
+            <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:4px;">
+                <h1
+                    style="font-family:'Crimson Text',serif; font-size:2.6rem; margin:0; font-weight:700; letter-spacing:4px; color:#f5f6fa; -webkit-text-fill-color:#f5f6fa; background:none; text-shadow:0 2px 12px rgba(0,0,0,0.5);">
+                    LEGADO B�BLICO
+                </h1>
+                <!-- Subt�tulo sutil � no destacar la versi�n -->
+                <p
+                    style="letter-spacing:3px; color:rgba(255,255,255,0.25); font-weight:400; margin:6px 0 0; font-size:0.55rem;">
+                    EXPERIENCIA B�BLICA DIGITAL
+                </p>
+            </div>
+
+            <!-- ✨ Vers�culo inspirador del Hero -->
+            <div style="margin:20px 10px 16px; position:relative;">
+                <p id="hero-vers-texto" class="lectura-texto" style="
+                    font-family:'Crimson Text',serif;
+                    font-size:1rem;
+                    line-height:1.7;
+                    color:rgba(255,255,255,0.6);
+                    font-style:italic;
+                    margin:0 0 6px;
+                    text-align:center;
+                "></p>
+                <div id="hero-vers-ref"
+                    style="font-size:0.55rem;color:#55efc4;font-weight:700;letter-spacing:2px;text-align:center;opacity:0.7;">
+                </div>
+            </div>
+        </div>
+
+        <!-- ����������������������������������������������������������� -->
+        <!-- 🔷 TARJETAS PRINCIPALES � Las 3 puertas de la fe          -->
+        <!-- ����������������������������������������������������������� -->
+
+        <div class="category-grid" style="margin-top:4px">
+
+            <!-- 📖 LEER LA BIBLIA � Full-width, tarjeta principal -->
+            <div class="category-card" onclick="abrirSelectorBiblias()" style="
+                background:linear-gradient(135deg, rgba(85,239,196,0.12) 0%, rgba(85,239,196,0.04) 100%);
+                border:1.5px solid rgba(85,239,196,0.3);
+                position:relative; overflow:hidden; grid-column:1/-1;
+                cursor:pointer;
+            ">
+                <div class="card-bg-icon" style="color:rgba(85,239,196,0.06);font-size:6rem;">📖</div>
+                <div class="card-content" style="justify-content:center; padding:22px 24px;">
+                    <div style="font-size:2.2rem;margin-bottom:6px;">📖</div>
+                    <h2 style="color:#55efc4;font-size:1.3rem;margin-bottom:4px;">LEER LA BIBLIA</h2>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.75rem;line-height:1.5;">M�ltiples versiones, audio
+                        e idiomas � Elige c�mo quieres explorar la Palabra</p>
+                </div>
+            </div>
+
+            <!-- � DEVOCIONAL DEL D�A � Tarjeta media -->
+            <div class="category-card" onclick="abrirDevocional()" style="
+                background:linear-gradient(135deg, rgba(253,203,110,0.1) 0%, rgba(225,112,85,0.06) 100%);
+                border:1.5px solid rgba(253,203,110,0.25);
+                position:relative; overflow:hidden;
+                cursor:pointer;
+            ">
+                <div class="card-bg-icon" style="color:rgba(253,203,110,0.06);font-size:5rem;">�</div>
+                <div class="card-content" style="justify-content:center; padding:20px;">
+                    <div style="font-size:2rem;margin-bottom:6px;">�</div>
+                    <h2 style="color:#fdcb6e;font-size:1.1rem;margin-bottom:4px;">DEVOCIONAL DEL D�A</h2>
+                    <p id="devocional-card-titulo"
+                        style="color:rgba(255,255,255,0.55);font-size:0.72rem;line-height:1.4;font-style:italic;">
+                        Cargando...</p>
+                </div>
+            </div>
+
+            <!-- 📅 A�O B�BLICO � Tarjeta media -->
+            <!-- M8 FIX: Guard si el m�dulo _ano_biblico_v2.js tarda en cargar -->
+            <div class="category-card" onclick="typeof abrirAnoBiblico==='function'?abrirAnoBiblico():mostrarToast('�� M�dulo cargando, intenta de nuevo...')" style="
+                background:linear-gradient(135deg, rgba(162,155,254,0.1) 0%, rgba(108,92,231,0.06) 100%);
+                border:1.5px solid rgba(162,155,254,0.25);
+                position:relative; overflow:hidden;
+                cursor:pointer;
+            ">
+                <div class="card-bg-icon" style="color:rgba(162,155,254,0.06);font-size:5rem;">📖</div>
+                <div class="card-content" style="justify-content:center; padding:20px;">
+                    <div style="font-size:2rem;margin-bottom:6px;">📖��</div>
+                    <h2 style="color:#a29bfe;font-size:1.1rem;margin-bottom:4px;">A�O B�BLICO</h2>
+                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Plan de lectura
+                        personalizado � De 1 semana a 2 a�os</p>
+                </div>
+            </div>
+
+            <!-- � VERS�CULOS DE ALIENTO � Tarjeta media -->
+            <div class="category-card" onclick="abrirAliento()" style="
+                background:linear-gradient(135deg, rgba(255,159,67,0.1) 0%, rgba(225,112,85,0.06) 100%);
+                border:1.5px solid rgba(255,159,67,0.25);
+                position:relative; overflow:hidden;
+                cursor:pointer;
+            ">
+                <div class="card-bg-icon" style="color:rgba(255,159,67,0.06);font-size:5rem;">�</div>
+                <div class="card-content" style="justify-content:center; padding:20px;">
+                    <div style="font-size:2rem;margin-bottom:6px;">�</div>
+                    <h2 style="color:#ff9f43;font-size:1.1rem;margin-bottom:4px;">VERS�CULOS DE ALIENTO</h2>
+                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Encuentra vers�culos
+                        para cada situaci�n de la vida</p>
+                </div>
+            </div>
+
+            <!-- �� ACADEMIA B�BLICA � Agrupa Ni�os, Adolescentes, J�venes, Adultos -->
+            <div class="category-card" onclick="abrirAcademiaBiblica()" style="
+                background:linear-gradient(135deg, rgba(116,185,255,0.1) 0%, rgba(9,132,227,0.06) 100%);
+                border:1.5px solid rgba(116,185,255,0.25);
+                position:relative; overflow:hidden;
+                cursor:pointer;
+            ">
+                <div class="card-bg-icon" style="color:rgba(116,185,255,0.06);font-size:5rem;">��</div>
+                <div class="card-content" style="justify-content:center; padding:20px;">
+                    <div style="font-size:2rem;margin-bottom:6px;">��</div>
+                    <h2 style="color:#74b9ff;font-size:1.1rem;margin-bottom:4px;">ACADEMIA B�BLICA</h2>
+                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Estudios por edades �
+                        Ni�os, Adolescentes, J�venes y Adultos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⛪ IGLESIA � Bot�n rectangular debajo -->
+        <div onclick="seleccionarNivel('iglesia')" style="
+            margin: 14px 16px 0;
+            background: linear-gradient(135deg, rgba(46,213,115,0.1) 0%, rgba(46,213,115,0.03) 100%);
+            border: 1.5px solid rgba(46,213,115,0.25);
+            border-radius: 16px;
+            padding: 16px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        ">
+            <div style="position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:4rem;opacity:0.04;pointer-events:none;">⛪</div>
+            <div style="font-size:1.8rem;">⛪</div>
+            <div>
+                <h2 style="color:#2ed573;font-size:1.1rem;margin:0 0 2px;font-weight:900;">IGLESIA</h2>
+                <p style="color:rgba(255,255,255,0.45);font-size:0.7rem;line-height:1.3;margin:0;">Liturgia, registro de cultos, predicadores y calendario</p>
+            </div>
+            <div style="margin-left:auto;color:rgba(46,213,115,0.4);font-size:1.2rem;">�</div>
+        </div>
+
+        <!-- �� OVERLAY ACADEMIA B�BLICA -->
+        <div id="academia-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,3,20,0.97);z-index:10000;overflow-y:auto;backdrop-filter:blur(20px);">
+            <div style="padding:20px;max-width:500px;margin:0 auto;">
+                <!-- Header -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                    <button onclick="cerrarAcademia()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;">�</button>
+                    <div style="text-align:center;">
+                        <div style="font-size:1.8rem;margin-bottom:4px;">��</div>
+                        <h2 style="color:#74b9ff;font-size:1.2rem;margin:0;letter-spacing:2px;font-weight:900;">ACADEMIA B�BLICA</h2>
+                        <p style="color:rgba(255,255,255,0.35);font-size:0.65rem;margin-top:4px;">Elige tu grupo de estudio</p>
+                    </div>
+                    <div style="width:40px;"></div>
+                </div>
+
+                <!-- Grid 2x2 de tarjetas -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <!-- 🎨 NI�OS -->
+                    <div class="category-card card-kids" onclick="cerrarAcademia();seleccionarNivel('kids')" style="margin:0;">
+                        <div class="card-bg-icon" style="font-size:4rem;">🎨</div>
+                        <div class="card-content" style="justify-content:center; padding:20px;">
+                            <div style="font-size:2.2rem;margin-bottom:8px;">🎨</div>
+                            <h2 style="font-size:1.1rem;margin-bottom:4px;">NI�OS</h2>
+                            <p style="font-size:0.7rem;line-height:1.3;">Historias animadas con voz y trivia</p>
+                        </div>
+                    </div>
+
+                    <!-- 🎧 ADOLESCENTES -->
+                    <div class="category-card card-teens" onclick="cerrarAcademia();seleccionarNivel('adolescentes')" style="margin:0;">
+                        <div class="card-bg-icon" style="font-size:4rem;">🎧</div>
+                        <div class="card-content" style="justify-content:center; padding:20px;">
+                            <div style="font-size:2.2rem;margin-bottom:8px;">🎧</div>
+                            <h2 style="font-size:1.1rem;margin-bottom:4px;">ADOLESCENTES</h2>
+                            <p style="font-size:0.7rem;line-height:1.3;">Retos b�blicos y trivia competitiva</p>
+                        </div>
+                    </div>
+
+                    <!-- 🚀 J�VENES -->
+                    <div class="category-card card-youth" onclick="cerrarAcademia();seleccionarNivel('jovenes')" style="margin:0;">
+                        <div class="card-bg-icon" style="font-size:4rem;">🚀</div>
+                        <div class="card-content" style="justify-content:center; padding:20px;">
+                            <div style="font-size:2.2rem;margin-bottom:8px;">🚀</div>
+                            <h2 style="font-size:1.1rem;margin-bottom:4px;">J�VENES</h2>
+                            <p style="font-size:0.7rem;line-height:1.3;">An�lisis profundo y debate real</p>
+                        </div>
+                    </div>
+
+                    <!-- 📜 ADULTOS -->
+                    <div class="category-card card-adults" onclick="cerrarAcademia();seleccionarNivel('adultos')" style="margin:0;">
+                        <div class="card-bg-icon" style="font-size:4rem;">📜</div>
+                        <div class="card-content" style="justify-content:center; padding:20px;">
+                            <div style="font-size:2.2rem;margin-bottom:8px;">📜</div>
+                            <h2 style="font-size:1.1rem;margin-bottom:4px;">ADULTOS</h2>
+                            <p style="font-size:0.7rem;line-height:1.3;">Estudio doctrinal y comentario b�blico</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function abrirAcademiaBiblica() {
+                document.getElementById('academia-overlay').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+            function cerrarAcademia() {
+                document.getElementById('academia-overlay').style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        </script>
+
+        <!-- Contenedor oculto para el selector de Biblia (se usa internamente) -->
+        <div id="bible-home-selector" style="display:none;"></div>
+
+
+        <!-- Script de compartir la App (invitaci�n general) -->
+        <script>
+            function compartirAppGeneral() {
+                const mensaje =
+                    `📖✨ *LEGADO B�BLICO � Experiencia Digital* ✨📖\n\n` +
+                    `Te invito a explorar esta app cristiana con:\n\n` +
+                    `📖 *Biblia completa* (m�ltiples versiones)\n` +
+                    `� *Devocionales diarios* con reflexiones profundas\n` +
+                    `📅 *A�o B�blico* (planes de lectura personalizados)\n` +
+                    `⛪ *M�dulo de Iglesia* (liturgia, sermones, 28 doctrinas)\n` +
+                    `🎨 *Historias B�blicas para Ni�os* (interactivas)\n` +
+                    `🎮 *Trivia y Retos para Adolescentes*\n\n` +
+                    `👉 *Entra aqu�:*\n` +
+                    `https://agendatecnicadigital.com\n\n` +
+                    `📱 �brelo en tu navegador y a��delo a tu pantalla de inicio.\n\n` +
+                    `_� Legado B�blico � 2026_`;
+
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Legado B�blico - Experiencia B�blica Digital',
+                        text: mensaje
+                    }).catch(() => { });
+                } else {
+                    navigator.clipboard?.writeText(mensaje).then(() => {
+                        mostrarToast('✅ Invitaci�n copiada al portapapeles');
+                    }).catch(() => {
+                        mostrarToast('�� No se pudo compartir');
+                    });
+                }
+            }
+        </script>
+
+        <!-- Contenedores ocultos para datos del devocional (usados por el overlay) -->
+        <div id="dev-icon" style="display:none;"></div>
+        <div id="dev-label" style="display:none;"></div>
+        <div id="dev-versiculo" style="display:none;"></div>
+        <div id="dev-referencia" style="display:none;"></div>
+        <div id="dev-reflexion" style="display:none;"></div>
+
+
+        <style>
+            @keyframes float-indicator {
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                    opacity: 0.6;
+                }
+
+                50% {
+                    transform: translateY(6px);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes devFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+
+        <script>
+            (function () {
+
+                /* ========================================================
+                   BANCO DE VERS�CULOS (rotan cada 4 horas = 6 por d�a)
+                   18 vers�culos = 3 d�as de cobertura �nica
+                ======================================================== */
+                const VERSICULOS = [
+                    { t: "\"Porque yo sé los pensamientos que tengo acerca de vosotros, pensamientos de paz y no de mal, para daros el fin que esperáis.\"", r: "Jeremías 29:11" },
+                    { t: "\"Todo lo puedo en Cristo que me fortalece.\"", r: "Filipenses 4:13" },
+                    { t: "\"El Señor es mi pastor; nada me faltará.\"", r: "Salmos 23:1" },
+                    { t: "\"Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia.\"", r: "Proverbios 3:5" },
+                    { t: "\"Buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.\"", r: "Mateo 6:33" },
+                    { t: "\"La paz os dejo, mi paz os doy. No se turbe vuestro corazón, ni tenga miedo.\"", r: "Juan 14:27" },
+                    { t: "\"Los que esperan en Jehová renovarán sus fuerzas; levantarán alas como las águilas.\"", r: "Isaías 40:31" },
+                    { t: "\"Lámpara es a mis pies tu palabra, y lumbrera a mi camino.\"", r: "Salmos 119:105" },
+                    { t: "\"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito.\"", r: "Juan 3:16" },
+                    { t: "\"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios.\"", r: "Isaías 41:10" },
+                    { t: "\"Estad quietos, y conoced que yo soy Dios.\"", r: "Salmos 46:10" },
+                    { t: "\"He aquí, vengo pronto; retén lo que tienes, para que ninguno tome tu corona.\"", r: "Apocalipsis 3:11" },
+                    { t: "\"El que en mí cree, tiene vida eterna.\"", r: "Juan 6:47" },
+                    { t: "\"Escudriñad las Escrituras, porque a vosotros os parece que en ellas tenéis la vida eterna.\"", r: "Juan 5:39" },
+                    { t: "\"Acerquémonos confiadamente al trono de la gracia, para alcanzar misericordia.\"", r: "Hebreos 4:16" },
+                    { t: "\"Jesucristo es el mismo ayer, y hoy, y por los siglos.\"", r: "Hebreos 13:8" },
+                    { t: "\"Orad sin cesar. Dad gracias en todo, porque esta es la voluntad de Dios.\"", r: "1 Tesalonicenses 5:17-18" },
+                    { t: "\"Así alumbre vuestra luz delante de los hombres, para que vean vuestras buenas obras.\"", r: "Mateo 5:16" }
+                ];
+
+                /* ========================================================
+                   BANCO DE DEVOCIONALES BÍBLICOS (rotan cada 24 horas = 1 por día)
+                   30 devocionales centrados en personajes bíblicos y crecimiento espiritual
+                ======================================================== */
+                const DEVOCIONALES = [
+                    { icon: "🌅", titulo: "Abraham: La Fe que Camina sin Ver", reflexion: "Abraham dejó su tierra, su familia y todo lo conocido porque Dios le dijo: 'Ve'. No tenía GPS, no tenía mapa, no tenía garantías visibles. Solo tenía una promesa. La fe verdadera no es ausencia de dudas — es obediencia en medio de la incertidumbre. Abraham nos enseña que Dios no siempre nos muestra el destino antes de pedirnos que caminemos. A veces la fe es dar el primer paso sin ver la escalera completa. ¿Hay algo que Dios te está pidiendo soltar hoy para avanzar hacia Su propósito?", ref: "\"Por la fe Abraham, siendo llamado, obedeció para salir al lugar que había de recibir como herencia; y salió sin saber a dónde iba.\" — Hebreos 11:8" },
+                    { icon: "⚔️", titulo: "José: El Propósito Detrás del Dolor", reflexion: "Vendido por sus hermanos, acusado falsamente, encarcelado sin culpa. José vivió una sucesión de injusticias que habrían destruido a cualquiera. Pero cuando finalmente enfrentó a sus hermanos desde el trono de Egipto, dijo algo extraordinario: 'Ustedes pensaron hacerme mal, pero Dios lo encaminó a bien'. José nos enseña que Dios no desperdicia ningún dolor. Cada traición, cada espera, cada calabozo tenía un propósito. Si hoy estás en un pozo, recuerda: el pozo no es tu destino, es parte del camino hacia el palacio que Dios ya preparó.", ref: "\"Vosotros pensasteis mal contra mí, mas Dios lo encaminó a bien, para hacer lo que vemos hoy.\" — Génesis 50:20" },
+                    { icon: "🦁", titulo: "Daniel: Integridad Bajo Presión", reflexion: "En Babilonia, un joven hebreo decidió que su identidad espiritual no estaba en venta. Daniel se negó a comer de la mesa del rey, no por capricho alimenticio, sino porque entendía que las pequeñas concesiones preparan el terreno para las grandes caídas. Años después, cuando firmaron un decreto que prohibía orar, Daniel abrió sus ventanas como siempre y oró de rodillas. La integridad no se improvisa en los momentos difíciles — se construye en las decisiones cotidianas. ¿Qué pequeñas decisiones estás tomando hoy que definirán quién serás mañana?", ref: "\"Daniel propuso en su corazón no contaminarse.\" — Daniel 1:8" },
+                    { icon: "👑", titulo: "David: Un Corazón que Busca a Dios", reflexion: "David no era perfecto. Cometió adulterio, mintió, envió a un hombre a la muerte. Sin embargo, Dios lo llamó 'varón conforme a mi corazón'. ¿Cómo es posible? Porque David tenía algo que muchos líderes carecen: la capacidad de arrodillarse cuando caía. El Salmo 51 es la oración más honesta de la Biblia — un rey desnudando su alma ante Dios sin excusas. La grandeza espiritual no está en nunca caer, sino en nunca quedarse en el suelo. Si has fallado, Dios no espera tu perfección — espera tu arrepentimiento sincero.", ref: "\"Crea en mí, oh Dios, un corazón limpio, y renueva un espíritu recto dentro de mí.\" — Salmos 51:10" },
+                    { icon: "🌿", titulo: "Rut: La Lealtad que Transforma Destinos", reflexion: "Rut era moabita, viuda, pobre y extranjera — cuatro razones por las que el mundo la habría descartado. Pero ella tomó una decisión que cambió la historia: 'Tu pueblo será mi pueblo, y tu Dios mi Dios'. La lealtad de Rut hacia Noemí no era obligación — era amor incondicional. Y Dios honró esa lealtad de formas que Rut nunca imaginó: la colocó en la línea genealógica de Jesucristo. A veces las decisiones más pequeñas de fidelidad producen los resultados más grandes en la eternidad.", ref: "\"Tu pueblo será mi pueblo, y tu Dios mi Dios.\" — Rut 1:16" },
+                    { icon: "🔥", titulo: "Moisés: El Líder Reluctante", reflexion: "Moisés tenía 80 años, tartamudeaba, era fugitivo de la justicia y pastoreaba ovejas en el desierto. No era exactamente el candidato ideal para liberar a un pueblo. Pero Dios no busca currículos impresionantes — busca corazones disponibles. Cuando Moisés dijo '¿Quién soy yo para ir?', Dios no respondió describiendo las cualidades de Moisés. Respondió: 'Yo estaré contigo'. Tu capacidad no determina tu llamado. La presencia de Dios contigo es suficiente para enfrentar cualquier faraón que la vida te ponga enfrente.", ref: "\"Ciertamente yo estaré contigo.\" — Éxodo 3:12" },
+                    { icon: "⚓", titulo: "Pedro: La Restauración Después del Fracaso", reflexion: "Pedro juró que nunca negaría a Jesús. Horas después, lo negó tres veces. El gallo cantó, y Pedro lloró amargamente. Muchos habrían pensado que su historia con Jesús terminó ahí. Pero después de la resurrección, Jesús buscó a Pedro específicamente y le preguntó tres veces: '¿Me amas?' — una vez por cada negación. No lo humilló. No lo descartó. Lo restauró. Si hoy cargas la culpa de haber fallado, recuerda: Jesús no vino a buscar a los que nunca caen. Vino a buscar a los que están dispuestos a levantarse.", ref: "\"Simón, hijo de Jonás, ¿me amas? Apacienta mis ovejas.\" — Juan 21:17" },
+                    { icon: "💎", titulo: "Ester: El Coraje en el Momento Preciso", reflexion: "Ester era una joven judía que llegó a ser reina de Persia. Cuando su pueblo enfrentó el exterminio, su primo Mardoqueo le dijo algo que resuena a través de los siglos: '¿Y quién sabe si para esta hora has llegado al reino?' Ester arriesgó su vida presentándose ante el rey sin ser llamada. A veces Dios te coloca en posiciones que no buscaste para que seas luz en momentos que no esperabas. Tu lugar en la historia no es accidental. Dios te puso exactamente donde estás por una razón.", ref: "\"¿Y quién sabe si para esta hora has llegado al reino?\" — Ester 4:14" },
+                    { icon: "🕊️", titulo: "Elías: La Depresión del Profeta", reflexion: "Un día antes, Elías derrotó a 450 profetas de Baal en el Monte Carmelo. Al día siguiente, huía aterrorizado de una mujer llamada Jezabel y pedía morirse bajo un árbol. La Biblia no esconde la fragilidad emocional de sus héroes. Dios no le dio a Elías un sermón — le dio comida, agua y sueño. A veces la respuesta de Dios a nuestra crisis espiritual no es más actividad religiosa, sino descanso, alimento y silencio. Si hoy te sientes agotado, no es debilidad — es humanidad. Y Dios conoce tu humanidad.", ref: "\"Se acostó y se quedó dormido; y un ángel le tocó, y le dijo: Levántate, come.\" — 1 Reyes 19:5" },
+                    { icon: "🌊", titulo: "Jonás: Huir de Dios es Correr en Círculos", reflexion: "Dios le dijo a Jonás: 've a Nínive'. Jonás compró un boleto en la dirección opuesta. Pero descubrió algo que todos aprendemos tarde o temprano: no puedes huir del propósito de Dios. El pez, la tormenta, el vómito en la playa — todo fue Dios diciéndole: 'Te amo demasiado para dejarte ir'. Jonás nos enseña que la desobediencia no cancela el llamado de Dios — solo hace el camino más largo, más húmedo y más incómodo. Si Dios te está llamando a algo, ahórrate el viaje en el pez.", ref: "\"Pero Jonás se levantó para huir de la presencia de Jehová.\" — Jonás 1:3" },
+                    { icon: "🛡️", titulo: "Josué: El Coraje de Cruzar el Jordán", reflexion: "Después de la muerte de Moisés, Josué recibió la tarea más intimidante de su vida: liderar a un pueblo rebelde hacia una tierra llena de gigantes. Dios le repitió tres veces: 'Esfuérzate y sé valiente'. Si Dios tiene que repetir algo tres veces, es porque sabe que lo necesitas escuchar. El coraje bíblico no es ausencia de miedo — es obediencia a pesar del miedo. El Jordán se abrió cuando los sacerdotes mojaron sus pies. No antes. Dios espera que des el paso antes de abrir el camino.", ref: "\"Esfuérzate y sé valiente; porque tú repartirás a este pueblo la tierra.\" — Josué 1:6" },
+                    { icon: "🪨", titulo: "Job: La Fe que Sobrevive al Silencio de Dios", reflexion: "Job lo perdió todo: hijos, salud, riqueza, reputación. Sus amigos le dijeron que era culpa suya. Su esposa le sugirió maldecir a Dios. Y durante capítulos enteros, Dios guardó silencio. Job nos enseña la forma más difícil de la fe: confiar cuando Dios no responde. No todo sufrimiento tiene una explicación inmediata. A veces la respuesta es simplemente: 'Yo soy Dios, y tú no necesitas entender todo para confiar en mí'. La fe madura no exige respuestas — descansa en la persona de Dios.", ref: "\"Yo sé que mi Redentor vive, y al fin se levantará sobre el polvo.\" — Job 19:25" },
+                    { icon: "🌾", titulo: "La Parábola del Sembrador: Tu Corazón es la Tierra", reflexion: "Jesús contó que un sembrador lanzó semillas que cayeron en cuatro tipos de suelo: el camino duro, las piedras, los espinos y la tierra buena. La semilla era la misma — lo que cambió fue el terreno. La Palabra de Dios es poderosa, pero su efecto depende de la condición de tu corazón. ¿Está duro por el dolor? ¿Rocky por la superficialidad? ¿Ahogado por las preocupaciones? Hoy puedes pedirle a Dios que are tu corazón y lo prepare para recibir lo que Él quiere sembrar en tu vida.", ref: "\"Mas el que fue sembrado en buena tierra, este es el que oye y entiende la palabra.\" — Mateo 13:23" },
+                    { icon: "💡", titulo: "Nicodemo: La Pregunta Nocturna que Cambió Todo", reflexion: "Era un fariseo respetado, un líder religioso, un hombre de poder. Pero algo le faltaba. Nicodemo fue a buscar a Jesús de noche — quizás por miedo al qué dirán, quizás por discreción. Jesús le dijo algo que destruyó su marco religioso: 'Es necesario nacer de nuevo'. No mejorar. No reformarse. Nacer de nuevo. La vida espiritual no es una mejora del viejo yo — es una creación completamente nueva. No importa cuánto logres o cuánto sepas: sin un nuevo nacimiento, la religión es solo un traje vacío.", ref: "\"El que no naciere de nuevo, no puede ver el reino de Dios.\" — Juan 3:3" },
+                    { icon: "🫗", titulo: "La Mujer Samaritana: Agua que Nunca se Acaba", reflexion: "Ella fue al pozo al mediodía, la hora más caliente, para evitar a las otras mujeres del pueblo. Cinco matrimonios fallidos la habían convertido en una paria social. Pero Jesús la buscó intencionalmente, se sentó junto al pozo y le ofreció algo que ningún hombre le había dado: dignidad. 'El agua que yo le daré será en ella una fuente que salte para vida eterna'. Jesús no la juzgó por su pasado — le ofreció un futuro. Si hoy sientes que tu historia te descalifica, escucha: Jesús se sienta junto a tu pozo también.", ref: "\"El que bebiere del agua que yo le daré, no tendrá sed jamás.\" — Juan 4:14" },
+                    { icon: "🕯️", titulo: "El Hijo Pródigo: El Padre que Espera", reflexion: "La parábola más famosa de Jesús no es realmente sobre el hijo perdido — es sobre el padre que espera. Mientras el hijo derrochaba su herencia en la lejanía, el padre miraba el camino todos los días. Y cuando el hijo volvió sucio, hambriento y humillado, el padre no le dio un sermón. Corrió hacia él, lo abrazó y organizó una fiesta. Así es Dios. No importa cuán lejos hayas ido, cuánto hayas gastado o cuánto tiempo hayas estado fuera. El Padre sigue mirando el camino, esperando tu regreso.", ref: "\"Cuando aún estaba lejos, lo vio su padre, y fue movido a misericordia, y corrió.\" — Lucas 15:20" },
+                    { icon: "🗡️", titulo: "David y Goliat: Las Batallas se Ganan con Fe", reflexion: "Todo Israel veía un gigante de tres metros. David veía a un hombre que insultaba al Dios vivo. La diferencia entre David y el ejército no era la fuerza — era la perspectiva. Cuando miras tus problemas desde tu tamaño, son gigantes. Cuando los miras desde el tamaño de Dios, son piedras pequeñas. David no ganó porque fuera más fuerte que Goliat. Ganó porque servía a un Dios más grande que cualquier gigante. ¿Qué Goliat enfrentas hoy? Recuerda: la batalla es del Señor.", ref: "\"Tú vienes a mí con espada y lanza; mas yo vengo a ti en el nombre de Jehová de los ejércitos.\" — 1 Samuel 17:45" },
+                    { icon: "🌙", titulo: "Jacob: La Noche que Cambió su Nombre", reflexion: "Jacob luchó con Dios toda la noche junto al río Jaboc. No soltó hasta que recibió una bendición. Y Dios le cambió el nombre: de Jacob (el que engaña) a Israel (el que lucha con Dios y vence). A veces Dios permite que luchemos con Él — no porque Él sea nuestro enemigo, sino porque en la lucha descubrimos quiénes somos realmente. Jacob salió de esa noche cojeando, pero bendecido. A veces las mayores bendiciones vienen acompañadas de heridas que nos recuerdan que no fue nuestra fuerza, sino Su gracia.", ref: "\"No te dejaré, si no me bendices.\" — Génesis 32:26" },
+                    { icon: "👑", titulo: "Salomón: La Sabiduría como Regalo", reflexion: "Cuando Dios le ofreció a Salomón lo que quisiera, el joven rey no pidió riquezas ni poder. Pidió sabiduría para gobernar al pueblo. Y Dios, complacido, le dio sabiduría Y todo lo demás. Hay una lección profunda aquí: cuando tus prioridades están alineadas con las de Dios, Él añade lo que necesitas. No busques primero el éxito — busca primero entendimiento. No busques primero la prosperidad — busca primero el carácter. Lo demás viene por añadidura.", ref: "\"Da, pues, a tu siervo corazón entendido para juzgar a tu pueblo.\" — 1 Reyes 3:9" },
+                    { icon: "🌻", titulo: "María de Betania: El Perfume de la Entrega Total", reflexion: "Mientras todos criticaban, María rompió un frasco de perfume que valía un año de salario y lo derramó sobre los pies de Jesús. Los discípulos lo llamaron desperdicio. Jesús lo llamó 'buena obra'. María entendió algo que los otros no veían: la adoración verdadera no calcula costos. Cuando amas a Dios con todo, el mundo lo llama exageración. Pero Dios lo llama adoración. ¿Qué 'perfume' puedes derramar hoy a los pies de Cristo? Tu tiempo, tu talento, tu orgullo — todo es digno de ser entregado a Él.", ref: "\"En toda parte donde se predique este evangelio, se contará lo que esta ha hecho.\" — Marcos 14:9" },
+                    { icon: "⛓️", titulo: "Pablo y Silas: Adorar en la Cárcel", reflexion: "Golpeados, encadenados, encerrados en el calabozo más profundo de Filipos. Y a medianoche, Pablo y Silas hicieron algo inesperado: cantaron himnos. No cantaron después del terremoto que abrió las puertas. Cantaron antes. La alabanza no es la respuesta al milagro — la alabanza es lo que produce el milagro. Si esperas que tu situación mejore para dar gracias, nunca darás gracias. Aprende a cantar en la cárcel, y verás cómo Dios sacude los cimientos.", ref: "\"A medianoche, Pablo y Silas oraban y cantaban himnos a Dios; y los presos los oían.\" — Hechos 16:25" },
+                    { icon: "🪜", titulo: "Nehemías: Construir con una Mano, Defender con la Otra", reflexion: "Nehemías reconstruyó los muros de Jerusalén en solo 52 días, rodeado de enemigos que querían detener la obra. Su estrategia fue brillante: cada obrero tenía una herramienta de construcción en una mano y un arma en la otra. La vida cristiana funciona igual. Construyes tu familia, tu carácter, tu ministerio — pero no puedes bajar la guardia. El enemigo siempre atacará lo que estás construyendo. No dejes de edificar, pero no dejes de vigilar.", ref: "\"Con una mano trabajaban en la obra, y con la otra tenían la espada.\" — Nehemías 4:17" },
+                    { icon: "🌤️", titulo: "Ezequías: La Oración que Detuvo un Ejército", reflexion: "El ejército asirio de Senaquerib rodeó Jerusalén con 185,000 soldados. Humanamente, no había escapatoria. Ezequías tomó la carta amenazante del general asirio y la extendió delante de Dios en el templo. No llamó a sus generales. No buscó alianzas políticas. Oró. Y esa noche, un ángel hizo lo que ningún ejército humano podía hacer. Hay problemas que no se resuelven con estrategia — se resuelven de rodillas. Extiende tu situación imposible delante de Dios. Él sigue siendo el Dios que pelea por los suyos.", ref: "\"Oh Jehová, sálvanos de su mano, para que conozcan todos los reinos que tú solo eres Dios.\" — 2 Reyes 19:19" },
+                    { icon: "🐋", titulo: "Jonás: La Segunda Oportunidad", reflexion: "Después del pez, de la tormenta y del vómito en la playa, la Biblia dice algo hermoso: 'Vino la palabra de Jehová por segunda vez a Jonás'. Dios no dijo: 'Ya tuviste tu oportunidad'. Dijo: 'Vamos de nuevo'. El Dios de la Biblia es el Dios de las segundas oportunidades — y de las terceras, y de las centésimas. Tu desobediencia de ayer no anula el llamado de Dios para hoy. Si sientes que ya perdiste tu momento, escucha la voz de Dios diciéndote: 'Levántate y ve. Aún te necesito'.", ref: "\"Vino palabra de Jehová por segunda vez a Jonás, diciendo: Levántate y ve.\" — Jonás 3:1-2" },
+                    { icon: "✨", titulo: "Los Magos: Buscar a Dios Cuesta Todo", reflexion: "Viajaron durante meses siguiendo una estrella. Dejaron su país, su comodidad, sus posiciones de prestigio. Llevaron los mejores regalos que tenían: oro, incienso y mirra. Y cuando finalmente encontraron a Jesús, no estaba en un palacio sino en una casa humilde con una familia pobre. No se decepcionaron. Se postraron y adoraron. Buscar a Dios genuinamente siempre tiene un costo. Pero los que perseveran en la búsqueda siempre encuentran algo: no un espectáculo religioso, sino la presencia real del Dios vivo.", ref: "\"Postrándose, lo adoraron; y abriendo sus tesoros, le ofrecieron presentes.\" — Mateo 2:11" },
+                    { icon: "🫂", titulo: "El Buen Samaritano: El Prójimo Inesperado", reflexion: "Un sacerdote pasó de largo. Un levita cruzó al otro lado. Los religiosos profesionales ignoraron al hombre herido. Fue un samaritano — despreciado por la sociedad judía — quien se detuvo, vendó sus heridas, lo montó en su burro y pagó por su recuperación. Jesús nos enseña que la verdadera espiritualidad no se mide en el templo sino en el camino. No preguntes '¿quién es mi prójimo?' Pregunta '¿de quién estoy siendo prójimo?' La fe sin compasión es solo ruido religioso.", ref: "\"Ve, y haz tú lo mismo.\" — Lucas 10:37" },
+                    { icon: "🕊️", titulo: "Noé: Construir Cuando Nadie Cree", reflexion: "Noé construyó un barco gigante en tierra seca, probablemente sin haber visto lluvia. Sus vecinos se burlaron durante décadas. Pero Noé siguió martillando. La fe verdadera a menudo parece absurda para los que no la entienden. Si Dios te ha dado una visión que nadie más ve, no necesitas la aprobación del mundo — necesitas la convicción de que Dios habló. Sigue construyendo. La lluvia llegará. Y cuando llegue, estarás preparado porque obedeciste cuando nadie entendía.", ref: "\"Por la fe Noé, cuando fue advertido por Dios, con temor preparó el arca.\" — Hebreos 11:7" },
+                    { icon: "💪", titulo: "Sansón: La Fuerza sin Carácter", reflexion: "Sansón fue el hombre más fuerte de la Biblia, pero el más débil en carácter. Tenía fuerza sobrenatural pero no podía controlar sus impulsos. Su historia es una advertencia: los dones sin disciplina se convierten en tu destrucción. Pero incluso en su momento más oscuro — ciego, encadenado, humillado — Sansón oró una última vez, y Dios respondió. Tu peor día no tiene que ser tu último día. Mientras haya aliento, hay oportunidad de volver a Dios.", ref: "\"Acuérdate de mí, y fortaléceme, te ruego, solamente esta vez.\" — Jueces 16:28" },
+                    { icon: "📖", titulo: "Timoteo: Nunca Eres Demasiado Joven", reflexion: "Timoteo era joven, tímido y enfermizo. No era el perfil típico de un líder. Pero Pablo vio en él algo que otros no veían: un corazón genuino. 'Ninguno tenga en poco tu juventud', le escribió. Si eres joven y sientes que nadie te toma en serio, recuerda: Dios no mide por edad sino por disposición. David era adolescente cuando enfrentó a Goliat. Josías tenía 8 años cuando fue rey. Samuel era niño cuando Dios lo llamó. Tu juventud no es un obstáculo — es tu ventaja.", ref: "\"Ninguno tenga en poco tu juventud, sino sé ejemplo de los creyentes.\" — 1 Timoteo 4:12" },
+                    { icon: "🌅", titulo: "Lázaro: Nunca Es Demasiado Tarde para Dios", reflexion: "Cuando Jesús llegó a Betania, Lázaro llevaba cuatro días muerto. Marta le dijo: 'Señor, si hubieras estado aquí, mi hermano no habría muerto'. Es la queja más humana de la fe: 'Dios, ¿dónde estabas?' Pero Jesús no llegó tarde — llegó a tiempo para un milagro mayor. A veces Dios permite que la situación llegue al punto donde toda esperanza humana se agota, para que cuando Él actúe, nadie pueda decir que fue coincidencia. Si parece que Dios llegó tarde a tu situación, espera. Él tiene algo más grande en mente.", ref: "\"¿No te he dicho que si crees, verás la gloria de Dios?\" — Juan 11:40" },
+                    { icon: "🎺", titulo: "Gedeón: La Victoria con lo Poco", reflexion: "Dios redujo el ejército de Gedeón de 32,000 a 300 hombres. No fue un error estratégico — fue un acto intencional. Dios quería que Israel supiera que la victoria no vino por su fuerza. Con cántaros vacíos, antorchas y trompetas, 300 hombres derrotaron a un ejército incontable. Dios no necesita tus recursos — necesita tu obediencia. A veces Él reduce lo que tienes para multiplicar lo que Él puede hacer a través de ti.", ref: "\"No por el ejército ni por la fuerza, sino por mi Espíritu, ha dicho Jehová.\" — Zacarías 4:6" },
+                    { icon: "🙇", titulo: "Ana: La Oración del Alma Desesperada", reflexion: "Ana oraba en silencio, moviendo los labios pero sin emitir sonido. El sacerdote Elí pensó que estaba borracha. Pero Ana estaba haciendo algo que pocos entienden: derramar su alma delante de Dios sin filtros ni formalidades. Su oración no fue elocuente ni teológica — fue honesta. Y Dios respondió con Samuel, uno de los profetas más grandes de Israel. La oración más poderosa no es la más bonita — es la más sincera.", ref: "\"Yo soy una mujer atribulada; he derramado mi alma delante de Jehová.\" — 1 Samuel 1:15" },
+                    { icon: "🔭", titulo: "Isaías: 'Aquí Estoy, Envíame'", reflexion: "Isaías vio a Dios sentado en un trono alto y sublime. Los serafines cantaban '¡Santo, santo, santo!' y los cimientos del templo temblaban. La primera reacción de Isaías no fue emoción — fue terror: '¡Ay de mí! Soy hombre de labios impuros'. Pero después del perdón, escuchó la pregunta de Dios: '¿A quién enviaré?' E Isaías respondió con cinco palabras que cambiaron su destino: 'Aquí estoy, envíame'. Dios no llama a los equipados — equipa a los que responden.", ref: "\"Después oí la voz del Señor que decía: ¿A quién enviaré? Entonces respondí: Heme aquí, envíame a mí.\" — Isaías 6:8" },
+                    { icon: "🗣️", titulo: "Bartimeo: El Grito que Detuvo a Jesús", reflexion: "Era ciego y mendigo, sentado junto al camino. Cuando supo que Jesús pasaba, gritó con toda su fuerza. La multitud le dijo que se callara. Pero Bartimeo gritó más fuerte. Y Jesús se detuvo. El Hijo de Dios, camino a Jerusalén para la misión más importante de la historia, se detuvo por el grito de un mendigo. Tu clamor no es pequeño para Dios. No dejes que nadie te silencie cuando necesitas hablar con Él. Si gritas con fe, Jesús se detiene.", ref: "\"Jesús se detuvo y mandó llamarle. Ánimo, levántate, te llama.\" — Marcos 10:49" },
+                    { icon: "🌳", titulo: "Zaqueo: El Pequeño que Subió Alto", reflexion: "Era bajo de estatura, rico por extorsión, odiado por su pueblo. Pero algo en él quería ver a Jesús. Subió a un sicómoro — un acto ridículo para un hombre de su posición. Y Jesús miró hacia arriba y le dijo: 'Zaqueo, hoy necesito hospedarme en tu casa'. No fue Zaqueo quien encontró a Jesús — fue Jesús quien lo encontró a él. No importa cuánto hayas fallado o cuánto te desprecien: cuando buscas a Jesús con sinceridad, Él te encuentra primero.", ref: "\"El Hijo del Hombre vino a buscar y a salvar lo que se había perdido.\" — Lucas 19:10" },
+                    { icon: "🌅", titulo: "María Magdalena: La Primera Testigo", reflexion: "De María Magdalena, Jesús echó siete demonios. La sociedad la había descartado. Pero ella fue la primera persona que vio a Jesús resucitado. No un apóstol, no un líder, no un teólogo — una mujer que había sido restaurada del abismo. Dios tiene un sentido extraordinario de la justicia poética: los que más han sido liberados son los primeros en dar testimonio. Tu pasado oscuro puede convertirse en la antorcha más brillante de tu testimonio.", ref: "\"Habiendo resucitado Jesús, apareció primeramente a María Magdalena.\" — Marcos 16:9" },
+                    { icon: "🛤️", titulo: "Felipe y el Etíope: La Cita Divina", reflexion: "Un ángel le dijo a Felipe: 've al camino que desciende de Jerusalén a Gaza'. Sin más explicación. Felipe obedeció, y encontró a un funcionario etíope leyendo a Isaías sin entenderlo. En un carruaje, en medio del desierto, Felipe explicó el evangelio y el hombre fue bautizado. Dios organiza encuentros que parecen casualidades pero son citas divinas. Esa persona con la que hablas en el bus, en la fila del supermercado, en el trabajo — quizás no es casualidad que estés ahí.", ref: "\"Acércate y júntate a ese carro.\" — Hechos 8:29" },
+                    { icon: "🤲", titulo: "Bernabé: El Ministerio de Animar", reflexion: "Su nombre real era José, pero los apóstoles lo apodaron Bernabé — 'Hijo de Consolación'. Cuando Pablo se convirtió y todos le tenían miedo, fue Bernabé quien lo presentó a los apóstoles. Cuando Juan Marcos fracasó en un viaje misionero, fue Bernabé quien le dio una segunda oportunidad. El mundo necesita más Bernabés: personas que ven potencial donde otros ven fracaso. ¿A quién puedes animar hoy? Una palabra tuya puede cambiar la trayectoria de una vida.", ref: "\"Cuando llegó y vio la gracia de Dios, se regocijó, y exhortó a todos.\" — Hechos 11:23" },
+                    { icon: "⚖️", titulo: "El Perdón: Setenta Veces Siete", reflexion: "Pedro pensó que era generoso al proponer perdonar siete veces. Jesús le respondió: 'No siete, sino setenta veces siete'. No es un cálculo matemático — es un principio del reino: el perdón no tiene límite. Perdonar no significa que lo que te hicieron esté bien. Significa que eliges no cargar con veneno en tu corazón esperando que el otro se enferme. El rencor es una cadena que atas a tu propio pie. El perdón es la llave que te libera a ti, no al otro.", ref: "\"Perdonad, y seréis perdonados.\" — Lucas 6:37" },
+                    { icon: "🌱", titulo: "La Semilla de Mostaza: Lo Pequeño se Hace Grande", reflexion: "Jesús comparó el reino de Dios con una semilla de mostaza — la más pequeña de todas las semillas, pero que se convierte en un árbol donde las aves del cielo hacen nido. No subestimes los comienzos pequeños. Tu oración solitaria, el versículo que compartes, el acto de bondad que nadie ve — todo es semilla. Y Dios es el Dios que convierte semillas en árboles. Sigue sembrando, aunque hoy no veas los frutos. La cosecha viene.", ref: "\"El reino de los cielos es semejante al grano de mostaza que un hombre siembra.\" — Mateo 13:31" },
+                    { icon: "💰", titulo: "Los Talentos: Usa lo que Tienes", reflexion: "Al siervo que enterró su talento por miedo, el señor le dijo: 'Debiste haber dado mi dinero a los banqueros'. El problema no fue que tuviera poco — el problema fue que no hizo nada con lo que tenía. Dios no te pedirá cuenta por lo que no te dio. Te pedirá cuenta por lo que SÍ te dio y no usaste. Tu voz, tu tiempo, tu compasión, tu experiencia — todo es un talento. No lo entierres por miedo al fracaso. Úsalo, y Dios multiplicará el resultado.", ref: "\"A todo el que tiene, le será dado, y tendrá más.\" — Mateo 25:29" },
+                    { icon: "🫒", titulo: "Getsemaní: La Oración más Difícil", reflexion: "En el huerto de Getsemaní, Jesús sudó gotas de sangre mientras oraba: 'Padre, si es posible, pase de mí esta copa; pero no sea como yo quiero, sino como tú'. Es la oración más difícil que existe: rendirse a la voluntad de Dios cuando la tuya grita en contra. Jesús no quería la cruz — eligió la cruz. A veces la madurez espiritual no es orar 'Dios, haz lo que yo quiero', sino 'Dios, haz lo que Tú sabes que es mejor, aunque me duela'.", ref: "\"No se haga mi voluntad, sino la tuya.\" — Lucas 22:42" },
+                    { icon: "🕊️", titulo: "El Sermón del Monte: Las Bienaventuranzas", reflexion: "Jesús subió al monte y dijo algo que el mundo nunca había escuchado: 'Bienaventurados los pobres, los que lloran, los mansos, los que tienen hambre de justicia'. El reino de Dios funciona al revés del mundo. Donde el mundo dice 'sé fuerte', Dios dice 'sé humilde'. Donde el mundo dice 'defiéndete', Dios dice 'perdona'. Las bienaventuranzas no son reglas — son la descripción del carácter de quienes realmente conocen a Dios.", ref: "\"Bienaventurados los de limpio corazón, porque ellos verán a Dios.\" — Mateo 5:8" },
+                    { icon: "🐟", titulo: "Los Cinco Panes y Dos Peces: Dios Multiplica lo Entregado", reflexion: "Un niño tenía cinco panes y dos peces. Era ridículamente insuficiente para alimentar a 5,000 personas. Pero cuando lo puso en las manos de Jesús, lo insuficiente se convirtió en más que suficiente. El milagro no ocurrió cuando el niño tenía la comida — ocurrió cuando la entregó. Si sientes que lo que tienes es muy poco para hacer diferencia, recuerda: Dios no necesita abundancia. Necesita entrega. Dale lo poco que tienes, y déjalo multiplicar.", ref: "\"Denles ustedes de comer.\" — Mateo 14:16" },
+                    { icon: "🌬️", titulo: "El Valle de los Huesos Secos: La Vida Después de la Muerte", reflexion: "Dios llevó a Ezequiel a un valle lleno de huesos secos y le preguntó: '¿Podrán vivir estos huesos?' Ezequiel respondió sabiamente: 'Tú lo sabes, Señor'. Y Dios le ordenó profetizar sobre los huesos. Mientras hablaba, los huesos se unieron, les crecieron tendones, carne, piel — y el Espíritu les dio vida. Hay situaciones en tu vida que parecen muertas: sueños, relaciones, esperanzas. Pero para Dios, ningún hueso está demasiado seco. Profetiza vida sobre lo que parece muerto.", ref: "\"Huesos secos, oíd palabra de Jehová.\" — Ezequiel 37:4" },
+                    { icon: "🌈", titulo: "El Arco Iris: La Promesa que No Caduca", reflexion: "Después del diluvio, Dios puso un arco iris en el cielo y dijo: 'Esta es la señal de mi pacto. Nunca más destruiré la tierra con agua'. Cada arco iris es un recordatorio visual de que Dios cumple sus promesas. No es una decoración atmosférica — es una firma divina en el cielo. Cuando la tormenta de tu vida termine (y terminará), busca el arco iris. Dios siempre deja señales de que sigue fiel, aun después del diluvio más oscuro.", ref: "\"Pondré mi arco en las nubes, como señal del pacto entre mí y la tierra.\" — Génesis 9:13" },
+                    { icon: "🏺", titulo: "La Viuda y el Aceite: El Milagro en tu Casa", reflexion: "Una viuda estaba a punto de perder a sus hijos por deudas. Eliseo le preguntó: '¿Qué tienes en tu casa?' Ella respondió: 'Solo un poco de aceite'. Eliseo le dijo que pidiera vasijas prestadas y vertiera el aceite. El aceite no dejó de fluir hasta que se acabaron las vasijas. Dios no siempre envía el milagro desde afuera — a veces lo activa desde lo que ya tienes dentro. ¿Qué tienes en tu casa? Eso es suficiente para que Dios comience.", ref: "\"¿Qué tienes en casa? Y ella respondió: Solo un poco de aceite.\" — 2 Reyes 4:2" },
+                    { icon: "🔔", titulo: "Samuel: 'Habla, que Tu Siervo Oye'", reflexion: "Tres veces Dios llamó a Samuel de noche, y tres veces Samuel pensó que era Elí. Finalmente, Elí comprendió y le dijo: 'Si te llama otra vez, di: Habla, Señor, que tu siervo oye'. La voz de Dios no siempre viene como trueno. A veces es tan suave que la confundes con otro sonido. Aprender a distinguir la voz de Dios requiere práctica, silencio y disposición. Hoy, antes de hablar con Dios, prueba algo diferente: escúchalo.", ref: "\"Habla, Jehová, porque tu siervo oye.\" — 1 Samuel 3:9" },
+                    { icon: "➕", titulo: "El Ladrón en la Cruz: La Salvación del Último Minuto", reflexion: "Uno de los criminales crucificados junto a Jesús hizo la petición más simple de la Biblia: 'Acuérdate de mí cuando vengas en tu reino'. Y Jesús le respondió: 'Hoy estarás conmigo en el paraíso'. No tuvo tiempo de bautizarse, de estudiar teología, de hacer buenas obras. Solo tuvo fe en su último aliento. La gracia de Dios no tiene mínimo de tiempo. No importa cuándo llegues — lo que importa es que llegues.", ref: "\"De cierto te digo que hoy estarás conmigo en el paraíso.\" — Lucas 23:43" },
+                    { icon: "🗻", titulo: "La Transfiguración: Ver a Jesús como Realmente Es", reflexion: "Pedro, Santiago y Juan subieron al monte con Jesús, y allí lo vieron transfigurarse: su rostro brilló como el sol y sus vestidos se hicieron blancos como la luz. Por un momento, los discípulos vieron al Jesús real — no al carpintero de Nazaret, sino al Rey del universo. A veces necesitamos subir al monte — apartarnos del ruido — para ver a Jesús como realmente es. En la rutina diaria lo vemos como concepto; en la intimidad lo vemos como persona.", ref: "\"Se transfiguró delante de ellos, y resplandeció su rostro como el sol.\" — Mateo 17:2" },
+                    { icon: "📿", titulo: "La Oración del Padre Nuestro: Un Modelo para la Vida", reflexion: "Cuando los discípulos pidieron 'enséñanos a orar', Jesús no les dio un manual de 500 páginas. Les dio un modelo breve pero profundo. 'Padre nuestro que estás en los cielos' — empieza con relación, no con petición. 'Santificado sea tu nombre' — primero adoración. 'Venga tu reino' — luego propósito. 'Danos hoy nuestro pan' — después provision. 'Perdónanos... como nosotros perdonamos' — y finalmente comunidad. La oración no es un pedido al cielo — es una conversación con tu Padre.", ref: "\"Vosotros, pues, oraréis así: Padre nuestro que estás en los cielos.\" — Mateo 6:9" },
+                    { icon: "🔥", titulo: "Pentecostés: El Fuego que Transformó Cobardes en Valientes", reflexion: "Los mismos discípulos que huyeron en Getsemaní, que se escondieron tras puertas cerradas, que negaron conocer a Jesús — esos mismos hombres salieron a las calles de Jerusalén después de Pentecostés y predicaron con tal poder que 3,000 personas se convirtieron en un día. ¿Qué cambió? No fue más educación, no fue más valentía humana — fue el Espíritu Santo. El mismo Espíritu está disponible hoy. No necesitas ser más fuerte. Necesitas ser lleno.", ref: "\"Recibiréis poder, cuando haya venido sobre vosotros el Espíritu Santo.\" — Hechos 1:8" },
+                    { icon: "⛵", titulo: "Jesús Camina sobre el Agua: La Fe que Desafía lo Imposible", reflexion: "Pedro vio a Jesús caminando sobre el mar en medio de la tormenta y dijo: 'Señor, si eres tú, manda que yo vaya'. Y salió del barco. Caminó sobre el agua — ¡realmente lo hizo! — hasta que miró las olas y se hundió. La fe funciona mientras miras a Jesús. Se hunde cuando miras la tormenta. No es que la tormenta no sea real — es que Jesús es más real que la tormenta. ¿Dónde están tus ojos hoy: en las olas o en el que camina sobre ellas?", ref: "\"Ven, le dijo. Y descendiendo Pedro de la barca, andaba sobre las aguas.\" — Mateo 14:29" },
+                    { icon: "🐑", titulo: "El Buen Pastor: Las 99 y la Perdida", reflexion: "Un pastor tenía 100 ovejas y se le perdió una. Dejó las 99 en el redil y fue a buscar la perdida. Cuando la encontró, no la regañó — la cargó sobre sus hombros con alegría. Esto es el corazón de Dios: Él no espera que tú lo encuentres. Él te busca. Y cuando te encuentra, no te condena — te carga. Si hoy te sientes perdido, lejos, confundido, recuerda: el Pastor ya salió a buscarte. No te escondas — déjate encontrar.", ref: "\"Gozaos conmigo, porque he encontrado mi oveja que se había perdido.\" — Lucas 15:6" },
+                    { icon: "💎", titulo: "La Perla de Gran Precio: Lo que Vale Todo", reflexion: "Un comerciante encontró una perla tan valiosa que vendió todo lo que tenía para comprarla. Jesús dice que así es el reino de Dios. No es algo que agregas a tu vida entre el trabajo, el gimnasio y Netflix. Es algo tan valioso que reorganiza todas tus prioridades. Cuando realmente encuentras a Dios — no la religión, sino a Dios — todo lo demás palidece en comparación. No pierdes nada al entregarlo todo. Ganas la perla.", ref: "\"Hallada una perla preciosa, fue y vendió todo lo que tenía, y la compró.\" — Mateo 13:46" },
+                    { icon: "🌿", titulo: "El Fruto del Espíritu: Lo que Crece Cuando Dios Planta", reflexion: "Amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza. Pablo los llama 'fruto del Espíritu' — singular, no plural. No son nueve frutas separadas; son un solo fruto con nueve sabores. Y lo más importante: es fruto del Espíritu, no fruto de tu esfuerzo. No puedes fabricar paciencia a fuerza de voluntad. Solo puedes permitir que el Espíritu de Dios la produzca en ti. Tu trabajo es permanecer conectado a la vid; el fruto viene solo.", ref: "\"El fruto del Espíritu es amor, gozo, paz, paciencia, benignidad.\" — Gálatas 5:22" },
+                    { icon: "🛋️", titulo: "Marta y María: La Tensión entre Servir y Sentarse", reflexion: "Marta estaba ocupada sirviendo. María estaba sentada escuchando. Marta se frustró: '¿No te importa que mi hermana me deje sirviendo sola?' Jesús respondió algo inesperado: 'María ha escogido la mejor parte'. No dijo que servir sea malo — dijo que la intimidad con Él es lo primero. Vivimos en una cultura que glorifica la productividad. Pero a veces la decisión más productiva es sentarse a los pies de Jesús antes de correr a servirle.", ref: "\"María ha escogido la buena parte, la cual no le será quitada.\" — Lucas 10:42" },
+                    { icon: "🌊", titulo: "El Mar Rojo: Cuando No Hay Salida, Dios Abre Camino", reflexion: "Israel estaba atrapado: el Mar Rojo adelante, el ejército egipcio detrás, montañas a los lados. No había salida humana posible. Y Dios dijo: 'Avancen'. A veces Dios espera hasta el último segundo para actuar — no porque sea cruel, sino porque quiere que recuerdes que fue Él quien abrió el camino. Si hoy sientes que estás entre la espada y la pared, quizás es porque Dios está a punto de abrir un camino donde no existía.", ref: "\"Jehová peleará por vosotros, y vosotros estaréis tranquilos.\" — Éxodo 14:14" },
+                    { icon: "🕰️", titulo: "Eclesiastés: Todo Tiene su Tiempo", reflexion: "Hay tiempo de llorar y tiempo de reír. Tiempo de plantar y tiempo de arrancar. Tiempo de callar y tiempo de hablar. Salomón, el hombre más sabio, entendió algo profundo: la sabiduría no es hacer lo correcto — es hacer lo correcto en el momento correcto. No todas las temporadas son de cosecha. Algunas son de siembra, otras de espera. Si estás en una temporada difícil, no es para siempre. El reloj de Dios es perfecto, aunque no sea el tuyo.", ref: "\"Todo tiene su tiempo, y todo lo que se quiere debajo del cielo tiene su hora.\" — Eclesiastés 3:1" },
+                    { icon: "🦅", titulo: "Isaías 40: Las Alas de Águila", reflexion: "Los que esperan en Dios renuevan sus fuerzas. Levantarán alas como las águilas. Correrán y no se cansarán. Caminarán y no se fatigarán. Nota el orden: primero volar, luego correr, luego caminar. Parece al revés, pero es exactamente así. En la vida cristiana, hay momentos de vuelo espiritual, momentos de carrera activa, y momentos de simplemente caminar paso a paso. La promesa de Dios cubre los tres: tendrás fuerzas para cada etapa.", ref: "\"Los que esperan a Jehová tendrán nuevas fuerzas; levantarán alas como las águilas.\" — Isaías 40:31" },
+                    { icon: "🪙", titulo: "La Viuda y las Dos Blancas: Lo que Dios Ve", reflexion: "Los ricos echaban grandes cantidades en el arca del templo. Una viuda pobre echó dos moneditas. Jesús, que observaba desde lejos, dijo: 'Esta viuda echó más que todos'. ¿Cómo? Porque Dios no mide por cantidad — mide por sacrificio. Dar de lo que te sobra es generosidad. Dar de lo que necesitas es adoración. Lo poco que das con todo tu corazón vale más ante Dios que lo mucho que das sin sentirlo.", ref: "\"Esta viuda pobre echó más que todos los que han echado en el arca.\" — Marcos 12:43" },
+                    { icon: "🚪", titulo: "Apocalipsis 3:20: La Puerta sin Cerradura por Fuera", reflexion: "Jesús dice: 'He aquí, yo estoy a la puerta y llamo. Si alguno oye mi voz y abre la puerta, entraré'. La puerta no tiene cerradura por fuera — solo por dentro. Dios no fuerza su entrada en tu vida. Toca, llama, espera. Pero nunca derriba la puerta. La decisión de abrir es exclusivamente tuya. Hoy, ahora mismo, mientras lees esto — Él está tocando. ¿Vas a abrir?", ref: "\"He aquí, yo estoy a la puerta y llamo.\" — Apocalipsis 3:20" },
+                    { icon: "📘", titulo: "Proverbios: La Sabiduría como Tesoro Diario", reflexion: "Proverbios tiene 31 capítulos — uno para cada día del mes. No es coincidencia. Salomón compiló estos dichos como pan diario para el alma. 'Confía en Dios con todo tu corazón y no te apoyes en tu propio entendimiento'. Cada proverbio es una semilla de sabiduría que, si se aplica, puede evitar años de dolor innecesario. La diferencia entre un sabio y un necio no es inteligencia — es disposición para escuchar consejo.", ref: "\"Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia.\" — Proverbios 3:5" },
+                    { icon: "🕯️", titulo: "Las Diez Vírgenes: Estar Preparados", reflexion: "Cinco vírgenes fueron prudentes y llevaron aceite extra. Cinco fueron insensatas y no trajeron reserva. Cuando el esposo se demoró y llegó a medianoche, solo las que tenían aceite pudieron entrar a la fiesta. La parábola no es sobre vírgenes o lámparas — es sobre preparación espiritual. No puedes vivir de la fe prestada. No puedes depender de la fe de tus padres, tu pastor o tu cónyuge. Tu relación con Dios es personal e intransferible. ¿Tienes aceite en tu lámpara?", ref: "\"Velad, porque no sabéis el día ni la hora.\" — Mateo 25:13" },
+                    { icon: "🫗", titulo: "Jesús Lava los Pies: El Liderazgo al Revés", reflexion: "La noche antes de morir, Jesús tomó una toalla y una vasija con agua, y lavó los pies de sus discípulos — incluyendo los de Judas, quien lo traicionaría en horas. El Rey del universo lavando pies sucios. Este es el modelo de liderazgo que Jesús estableció: el que quiera ser grande, que sirva. El que quiera ser primero, que sea último. En un mundo que lucha por subir, Jesús nos enseña que la verdadera grandeza se encuentra al agacharse.", ref: "\"Si yo, el Señor y el Maestro, os he lavado los pies, vosotros también debéis lavaros los pies unos a otros.\" — Juan 13:14" },
+                    { icon: "🌄", titulo: "Habacuc: Cuando la Respuesta de Dios No Es la que Esperabas", reflexion: "Habacuc se quejó ante Dios por la injusticia en Israel. Dios le respondió: 'Voy a usar a los babilonios para corregir a mi pueblo'. Habacuc quedó más confundido que antes — ¿usar a una nación más malvada como instrumento de justicia? A veces la respuesta de Dios no tiene sentido desde nuestra perspectiva limitada. Pero Habacuc aprendió a confiar: 'Aunque no florezca la higuera, yo me alegraré en Jehová'. La fe madura dice: 'No entiendo, pero confío'.", ref: "\"Aunque la higuera no florezca... con todo, yo me alegraré en Jehová.\" — Habacuc 3:17-18" },
+                    { icon: "🌟", titulo: "La Estrella de Belén: Dios en lo Ordinario", reflexion: "El Rey del universo nació en un pesebre, no en un palacio. Sus primeros visitantes fueron pastores, no dignatarios. Su cuna fue paja, no seda. Dios eligió deliberadamente lo ordinario para hacer lo extraordinario. Si sientes que tu vida es demasiado simple, demasiado común, demasiado insignificante para que Dios la use — recuerda Belén. Dios ama convertir establos en templos y pastores en mensajeros de la mayor noticia de la historia.", ref: "\"Hallaréis al niño envuelto en pañales, acostado en un pesebre.\" — Lucas 2:12" },
+                    { icon: "⚡", titulo: "Pablo en el Camino a Damasco: El Encuentro que Lo Cambió Todo", reflexion: "Saulo de Tarso era el perseguidor más feroz de la iglesia. Arrestaba, encarcelaba y aprobaba la muerte de cristianos. Pero en el camino a Damasco, una luz lo derribó del caballo y una voz le preguntó: 'Saulo, ¿por qué me persigues?' El mayor enemigo de Cristo se convirtió en su mayor embajador. Si Dios pudo transformar a Saulo en Pablo, puede transformar a cualquiera. Nunca dejes de orar por alguien — ni por ti mismo.", ref: "\"Saulo, Saulo, ¿por qué me persigues?\" — Hechos 9:4" },
+                    { icon: "🗼", titulo: "La Torre de Babel: Los Planes sin Dios", reflexion: "La humanidad decidió construir una torre que llegara al cielo — no para glorificar a Dios, sino para hacerse un nombre. 'Hagámonos famosos', dijeron. Dios no destruyó la torre por envidia — la detuvo porque el orgullo colectivo siempre termina en destrucción. Antes de construir cualquier cosa — una carrera, un negocio, una familia — pregúntate: ¿estoy construyendo para mi nombre o para el nombre de Dios? La diferencia define si estás edificando sobre roca o sobre arena.", ref: "\"Edifiquemos una torre cuya cúspide llegue al cielo; y hagámonos un nombre.\" — Génesis 11:4" },
+                    { icon: "🌸", titulo: "Los Lirios del Campo: Dios se Encarga", reflexion: "Jesús dijo: 'Mirad los lirios del campo, no trabajan ni hilan, pero ni Salomón con toda su gloria se vistió como uno de ellos'. No está diciendo que no trabajes — está diciendo que no te ahogues en ansiedad. La preocupación no añade un centímetro a tu estatura ni un día a tu vida. Si Dios viste las flores que mañana se secan, ¿cuánto más cuidará de ti que eres su hijo? Haz tu parte y deja que Dios haga la suya.", ref: "\"No os afanéis por vuestra vida. ¿No es la vida más que el alimento?\" — Mateo 6:25" },
+                    { icon: "⛰️", titulo: "Elías en el Monte Carmelo: El Dios que Responde con Fuego", reflexion: "Elías retó a 450 profetas de Baal: 'El Dios que responda con fuego, ese es el verdadero Dios'. Los profetas de Baal gritaron, saltaron y se cortaron todo el día. Nada pasó. Elías oró una vez, y fuego del cielo consumió el altar, las piedras, el agua — todo. No necesitas gritar más fuerte ni hacer más ruido. Necesitas orar al Dios verdadero. Un solo clamor sincero al Dios vivo tiene más poder que mil rituales vacíos.", ref: "\"Respéndeme, Jehová, respóndeme, para que conozca este pueblo que tú eres Dios.\" — 1 Reyes 18:37" },
+                    { icon: "🫂", titulo: "Jesús y los Niños: El Reino es de los Pequeños", reflexion: "Los discípulos intentaron alejar a los niños de Jesús. Él se indignó — una de las pocas veces que la Biblia registra esa emoción en Él — y dijo: 'Dejad que los niños vengan a mí, porque de los tales es el reino de Dios'. Los niños no tienen teología compleja, no tienen méritos religiosos, no tienen curriculum espiritual. Solo tienen confianza total. Eso es lo que Dios busca: la fe sencilla de un niño que corre a los brazos de su Padre sin dudar.", ref: "\"El que no reciba el reino de Dios como un niño, no entrará en él.\" — Marcos 10:15" },
+                    { icon: "🏛️", titulo: "Jesús en el Templo: La Casa de Oración", reflexion: "Jesús entró al templo y encontró comerciantes vendiendo y cambiando dinero. Hizo un látigo de cuerdas y los echó diciendo: 'Mi casa será llamada casa de oración, y vosotros la habéis hecho cueva de ladrones'. La santidad del espacio donde se encuentra a Dios importa. No porque Dios necesite un lugar bonito — sino porque nuestro corazón necesita reconocer que hay cosas sagradas. ¿Qué has permitido que se instale en el templo de tu corazón que no debería estar ahí?", ref: "\"Mi casa, casa de oración será llamada.\" — Mateo 21:13" },
+                    { icon: "🌊", titulo: "Naamán: La Humildad que Sana", reflexion: "Naamán era general del ejército sirio, poderoso y respetado. Pero tenía lepra. Eliseo le dijo: 'Zambúllete siete veces en el Jordán'. Naamán se ofendió — ¿un río sucio de Israel? ¿No hay ríos mejores en Siria? Sus siervos lo convencieron de obedecer. Se zambulló siete veces, y su piel quedó como la de un niño. A veces la solución de Dios parece demasiado simple, demasiado humilde, demasiado ordinaria. Pero la obediencia humilde produce milagros que el orgullo nunca verá.", ref: "\"Se zambulló siete veces en el Jordán, y su carne se volvió como la carne de un niño.\" — 2 Reyes 5:14" },
+                    { icon: "🌻", titulo: "Rut y Booz: La Redención Inesperada", reflexion: "Rut era una extranjera recogiendo sobras en campos ajenos. Booz era el dueño de esos campos y un pariente lejano de su suegra. Lo que parecía coincidencia era providencia divina. Booz se convirtió en su redentor — la cubrió, la protegió, se casó con ella. De esa unión nació Obed, padre de Isaí, padre de David, antepasado de Jesús. Dios teje historias de redención en los lugares más inesperados. Tu campo de trabajo, tu vecindario, tu rutina diaria — Dios está tejiendo algo que aún no ves.", ref: "\"Todo lo que me digas, haré.\" — Rut 3:5" },
+                    { icon: "💫", titulo: "La Ascensión: Jesús Volverá", reflexion: "Los discípulos estaban mirando al cielo mientras Jesús ascendía, cuando dos ángeles les dijeron: 'Este mismo Jesús, que ha sido tomado de vosotros al cielo, así vendrá como le habéis visto ir'. No es un final — es una promesa. Jesús no se fue para siempre. Se fue para preparar un lugar y volver por los suyos. Vivir con la esperanza del regreso de Cristo no es escapismo — es la motivación más poderosa para vivir con propósito, pureza y pasión hoy.", ref: "\"Este mismo Jesús vendrá así como le habéis visto ir al cielo.\" — Hechos 1:11" },
+                    { icon: "🌿", titulo: "El Salmo 1: El Árbol Plantado Junto a Corrientes de Aguas", reflexion: "El justo es como un árbol plantado junto a corrientes de aguas — da su fruto a su tiempo, sus hojas no caen, y todo lo que hace prospera. Pero nota: dice 'plantado', no 'flotando'. Un árbol plantado echa raíces profundas. No se mueve con cada viento. No cambia de posición según la temporada. La estabilidad espiritual no viene de buscar la novedad — viene de profundizar las raíces en la Palabra de Dios. ¿Estás plantado o flotando?", ref: "\"Será como árbol plantado junto a corrientes de aguas, que da su fruto en su tiempo.\" — Salmos 1:3" },
+                    { icon: "🔥", titulo: "La Zarza Ardiente: Lo Sagrado en lo Cotidiano", reflexion: "Moisés vio algo extraordinario en medio de lo ordinario: una zarza que ardía pero no se consumía. Y cuando se acercó a investigar, Dios habló desde la zarza. Lo sagrado estaba escondido en lo cotidiano — un arbusto común en un desierto común. Dios sigue hablando desde lugares inesperados: una conversación casual, un versículo que leíste mil veces, un atardecer. Pero tienes que hacer lo que hizo Moisés: 'Me acercaré para ver'. La curiosidad espiritual es el primer paso hacia el encuentro con Dios.", ref: "\"Quita tu calzado de tus pies, porque el lugar en que tú estás, tierra santa es.\" — Éxodo 3:5" },
+                    { icon: "🌙", titulo: "El Salmo 23: El Valle de Sombra de Muerte", reflexion: "David no dijo 'el valle de la muerte' — dijo 'el valle de SOMBRA de muerte'. Una sombra no puede hacerte daño. Para que haya sombra, tiene que haber luz. Y si hay luz en el valle oscuro de tu vida, es porque el Pastor camina a tu lado alumbrando con su presencia. 'Aunque pase por el valle de sombra de muerte, no temeré mal alguno, porque tú estarás conmigo'. No promete que no habrá valle. Promete que no estarás solo en él.", ref: "\"Aunque ande en valle de sombra de muerte, no temeré mal alguno, porque tú estarás conmigo.\" — Salmos 23:4" },
+                    { icon: "❤️", titulo: "1 Corintios 13: El Amor que Nunca Falla", reflexion: "Si hablo lenguas angelicales pero no tengo amor, soy metal que resuena. Si puedo mover montañas pero no tengo amor, nada soy. Si entrego mi cuerpo para ser quemado pero no tengo amor, de nada me sirve. Pablo pintó el retrato del amor perfecto: es paciente, es amable, no tiene envidia, no es orgulloso, no guarda rencor. Es el retrato de Cristo. Y es la meta de toda vida cristiana. No más conocimiento. No más dones. Más amor.", ref: "\"Y ahora permanecen la fe, la esperanza y el amor, estos tres; pero el mayor de ellos es el amor.\" — 1 Corintios 13:13" },
+                    { icon: "🌅", titulo: "Josafat: Cuando la Adoración es tu Estrategia de Guerra", reflexion: "Tres ejércitos marchaban contra Judá. Josafat no mandó soldados al frente — mandó cantores. Puso al coro de adoración delante del ejército. Mientras cantaban 'Dad gracias a Dios porque su misericordia es para siempre', Dios puso emboscadas contra los enemigos y se destruyeron entre ellos. Josafat no disparó una flecha. Hay batallas que no se ganan peleando — se ganan adorando. Cuando el problema es más grande que tú, adora. Dios pelea mientras tú cantas.", ref: "\"Cuando comenzaron a entonar cantos de alabanza, Jehová puso emboscadas.\" — 2 Crónicas 20:22" },
+                    { icon: "🌾", titulo: "La Parábola del Trigo y la Cizaña: La Paciencia de Dios", reflexion: "Un hombre sembró trigo, pero su enemigo vino de noche y sembró cizaña. Los siervos querían arrancarla inmediatamente, pero el dueño dijo: 'No, porque al arrancar la cizaña podrían arrancar también el trigo. Dejen que crezcan juntos hasta la cosecha'. Dios es infinitamente más paciente que nosotros. No arranca el mal precipitadamente porque ama el bien que crece al lado. Si te preguntas por qué Dios permite ciertas cosas, quizás es porque está protegiendo algo bueno que aún no ves.", ref: "\"Dejad crecer juntamente lo uno y lo otro hasta la siega.\" — Mateo 13:30" }
+                ];
+
+
+                /* ========================================================
+                   L�GICA TEMPORAL
+                ======================================================== */
+                function getDiaDelAnio() {
+                    const now = new Date();
+                    return Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 86400000);
+                }
+
+                function getBloque4h() {
+                    return Math.floor(new Date().getHours() / 4); // 0..5
+                }
+
+                function tiempoRestante4h() {
+                    const now = new Date();
+                    const h = now.getHours(), m = now.getMinutes();
+                    const proxima = (Math.floor(h / 4) + 1) * 4;
+                    const mins = (proxima - h) * 60 - m;
+                    const pct = Math.min(100, Math.max(0, 100 - (mins / 240) * 100));
+                    return { pct, label: `${Math.floor(mins / 60)}h ${mins % 60}m` };
+                }
+
+                function tiempoRestante24h() {
+                    const now = new Date();
+                    const minsTotDia = now.getHours() * 60 + now.getMinutes();
+                    const minsRestantes = 1440 - minsTotDia;
+                    const pct = Math.min(100, (minsTotDia / 1440) * 100);
+                    const h = Math.floor(minsRestantes / 60), m = minsRestantes % 60;
+                    return { pct, label: `${h}h ${m}m` };
+                }
+
+                /* ========================================================
+                   RENDER
+                ======================================================== */
+                function render() {
+                    // --- VERS�CULO (4h) → Solo al HERO ---
+                    const vIdx = (getDiaDelAnio() * 6 + getBloque4h()) % VERSICULOS.length;
+                    const v = VERSICULOS[vIdx];
+                    const heroTexto = document.getElementById('hero-vers-texto');
+                    const heroRef = document.getElementById('hero-vers-ref');
+                    if (heroTexto) heroTexto.textContent = v.t;
+                    if (heroRef) heroRef.textContent = '� ' + v.r;
+
+                    // --- DEVOCIONAL (24h) → Datos ocultos + tarjeta visible ---
+                    const dIdx = getDiaDelAnio() % DEVOCIONALES.length;
+                    const d = DEVOCIONALES[dIdx];
+                    document.getElementById('dev-icon').textContent = d.icon;
+                    document.getElementById('dev-label').textContent = d.titulo;
+                    document.getElementById('dev-versiculo').textContent = d.ref.split('�')[0].trim();
+                    document.getElementById('dev-referencia').textContent = '� ' + d.ref.split('�')[1]?.trim();
+                    document.getElementById('dev-reflexion').textContent = d.reflexion;
+
+                    // Actualizar la tarjeta visible del devocional con el t�tulo del d�a
+                    const tarjetaTitulo = document.getElementById('devocional-card-titulo');
+                    if (tarjetaTitulo) tarjetaTitulo.textContent = d.titulo;
+                }
+
+                render();
+                setInterval(render, 60000);
+            })();
+        </script>
+
+
+        <!-- 📲 INVITAR AMIGOS � Cierre de la fachada -->
+        <div onclick="compartirAppGeneral()" style="
+            margin: 20px 16px 30px;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.08) 100%);
+            border: 1px solid rgba(162,155,254,0.2);
+            border-radius: 16px;
+            padding: 14px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.15s ease;
+        " ontouchstart="this.style.transform='scale(0.98)'" ontouchend="this.style.transform='scale(1)'">
+            <div
+                style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;">
+                📲</div>
+            <div style="flex:1;min-width:0;">
+                <div style="color:#fff;font-size:0.8rem;font-weight:800;">INVITAR AMIGOS</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:0.65rem;margin-top:2px;">Comparte Legado B�blico con
+                    tu comunidad</div>
+            </div>
+            <div style="color:rgba(255,255,255,0.2);font-size:1rem;">�</div>
+        </div>
+
+        <!-- Input de nombre oculto (preserva funcionalidad existente) -->
+        <input type="hidden" id="nombre-usuario" value="">
+
+    </div>
+
+    <!-- 🎴 PANEL DE ESTUDIO PROFUNDO Y NOTAS (Modo Seminario) -->
+    <div id="context-card-doctrinas"
+        style="position:fixed; bottom:-100%; left:0; width:100%; height:90vh; background:linear-gradient(180deg, #130f2e 0%, #0a0818 100%); z-index:20000; border-radius:25px 25px 0 0; box-shadow:0 -10px 40px rgba(0,0,0,0.8); transition:0.5s cubic-bezier(0.4, 0, 0.2, 1); padding:25px; box-sizing:border-box; color:#fff; border-top: 1px solid rgba(162,155,254,0.3);">
+        <div style="width:50px; height:5px; background:rgba(255,255,255,0.2); border-radius:10px; margin:0 auto 20px; cursor:pointer;"
+            onclick="cerrarContextoDoctrinas()"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+            <h2 id="context-ref-doctrinas"
+                style="font-family:'Segoe UI', sans-serif; font-size:1.1rem; letter-spacing:2px; color:#a29bfe; margin:0;">
+                ESTUDIO PROFUNDO</h2>
+            <button onclick="cerrarContextoDoctrinas()"
+                style="background:rgba(255,255,255,0.05); border:none; color:#ff4757; width:35px; height:35px; border-radius:50%; font-weight:bold; cursor:pointer;">✕</button>
+        </div>
+
+        <div id="context-body-doctrinas" style="margin-bottom:25px;">
+            <!-- Aqu� carga el texto completo de la doctrina -->
+        </div>
+
+        <!-- �REA DE NOTAS -->
+        <div id="note-edit-area-doctrinas"
+            style="background:rgba(255,255,255,0.03); border:1px solid rgba(162,155,254,0.15); border-radius:15px; padding:15px;">
+            <label
+                style="color:#a29bfe; font-size:0.75rem; font-weight:900; letter-spacing:1px; display:block; margin-bottom:10px;">📓
+                MI REFLEXI�N PERSONAL</label>
+            <textarea id="personal-note-doctrinas"
+                style="width:100%; height:100px; background:transparent; border:none; color:#fff; font-family:'Segoe UI', sans-serif; font-size:0.95rem; outline:none; resize:none;"
+                placeholder="Escribe aqu� tu an�lisis..."></textarea>
+            <button onclick="guardarNotaGlobal()"
+                style="width:100%; background:linear-gradient(90deg, #6c5ce7, #a29bfe); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; margin-top:10px; cursor:pointer; box-shadow:0 5px 15px rgba(108,92,231,0.3);">💾
+                GUARDAR REFLEXI�N</button>
+        </div>
+    </div>
+
+    <script>
+        function cerrarContextoDoctrinas() {
+            const el = document.getElementById('context-card-doctrinas');
+            if (el) el.classList.remove('active');
+        }
+
+        // ✅ GUARDAR NOTA GLOBAL � Panel Estudio Profundo
+        function guardarNotaGlobal() {
+            const textarea = document.getElementById('personal-note-doctrinas');
+            const ref = document.getElementById('context-ref-doctrinas');
+            if (!textarea) return;
+            const texto = textarea.value.trim();
+            if (!texto) { mostrarToast('⚠� Escribe tu reflexi�n primero'); return; }
+            const pasaje = ref ? ref.textContent : 'Estudio';
+            // Guardar en Firebase + localStorage via guardarNotaFirebase
+            if (typeof guardarNotaFirebase === 'function') {
+                guardarNotaFirebase(texto, pasaje).then(() => {
+                    mostrarToast('✅ Reflexi�n guardada');
+                    textarea.value = '';
+                }).catch(() => mostrarToast('✅ Guardado localmente'));
+            } else {
+                // Fallback solo localStorage
+                const notas = JSON.parse(localStorage.getItem('adultos_notas') || '[]');
+                notas.push({ texto, pasaje, fecha: new Date().toLocaleDateString('es-ES') });
+                localStorage.setItem('adultos_notas', JSON.stringify(notas));
+                mostrarToast('✅ Reflexi�n guardada localmente');
+                textarea.value = '';
+            }
+        }
+    </script>
+
+    <style>
+        #context-card-doctrinas.active {
+            bottom: 0 !important;
+        }
+
+        #context-card.active {
+            bottom: 0 !important;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2ed573;
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 30000;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                bottom: -50px;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse-upd {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 71, 87, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+            }
+        }
+
+        /* 💎 GLASSMORPHISM CBA PANEL */
+        #cba-panel {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 92vh;
+            background: rgba(13, 10, 35, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 10000002;
+            border-top: 1px solid rgba(162, 155, 254, 0.4);
+            box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.9);
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            display: flex;
+            flex-direction: column;
+            border-radius: 25px 25px 0 0;
+        }
+
+        #cba-panel.active {
+            bottom: 0;
+        }
+
+        .cba-header {
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(162, 155, 254, 0.1);
+        }
+
+        #cba-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            padding-bottom: 80px;
+        }
+    </style>
+
+    <!-- 📖 PANEL CBA -->
+    <div id="cba-panel">
+        <div style="width:50px; height:5px; background:rgba(255,255,255,0.2); border-radius:10px; margin:12px auto 0; cursor:pointer;"
+            onclick="cerrarCbaPanel()"></div>
+        <div class="cba-header">
+            <span style="font-size:1.1rem; color:#55efc4; font-weight:900;">📖 CBA: COMENTARIO ADVENTISTA</span>
+            <button onclick="cerrarCbaPanel()"
+                style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+        </div>
+        <div id="cba-content"></div>
+    </div>
+
+    <div id="pantalla-estudio" class="container-estudio"></div>
+
+    <script src="./cba_motor.js?v=365"></script>
+    <script src="./firebase-service.js?v=365"></script>
+    <script src="./teen-auth.js?v=365"></script>
+    <script src="./trivia_parte1.js?v=365"></script>
+    <script src="./trivia_parte2.js?v=365"></script>
+    <script src="./trivia_parte3.js?v=365"></script>
+    <script src="./data_motor.js?v=365"></script>
+    <script src="./data_kids_v2.js?v=365"></script>
+    <script src="./kids_cinema.js?v=365"></script>
+    <script src="./data_jovenes.js?v=365"></script>
+    <script src="./data_adultos_v37.js?v=365"></script>
+    <script src="./data_teens_v8.js?v=365"></script>
+    <script src="./_juego_penal_biblico.js?v=365"></script>
+    <script src="./_penal_visual.js?v=365"></script>
+    <script src="./himnario_data.js?v=365"></script>
+    <script src="./data_iglesia_v1.js?v=365"></script>
+    <script src="./_add_eventos_especiales.js?v=365"></script>
+    <script src="./_firebase_sync_iglesia.js?v=365"></script>
+    <script src="./_pdf_eventos.js?v=365"></script>
+    <script src="./_ano_biblico_v2.js?v=365"></script>
+    <!-- ✅ Librer�as locales � sin dependencia de CDN externa -->
+    <script src="./html2canvas.min.js"></script>
+    <script src="./jspdf.umd.min.js"></script>
+    <script src="./fix_herramientas_culto.js?v=365"></script>
+    <script src="./_nueva_funcion.js?v=365"></script>
+    <script src="./versus_engine.js?v=365"></script>
+
+    <script>
+        let usuarioActual = { nombre: localStorage.getItem('legado_user_name') || "Invitado", nivel: "" };
+
+        window.onload = () => {
+            // 🔧 BUG-2 FIX: Limpiar hash al abrir la app � siempre mostrar la pantalla de inicio
+            if (location.hash && location.hash.length > 1) {
+                history.replaceState(null, '', location.pathname);
+            }
+            const savedName = localStorage.getItem('legado_user_name');
+            if (savedName) document.getElementById('nombre-usuario').value = savedName;
+
+            // v149: Ya no mostramos el selector compacto visible, se carga bajo demanda
+            // Precargamos la l�gica de la Biblia para que est� lista
+            if (typeof mostrarBibleCompacto === 'function') {
+                mostrarBibleCompacto(); // Carga en el contenedor oculto
+            }
+            cargarVersiculoDelDia();
+
+            db.collection(".health_check").doc("status").get().then(() => {
+                document.getElementById('db-dot').style.backgroundColor = '#2ed573';
+                document.getElementById('db-text').innerText = 'CONECTADO A LA NUBE';
+            }).catch(() => {
+                document.getElementById('db-text').innerText = 'MODO LOCAL PROTEGIDO';
+            });
+        };
+
+        // �������������������������������������������
+        // 📖 LEER LA BIBLIA � Abre el selector de versiones
+        // �������������������������������������������
+        function abrirSelectorBiblias() {
+            // Por ahora abre directamente el selector de libros RVR60
+            // En el futuro aqu� ir� el selector de versiones
+            const sel = document.getElementById('bible-home-selector');
+            if (sel) sel.style.display = 'none';
+            // M3 FIX: Guard si expandirSelectorBiblia no est� lista a�n
+            if (typeof expandirSelectorBiblia !== 'function') {
+                mostrarToast('📖 Cargando Biblia...');
+                return;
+            }
+            // Eliminar overlay existente si hay uno (evitar apilar)
+            const existente = document.getElementById('biblia-overlay');
+            if (existente) existente.remove();
+
+            // Limpiar la barra flotante del lector que se queda encima
+            const barraNav = document.getElementById('floating-bible-nav');
+            if (barraNav) barraNav.remove();
+            // Limpiar pantalla-estudio para que no quede contenido detr�s
+            const pantalla = document.getElementById('pantalla-estudio');
+            if (pantalla) pantalla.innerHTML = '';
+
+            // Mostramos el selector en un overlay fullscreen
+            const overlay = document.createElement('div');
+            overlay.id = 'biblia-overlay';
+            overlay.style.cssText = `
+                position:fixed; top:0; left:0; width:100%; height:100%;
+                background:#0F172A; z-index:50000; overflow-y:auto;
+                padding:20px; box-sizing:border-box;
+                animation: devFadeIn 0.3s ease-out;
+            `;
+            overlay.innerHTML = `
+                <div style="max-width:600px; margin:0 auto;">
+                    <div id="biblia-overlay-selector"></div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            history.pushState({ overlay: 'biblia' }, '');
+
+            // Renderizar el selector dentro del overlay
+            setTimeout(() => {
+                if (typeof renderSelectorLibrosPrincipal === 'function') {
+                    renderSelectorLibrosPrincipal('biblia-overlay-selector');
+                }
+                if (typeof renderHistorialRelampago === 'function') {
+                    renderHistorialRelampago();
+                }
+            }, 100);
+        }
+
+        // �������������������������������������������
+        // � VERS�CULOS DE ALIENTO � Acceso directo
+        // �������������������������������������������
+        function abrirAliento() {
+            // Abrir el selector de Biblia primero
+            abrirSelectorBiblias();
+            // Cambiar a la pesta�a ALIENTO autom�ticamente
+            setTimeout(() => {
+                if (typeof cambiarModoSelectorBiblia === 'function') {
+                    cambiarModoSelectorBiblia('aliento');
+                }
+            }, 200);
+        }
+
+        function cerrarBibliaOverlay() {
+            const ov = document.getElementById('biblia-overlay');
+            if (ov) ov.remove();
+            // BUG-1 FIX FINAL: limpiar el lector y restaurar la pantalla debajo
+            if (typeof window._limpiarBarraLector === 'function') {
+                window._limpiarBarraLector();
+            }
+            document.body.classList.remove('lector-biblico-activo');
+            // Restaurar la pantalla que corresponde seg�n donde estaba el usuario
+            const pa = window._pantallaActual;
+            if      (pa === 'iglesia')      renderModuloIglesia();
+            else if (pa === 'adolescentes') renderModuloAdolescentes();
+            else if (pa === 'kids')         renderModuloNinos();
+            else if (pa === 'jovenes')      renderModuloJovenes();
+            else if (pa === 'adultos')      renderModuloAdultos();
+            else                            volverMenuPrincipal(); // 'inicio' = home
+        }
+
+        // �������������������������������������������
+        // � DEVOCIONAL � Abre overlay con devocional completo
+        // �������������������������������������������
+        function abrirDevocional() {
+            const icono = document.getElementById('dev-icon')?.textContent || '�';
+            const titulo = document.getElementById('dev-label')?.textContent || 'Devocional del D�a';
+            const vers = document.getElementById('dev-versiculo')?.textContent || '';
+            const ref = document.getElementById('dev-referencia')?.textContent || '';
+            const reflex = document.getElementById('dev-reflexion')?.textContent || '';
+
+            const overlay = document.createElement('div');
+            overlay.id = 'devocional-overlay';
+            overlay.style.cssText = `
+                position:fixed;inset:0;z-index:10000;
+                background:linear-gradient(170deg,#0a0818,#1a0f3c,#0a0818);
+                overflow-y:auto;padding:0;
+                animation:devFadeIn 0.3s ease-out;
+            `;
+            overlay.innerHTML = `
+                <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:14px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(253,203,110,0.25);position:sticky;top:0;z-index:101;">
+                    <button onclick="cerrarDevocionalOverlay()" style="background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.3);color:#fdcb6e;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.75rem;font-weight:700;">✕ CERRAR</button>
+                    <div style="flex:1;">
+                        <div style="color:rgba(253,203,110,0.6);font-size:0.55rem;letter-spacing:3px;">LEGADO B�BLICO</div>
+                        <div style="color:#fdcb6e;font-weight:900;font-size:0.85rem;letter-spacing:1px;">DEVOCIONAL DEL D�A</div>
+                    </div>
+                </div>
+
+                <div style="padding:24px 20px;max-width:600px;margin:0 auto;">
+                    <!-- �cono y t�tulo -->
+                    <div style="text-align:center;margin-bottom:28px;">
+                        <div style="font-size:3.5rem;margin-bottom:12px;">${icono}</div>
+                        <h1 style="color:#fff;font-size:1.2rem;font-weight:900;margin:0 0 6px;line-height:1.4;">${titulo}</h1>
+                        <div style="color:rgba(255,255,255,0.3);font-size:0.65rem;letter-spacing:2px;">REFLEXI�N DIARIA</div>
+                    </div>
+
+                    <!-- Vers�culo -->
+                    <div style="background:rgba(253,203,110,0.06);border:1px solid rgba(253,203,110,0.2);border-radius:16px;padding:20px;margin-bottom:20px;">
+                        <p style="font-family:'Crimson Text',serif;font-size:1.1rem;line-height:1.7;color:#f0f0ff;font-style:italic;margin:0 0 10px;border-left:3px solid #fdcb6e;padding-left:14px;">${vers}</p>
+                        <div style="font-size:0.7rem;color:#fdcb6e;font-weight:900;letter-spacing:2px;">${ref}</div>
+                    </div>
+
+                    <!-- Reflexi�n -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;margin-bottom:24px;">
+                        <div style="color:rgba(162,155,254,0.7);font-size:0.6rem;letter-spacing:3px;margin-bottom:12px;">💭 REFLEXI�N</div>
+                        <p style="color:rgba(255,255,255,0.75);font-size:0.88rem;line-height:1.85;margin:0;">${reflex}</p>
+                    </div>
+
+                    <!-- Bot�n compartir -->
+                    <button onclick="compartirDevocional()" style="
+                        width:100%;padding:14px;
+                        background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+                        border:none;border-radius:14px;color:#fff;
+                        font-weight:900;font-size:0.9rem;cursor:pointer;
+                        box-shadow:0 6px 20px rgba(108,92,231,0.3);
+                    ">📤 COMPARTIR DEVOCIONAL</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            history.pushState({ devocional: true }, '');
+            window.addEventListener('popstate', function devPop() {
+                cerrarDevocionalOverlay();
+                window.removeEventListener('popstate', devPop);
+            }, { once: true });
+        }
+
+        function cerrarDevocionalOverlay() {
+            const ov = document.getElementById('devocional-overlay');
+            if (ov) ov.remove();
+        }
+
+        // ���������������������������������������������������������������
+        // 📤 COMPARTIR DEVOCIONAL � Genera imagen visual premium v369
+        // Genera tarjeta PNG con logo, vers�culo y reflexi�n usando Canvas
+        // ���������������������������������������������������������������
+        function compartirDevocional() {
+            const icono    = document.getElementById('dev-icon')?.textContent || '📖';
+            const titulo   = document.getElementById('dev-label')?.textContent || 'Devocional del Día';
+            const vers     = document.getElementById('dev-versiculo')?.textContent || '';
+            const ref      = document.getElementById('dev-referencia')?.textContent || '';
+            const reflex   = document.getElementById('dev-reflexion')?.textContent || '';
+
+            _compartirTextoDevocional(icono, titulo, vers, ref, reflex);
+        }
+
+        // ─── FALLBACK TEXTO ──────────────────────────────────────────
+        function _compartirTextoDevocional(ic, tit, v, r2, rx) {
+            const msg = `${ic} *DEVOCIONAL DEL DÍA — LEGADO BÍBLICO*\n*${tit}*\n\n📖 ${v}\n${r2}\n\n💭 _${rx}_\n\n_📱 Compartido desde Legado Bíblico_`;
+            if (navigator.share) {
+                navigator.share({ title: 'Devocional del Día - Legado Bíblico', text: msg }).catch(() => {});
+            } else {
+                navigator.clipboard?.writeText(msg).then(() => mostrarToast('✅ Devocional copiado'));
+            }
+        }
+
+        // === A�O B�BLICO v2 === Ver: _ano_biblico_v2.js ===
+
+        function cerrarContexto() {
+            document.querySelectorAll('#context-card, .context-card, #context-card-doctrinas').forEach(el => el.classList.remove('active'));
+        }
+
+        function mostrarToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast-msg';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => {
+                t.style.opacity = '0';
+                setTimeout(() => t.remove(), 500);
+            }, 3000);
+        }
+
+        function inyectarEstilosDoctrinaPro() {
+            if (!document.getElementById('estilo-doctrina-pro')) {
+                const style = document.createElement('style');
+                style.id = 'estilo-doctrina-pro';
+                style.innerHTML = `
+                    .card-doctrina-v28 { transition: 0.3s; }
+                    .card-doctrina-v28:hover { transform: translateY(-5px); border-color: #a29bfe !important; }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        function seleccionarNivel(nivel) {
+            let nombre = document.getElementById('nombre-usuario').value.trim() || 'Invitado' + Math.floor(Math.random() * 900 + 100);
+            localStorage.setItem('legado_user_name', nombre);
+            usuarioActual.nombre = nombre;
+            usuarioActual.nivel = nivel;
+
+            iniciarSesionFirebase(nombre, nivel);
+
+            const intro = document.querySelector('.intro-container');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                const pantalla = document.getElementById('pantalla-estudio');
+                pantalla.className = `container-estudio theme-${nivel} is-active`;
+
+                // BUG-2 FIX: Todos los modulos registran su pantalla en el historial
+                // para que el boton ATRAS del celular funcione correctamente en todos
+                if (nivel === 'adolescentes') irAPantalla('adolescentes', renderModuloAdolescentes);
+                else if (nivel === 'kids') irAPantalla('kids', renderModuloNinos);
+                else if (nivel === 'jovenes') irAPantalla('jovenes', renderModuloJovenes);
+                else if (nivel === 'adultos') irAPantalla('adultos', renderModuloAdultos);
+                else if (nivel === 'iglesia') irAPantalla('iglesia', renderModuloIglesia);
+                window.scrollTo(0, 0);
+            }, 500);
+        }
+
+        function entrarComoInvitado() {
+            document.getElementById('nombre-usuario').value = 'Invitado' + Math.floor(Math.random() * 900 + 100);
+        }
+
+        function volverMenuPrincipal() {
+            // Limpiar overlays que puedan estar encima
+            const bibliaOv = document.getElementById('biblia-overlay');
+            if (bibliaOv) bibliaOv.remove();
+
+            const pantalla = document.getElementById('pantalla-estudio');
+            const intro = document.querySelector('.intro-container');
+            if (!pantalla || !intro) return;
+            pantalla.innerHTML = '';
+            pantalla.className = 'container-estudio';
+            intro.style.transition = 'none';
+            intro.style.opacity = '0';
+            intro.style.display = '';
+            requestAnimationFrame(() => {
+                intro.style.transition = 'opacity 0.4s ease';
+                intro.style.opacity = '1';
+            });
+            window.scrollTo(0, 0);
+        }
+
+
+        // =============================================
+        // SISTEMA DE NAVEGACION - BOTON ATRAS FISICO
+        // =============================================
+        // Pantalla actual registrada globalmente
+        window._pantallaActual = 'inicio';
+
+        // Funci�n central de navegaci�n: registra y renderiza
+        window.irAPantalla = function (nombre, fnRender) {
+            window._pantallaActual = nombre;
+            history.pushState({ p: nombre }, '', location.pathname + '#' + nombre);
+            fnRender();
+        };
+
+        // El boton ATRAS del celular/navegador
+        // BUG-2 FIX: Ahora cubre TODOS los modulos correctamente
+        window.addEventListener('popstate', function (e) {
+            // Primero: �Hay un context-card abierto? Cerrarlo sin destruir nada
+            const ctxCard = document.querySelector('#context-card.active, .context-card.active');
+            if (ctxCard) {
+                cerrarContexto();
+                history.pushState({ p: window._pantallaActual }, '');
+                return;
+            }
+            // Segundo: �Hay un overlay de Biblia abierto? Cerrarlo
+            // BUG-1 FIX REAL: floating-bible-nav vive DENTRO de biblia-overlay,
+            // por eso el Check3 (floatingNav) nunca se ejecutaba.
+            // Al borrar el overlay hay que limpiar el lector Y restaurar la pantalla debajo.
+            const bibliaOv = document.getElementById('biblia-overlay');
+            if (bibliaOv) {
+                bibliaOv.remove();
+                // Limpiar el panel flotante "OCULTAR BARRA" que queda en el body
+                if (typeof window._limpiarBarraLector === 'function') {
+                    window._limpiarBarraLector();
+                }
+                document.body.classList.remove('lector-biblico-activo');
+                // Restaurar la pantalla correcta debajo del overlay
+                const pa = window._pantallaActual;
+                if      (pa === 'iglesia')      renderModuloIglesia();
+                else if (pa === 'adolescentes') renderModuloAdolescentes();
+                else if (pa === 'kids')         renderModuloNinos();
+                else if (pa === 'jovenes')      renderModuloJovenes();
+                else if (pa === 'adultos')      renderModuloAdultos();
+                else                            volverMenuPrincipal(); // 'inicio' = home
+                history.pushState({ p: window._pantallaActual }, '');
+                return;
+            }
+            // Tercero: �Estamos en el reader de Biblia? Volver al selector
+            // BUG-1+M2 FIX: Limpiar estado del lector ANTES de abrir el selector
+            const floatingNav = document.getElementById('floating-bible-nav');
+            if (floatingNav) {
+                // Limpiar panel flotante y clase del body
+                if (typeof window._limpiarBarraLector === 'function') {
+                    window._limpiarBarraLector();
+                }
+                document.body.classList.remove('lector-biblico-activo');
+                // Peque�o delay para que el DOM procese la limpieza antes del render
+                setTimeout(() => abrirSelectorBiblias(), 50);
+                history.pushState({ p: window._pantallaActual }, '');
+                return;
+            }
+
+            const p = e.state ? e.state.p : 'inicio';
+            window._pantallaActual = p;
+            // Renderizar la pantalla correcta sin volver a empujar historial
+            if (p === 'iglesia') { renderModuloIglesia(); }
+            else if (p === 'adolescentes') { renderModuloAdolescentes(); }
+            else if (p === 'kids') { renderModuloNinos(); }
+            else if (p === 'jovenes') { renderModuloJovenes(); }
+            else if (p === 'adultos') { renderModuloAdultos(); }
+            else { volverMenuPrincipal(); } // 'inicio' o cualquier otro = menu
+        });
+
+
+        const VERSICULOS_BANCO = [
+            { t: "Limpia mi camino con tu palabra.", r: "Salmos 119:9" },
+            { t: "Porque yo s� los pensamientos que tengo acerca de vosotros...", r: "Jerem�as 29:11" },
+            { t: "Todo lo puedo en Cristo que me fortalece.", r: "Filipenses 4:13" },
+            { t: "No temas, porque yo estoy contigo.", r: "Isa�as 41:10" },
+            { t: "El Se�or es mi pastor, nada me faltar�.", r: "Salmos 23:1" },
+            { t: "Sean vuestras costumbres sin avaricia, contentos con lo que ten�is.", r: "Hebreos 13:5" },
+            { t: "Busquen primeramente el reino de Dios y su justicia.", r: "Mateo 6:33" }
+        ];
+
+        function cargarVersiculoDelDia() {
+            // BUG-1 FIX: Proteccion null-check � evita error si los IDs no existen en el DOM
+            const el1 = document.getElementById('main-verse-text');
+            const el2 = document.getElementById('main-verse-ref');
+            if (!el1 || !el2) return; // Los elementos no existen en esta version del HTML
+            const dia = new Date().getDate();
+            const index = dia % VERSICULOS_BANCO.length;
+            const item = VERSICULOS_BANCO[index];
+            el1.innerText = `"${item.t}"`;
+            el2.innerText = item.r;
+        }
+
+        function copiarVersiculo() {
+            const el1 = document.getElementById('main-verse-text');
+            const el2 = document.getElementById('main-verse-ref');
+            if (!el1 || !el2) { mostrarToast('⚠� Vers�culo no disponible'); return; }
+            const texto = el1.innerText;
+            const ref = el2.innerText;
+            navigator.clipboard.writeText(`${texto} - ${ref}\n\nEnviado desde Legado B�blico App`).then(() => {
+                mostrarToast('� �Vers�culo copiado para compartir!');
+            }).catch(() => mostrarToast('�� No se pudo copiar el vers�culo'));
+        }
+
+        // superHuracanUpdate() definida al inicio del body - versi�n at�mica �nica
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Registrar SW � solo cachear archivos, NO disparar recargas extras
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    reg.update();
+                    // ✅ Sin onupdatefound, sin controllerchange, sin message listener
+                    // El �NICO mecanismo de actualizaci�n es checkVersion() (al inicio del HEAD)
+                }).catch(e => console.warn('[SW] Error registro:', e));
+            });
+        }
+    

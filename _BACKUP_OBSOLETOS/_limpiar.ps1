@@ -1,0 +1,7 @@
+﻿$ruta = " C:\Users\jhose\OneDrive\Desktop\PROYECTO DE CODIGO\LEGADO_BIBLICO_PROD\
+$backup = $ruta + \\\_BACKUP_OBSOLETOS\
+if (-not (Test-Path $backup)) { New-Item -ItemType Directory -Path $backup | Out-Null }
+$lista = @(\data_adultos.js\,\data_kids.js\,\data_teens.js\,\data_teens_v2.js\,\data_teens_v5.js\,\data_teens_v6.js\,\data_teens_v7.js\,\data_iglesia_v1_CLEAN.js\,\data_iglesia_v1_SERVER.js\,\data_iglesia_v1_WEB.js\,\deploy_legado_v60.ps1\,\deploy_legado_v61.ps1\,\deploy_legado_v62.ps1\,\deploy_legado_compartir_calendario.ps1\,\BYPASS_CACHE.ps1\,\REPARAR_YA.ps1\,\adultos_hub_page_1772170772150.png\,\adultos_hub_top_1772170785116.png\,\adultos_seminario_hero_1772170415343.png\,\apologetica_view_1772170231354.png\,\debate_result_1772170209121.png\,\debate_view_1772170180980.png\,\egw_commentary_broken_image_1772170854450.png\,\egw_portrait_adventista_1772170430747.png\,\exegesis_text_1772170817361.png\,\greek_words_section_1772170824925.png\,\jovenes_hub_1772170127367.png\,\jovenes_profecia_hero_1772169591746.png\,\legado_biblico_icon_1772170985987.png\,\saved_note_adultos_1772170881438.png\,\daniel_profecia_timeline_1772169603328.png\,\copy_kids_images_1772168801560.webp\,\test_adultos_module_1772170744088.webp\,\nino_triste.png.png\,\deploy_legado_v83.ps1\,\LIMPIAR_PROYECTO.ps1\)
+$n = 0
+foreach ($f in $lista) { $src = $ruta + \\\\ + $f; if (Test-Path $src) { Move-Item $src ($backup + \\\\ + $f) -Force; Write-Host (\OK: \ + $f); $n++ } else { Write-Host (\N/A: \ + $f) } }
+Write-Host (\TOTAL MOVIDOS: \ + $n)

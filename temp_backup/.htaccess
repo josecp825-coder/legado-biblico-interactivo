@@ -1,0 +1,26 @@
+# ============================================
+# LEGADO BIBLICO - Cache Control
+# index.html NUNCA se cachea en servidor ni navegador
+# Los JS/CSS se cachean normalmente (el SW los maneja)
+# ============================================
+
+# index.html y legado.html: NUNCA cachear
+<FilesMatch "^(index|legado)\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>
+
+# version.json: NUNCA cachear (necesitamos siempre la versión actual)
+<FilesMatch "^version\.json$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>
+
+# sw.js: NUNCA cachear (el browser debe detectar cambios siempre)
+<FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>

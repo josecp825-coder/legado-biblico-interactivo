@@ -1,0 +1,33 @@
+function autoDetectarTipoCulto(fechaStr) {
+    if (!fechaStr) return;
+    const select = document.getElementById('culto-tipo');
+    if (!select) return;
+    const partes = fechaStr.split('-');
+    const fecha = new Date(partes[0], partes[1] - 1, partes[2], 12, 0, 0);
+    const diaSemana = fecha.getDay();
+    const diasMap = { 0: "Domingo", 1: "Lunes", 2: "Martes", 3: "Mi\u00e9rcoles", 4: "Jueves", 5: "Viernes", 6: "S\u00e1bado" };
+    select.value = diasMap[diaSemana] || "Otro";
+    // \u2728 MODO S\u00c1BADO: activa el formulario de 12 pasos de liturgia
+    _actualizarFormularioPorDia(diaSemana === 6);
+}
+
+// =================================================================
+// FORMULARIO DIN\u00c1MICO: S\u00e1bado = 12 pasos liturg\u00eda \u26ea
+//                 Otro d\u00eda = formulario est\u00e1ndar de culto
+// =================================================================
+function _actualizarFormularioPorDia(esSabado) {
+    const cont = document.getElementById('culto-campos-dinamicos');
+    if (!cont) return;
+    cont.innerHTML = esSabado ? _html12PasosSabado() : _htmlCamposNormal();
+}
+
+function _campoItem(id, num, icon, label, ph, rgb, esHimno, extra) {
+    rgb = rgb || '162,155,254';
+    extra = extra || '';
+    const onInput = esHimno ? ' oninput="if(typeof autocompleteHimno===\'function\')autocompleteHimno(this)"' : '';
+    const himnoDiv = esHimno ? `<div id="himno-titulo-${id}" style="color:#feca57;font-size:0.75rem;margin-top:5px;font-style:italic;"></div>` : '';
+    return `<div style="background:rgba(${rgb},0.04);border:1.5px solid rgba(${rgb},0.2);border-radius:14px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;color:rgba(${rgb},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+            <span style="font-size:1.1rem;">${icon}</span>
+            <span style="color:rgba(${rgb},0.6);font-size:0.6rem;background:rgba(${rgb},0.1);padding:2px 8px;border-radius:6px;">${num}</span>
+           

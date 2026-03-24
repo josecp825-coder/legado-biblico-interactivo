@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script>
+        // MOTOR DE SINCRONIZACIÓN LEGADO v39
+        async function syncVersion() {
+            try {
+                const current = localStorage.getItem('legado_app_version');
+                if (current !== "39") {
+                    localStorage.setItem('legado_app_version', "39");
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        for (let key of keys) await caches.delete(key);
+                    }
+                    window.location.reload();
+                }
+            } catch (e) { }
+        }
+        syncVersion();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGADO BÍBLICO | Experiencia Digital</title>
+    <link rel="stylesheet" href="style.css?v=39">
+    <link rel="stylesheet" href="mobile.css?v=39">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- ✅ PWA CONFIGURACION -->
+    <link rel="manifest" href="./manifest.json?v=39">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="./firebase-config.js?v=38"></script>
+    <script>
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+</head>
+
+<body>
+    <!-- 🔤 SISTEMA DE FUENTE GLOBAL - Persistente + MutationObserver -->
+    <script>
+        (function () {
+            const CLAVE_PASO = 'legado_font_paso';
+            const PASOS = [0.82, 0.9, 1.0, 1.1, 1.22, 1.38, 1.55, 1.75];
+            let pasoActual = parseInt(localStorage.getItem(CLAVE_PASO) || '2');
+
+            function aplicarAEl(el, tamRem) {
+                el.style.setProperty('font-size', tamRem + 'rem', 'important');
+            }
+
+            function aplicarEscala() {
+                const escala = PASOS[pasoActual];
+                const tamRem = parseFloat((escala * 1.08).toFixed(3));
+                document.documentElement.style.setProperty('--font-scale', escala);
+                document.documentElement.style.setProperty('--font-lect', tamRem + 'rem');
+                document.querySelectorAll('.lectura-texto').forEach(el => aplicarAEl(el, tamRem));
+                const ind = document.getElementById('font-ind');
+                if (ind) ind.textContent = Math.round(escala * 100) + '%';
+                localStorage.setItem(CLAVE_PASO, pasoActual);
+                window._fontLectRem = tamRem;
+            }
+
+            const observer = new MutationObserver(mutations => {
+                const tam = window._fontLectRem;
+                if (!tam) return;
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType !== 1) return;
+                        if (node.classList && node.classList.contains('lectura-texto')) aplicarAEl(node, tam);
+                        node.querySelectorAll && node.querySelectorAll('.lectura-texto').forEach(el => aplicarAEl(el, tam));
+                    });
+                });
+            });
+
+            window.fontMas = function () {
+                if (pasoActual < PASOS.length - 1) { pasoActual++; aplicarEscala(); pulsoWidget(); }
+            };
+            window.fontMenos = function () {
+                if (pasoActual > 0) { pasoActual--; aplicarEscala(); pulsoWidget(); }
+            };
+            window.refrescarFuente = aplicarEscala;
+
+            function pulsoWidget() {
+                const w = document.getElementById('font-widget');
+                if (!w) return;
+                w.style.transform = 'scale(1.1)';
+                setTimeout(() => { w.style.transform = 'scale(1)'; }, 150);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                aplicarEscala();
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+            if (document.readyState !== 'loading' && document.body) {
+                aplicarEscala();
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+        })();
+    </script>
+
+    <style>
+        :root {
+            --font-scale: 1;
+            --font-lect: 1.08rem;
+        }
+
+        .lectura-texto {
+            font-size: var(--font-lect) !important;
+            line-height: 1.78 !important;
+            transition: font-size 0.2s ease;
+        }
+
+        #font-widget {
+            position: fixed;
+            bottom: 22px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            background: rgba(13, 10, 35, 0.93);
+            border: 1px solid rgba(162, 155, 254, 0.4);
+            border-radius: 30px;
+            padding: 4px 3px;
+            box-shadow: 0 4px 22px rgba(0, 0, 0, 0.55), 0 0 18px rgba(108, 92, 231, 0.2);
+            backdrop-filter: blur(14px);
+            transition: transform 0.15s ease;
+        }
+
+        #font-widget button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            transition: background 0.15s;
+        }
+
+        #font-widget button:hover {
+            background: rgba(162, 155, 254, 0.18);
+        }
+
+        #font-widget button:active {
+            background: rgba(162, 155, 254, 0.35);
+        }
+
+        #font-ind {
+            font-size: 0.6rem;
+            color: #a29bfe;
+            font-family: monospace;
+            font-weight: 900;
+            min-width: 34px;
+            text-align: center;
+        }
+    </style>
+
+    <!-- Widget flotante A- / A+ -->
+    <div id="font-widget" title="Tamaño de letra">
+        <button onclick="fontMenos()" style="font-size:0.85rem;color:#ccc;">A−</button>
+        <span id="font-ind">100%</span>
+        <button onclick="fontMas()" style="font-size:1.1rem;">A+</button>
+    </div>
+
+    <div class="intro-container">
+        <div class="welcome-text">
+            <div
+                style="position:fixed; top:10px; right:12px; display:flex; gap:8px; align-items:center; z-index:10001;">
+                <div
+                    style="font-size:10px; color:rgba(255,255,255,0.4); font-family:monospace; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.1)">
+                    v19.0-BETA</div>
+                <button onclick="forzarActualizacionInmediata()"
+                    style="background:#ff7675; border:none; color:white; width:34px; height:34px; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 15px rgba(255,118,117,0.4); animation: pulse-upd 2s infinite;"
+                    title="Forzar Actualización">🔄</button>
+            </div>
+            <div class="db-status"
+                style="font-size:0.7rem;opacity:0.6;display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:10px;">
+                <span id="db-dot"
+                    style="height:8px;width:8px;background-color:#bbb;border-radius:50%;display:inline-block;"></span>
+                <span id="db-text">CONECTANDO A LA NUBE...</span>
+            </div>
+            <h1>LEGADO BÍBLICO</h1>
+            <p>Selecciona tu nivel para comenzar</p>
+
+            <div class="user-id-box"
+                style="margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px">
+                <input type="text" id="nombre-usuario" placeholder="Tu nombre..."
+                    style="padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;width:250px;text-align:center;">
+                <div style="display:flex; gap:10px; margin-top:10px">
+                    <button onclick="entrarComoInvitado()"
+                        style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.5);padding:8px 22px;border-radius:20px;cursor:pointer;font-size:0.8rem;">Invitado</button>
+                    <button onclick="forzarActualizacionInmediata()"
+                        style="background:#ff6b6b;border:2px solid #fff;color:#fff;padding:8px 22px;border-radius:20px;cursor:pointer;font-size:0.8rem;font-weight:900;box-shadow:0 0 15px rgba(255,107,107,0.5);animation:pulse-red 2s infinite;">🔴
+                        REPARAR APP v19 🔴</button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes pulse-upd {
+                0% {
+                    transform: scale(1);
+                    box-shadow: 0 0 0 0 rgba(255, 118, 117, 0.7);
+                }
+
+                70% {
+                    transform: scale(1.1);
+                    box-shadow: 0 0 0 10px rgba(255, 118, 117, 0);
+                }
+
+                100% {
+                    transform: scale(1);
+                    box-shadow: 0 0 0 0 rgba(255, 118, 117, 0);
+                }
+            }
+
+            @keyframes pulse-red {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 15px rgba(255, 107, 107, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+                }
+            }
+        </style>
+
+        <div class="category-grid">
+            <div class="category-card card-kids" onclick="seleccionarNivel('kids')">
+                <div class="card-bg-icon">🎨</div>
+                <div class="card-content">
+                    <h2>NIÑOS</h2>
+                    <p>Historias animadas</p>
+                </div>
+            </div>
+            <div class="category-card card-teens" onclick="seleccionarNivel('adolescentes')">
+                <div class="card-bg-icon">🎧</div>
+                <div class="card-content">
+                    <h2>ADOLESCENTES</h2>
+                    <p>Retos y Trivia</p>
+                </div>
+            </div>
+            <div class="category-card card-youth" onclick="seleccionarNivel('jovenes')">
+                <div class="card-bg-icon">🚀</div>
+                <div class="card-content">
+                    <h2>JÓVENES</h2>
+                    <p>Análisis real</p>
+                </div>
+            </div>
+            <div class="category-card card-adults" onclick="seleccionarNivel('adultos')">
+                <div class="card-bg-icon">📜</div>
+                <div class="card-content">
+                    <h2>ADULTOS</h2>
+                    <p>Estudio profundo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pantalla-estudio" class="container-estudio"></div>
+
+    <script src="./firebase-service.js?v=38"></script>
+    <script src="./data_motor.js?v=38"></script>
+    <script src="./data_kids.js?v=38"></script>
+    <script src="./data_jovenes.js?v=38"></script>
+    <script src="./data_adultos_v37.js?v=77"></script>
+    <script src="./data_teens_v6.js?v=40"></script>
+    <script src="./versus_engine.js?v=38"></script>
+
+    <script>
+        let usuarioActual = { nombre: localStorage.getItem('legado_user_name') || "Invitado", nivel: "" };
+
+        window.onload = async () => {
+            const savedName = localStorage.getItem('legado_user_name');
+            if (savedName) document.getElementById('nombre-usuario').value = savedName;
+
+            db.collection(".health_check").doc("status").get().then(() => {
+                document.getElementById('db-dot').style.backgroundColor = '#2ed573';
+                document.getElementById('db-text').innerText = 'NUBE CONECTADA';
+            }).catch(() => {
+                document.getElementById('db-text').innerText = 'MODO LOCAL';
+            });
+
+            // ✅ VERIFICAR SI HAY UN ENLACE COMPARTIDO DE CALENDARIO EN LA URL
+            if (typeof verificarTokenCalendario === 'function') {
+                await verificarTokenCalendario();
+            }
+        };
+
+        function seleccionarNivel(nivel) {
+            let nombre = document.getElementById('nombre-usuario').value.trim() || 'Invitado' + Math.floor(Math.random() * 900 + 100);
+            localStorage.setItem('legado_user_name', nombre);
+            usuarioActual.nombre = nombre;
+            usuarioActual.nivel = nivel;
+
+            iniciarSesionFirebase(nombre, nivel);
+
+            const intro = document.querySelector('.intro-container');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                const pantalla = document.getElementById('pantalla-estudio');
+                pantalla.className = `container-estudio theme-${nivel} is-active`;
+
+                if (nivel === 'adolescentes') renderBibliaDinamicaTeens();
+                else if (nivel === 'kids') renderModuloNinos();
+                else if (nivel === 'jovenes') renderModuloJovenes();
+                else if (nivel === 'adultos') renderModuloAdultos();
+                window.scrollTo(0, 0);
+            }, 500);
+        }
+
+        async function forzarActualizacionInmediata() {
+            if (confirm("🚀 ¿Forzar descarga de la última versión ahora?\n\nEsto limpiará el caché y reiniciará la aplicación para asegurar que tengas los últimos cambios.")) {
+                try {
+                    // 1. Mostrar estado visual
+                    const btn = document.querySelector('button[onclick="forzarActualizacionInmediata()"]');
+                    if (btn) { btn.innerText = "⏳"; btn.style.animation = "none"; }
+
+                    // 2. Limpiar Caches de forma agresiva
+                    if ('caches' in window) {
+                        const names = await caches.keys();
+                        await Promise.all(names.map(name => caches.delete(name)));
+                    }
+
+                    // 3. Limpiar LocalStorage de control (preservando datos del usuario)
+                    const _nombre = localStorage.getItem('legado_user_name');
+                    const _cultos = localStorage.getItem('legado_cultos_semanales');
+                    const _liturgias = localStorage.getItem('legado_liturgias');
+                    const _fuente = localStorage.getItem('legado_font_paso');
+                    localStorage.clear();
+                    if (_nombre) localStorage.setItem('legado_user_name', _nombre);
+                    if (_cultos) localStorage.setItem('legado_cultos_semanales', _cultos);
+                    if (_liturgias) localStorage.setItem('legado_liturgias', _liturgias);
+                    if (_fuente) localStorage.setItem('legado_font_paso', _fuente);
+
+                    // 4. Desregistrar Service Workers
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (let registration of registrations) {
+                            await registration.unregister();
+                        }
+                    }
+
+                    // 5. Recarga dura desde el servidor (no caché)
+                    window.location.reload(true);
+                } catch (e) {
+                    alert("Error al actualizar: " + e.message);
+                    window.location.reload(true);
+                }
+            }
+        }
+
+        function entrarComoInvitado() {
+            document.getElementById('nombre-usuario').value = 'Invitado' + Math.floor(Math.random() * 900 + 100);
+        }
+
+        function volverAlInicioLegado() {
+            const pantalla = document.getElementById('pantalla-estudio');
+            const intro = document.querySelector('.intro-container');
+            pantalla.innerHTML = '';
+            pantalla.className = 'container-estudio';
+            intro.style.opacity = '0';
+            intro.style.display = 'flex';
+            requestAnimationFrame(() => {
+                intro.style.transition = 'opacity 0.4s ease';
+                intro.style.opacity = '1';
+            });
+            window.scrollTo(0, 0);
+        }
+
+        async function forzarLimpiezaTotal() {
+            if (confirm("¿Reparar y actualizar la aplicación ahora?")) {
+                // Borrar LocalStorage (preservando datos del usuario)
+                const _nombre = localStorage.getItem('legado_user_name');
+                const _cultos = localStorage.getItem('legado_cultos_semanales');
+                const _liturgias = localStorage.getItem('legado_liturgias');
+                const _fuente = localStorage.getItem('legado_font_paso');
+                localStorage.clear();
+                if (_nombre) localStorage.setItem('legado_user_name', _nombre);
+                if (_cultos) localStorage.setItem('legado_cultos_semanales', _cultos);
+                if (_liturgias) localStorage.setItem('legado_liturgias', _liturgias);
+                if (_fuente) localStorage.setItem('legado_font_paso', _fuente);
+                // Desregistrar Service Workers
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (let reg of regs) await reg.unregister();
+                // Borrar Caches
+                const keys = await caches.keys();
+                for (let key of keys) await caches.delete(key);
+                // Recarga dura
+                window.location.reload(true);
+            }
+        }
+    </script>
+
+    <!-- ✅ AUTO-UPDATE ENGINE PARA PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js?v=39').then(reg => {
+                    // Forzar búsqueda de actualización cada vez que carga
+                    reg.update();
+
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nueva versión detectada, recargar ahora!
+                                window.location.reload();
+                            }
+                        };
+                    };
+                });
+            });
+
+            // Forzar actualización si hay un nuevo worker esperando
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

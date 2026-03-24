@@ -1,0 +1,14 @@
+);border-radius:14px;padding:14px;">
+            <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+                <span style="font-size:1.1rem;">\u{1f476}</span>
+                <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">4</span>
+                RINC\u00d3N INFANTIL
+            </label>
+            <input type="text" id="culto-sab_infantil_anuncia" placeholder="\u00bfQui\u00e9n anuncia el rinc\u00f3n infantil?"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.25);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
+            <input type="text" id="culto-sab_infantil" placeholder="\u00bfQui\u00e9n conduce el rinc\u00f3n infantil?"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;">
+        </div>` +
+        _campoItem('sab_ofrendas', '5', '\u{1f4b0}', 'DIEZMOS Y OFRENDAS', 'Nombre del encargado...', ORO) +
+        himnoAdoracion +
+        `<div style="background:rgba(${ORO},0.04);border:1.5px solid r
