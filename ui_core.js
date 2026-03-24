@@ -235,30 +235,33 @@
             tarjContainer.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:800px; background:#1E293B; color:#F8FAFC; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding:55px; overflow:hidden;";
             
             tarjContainer.innerHTML = `
-                <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; padding:20px; text-align:left;">
+                <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; border:1px solid rgba(255,255,255,0.1); text-align:left;">
                     
-                    <!-- ENCABEZADO CON LOGO OFICIAL GIGANTE (SIN CORTAR) -->
-                    <div style="text-align:center; margin-bottom:45px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:30px;">
-                        <img src="logo_oficial.jpg" style="width:400px; height:auto; border-radius:24px; margin:0 auto 25px auto; display:block; box-shadow: 0 20px 40px rgba(0,0,0,0.5);" />
-                        <h1 style="font-size:48px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
+                    <!-- ENCABEZADO DUAL-TONE: BLANCO PARA FUSIONAR EL LOGO -->
+                    <div style="text-align:center; margin-bottom:45px; border-bottom:4px solid #fdcb6e; background:#ffffff; border-radius:16px 16px 0 0; padding:40px 20px 35px 20px;">
+                        <img src="logo_oficial.jpg" style="width:380px; height:auto; margin:0 auto 20px auto; display:block; mix-blend-mode:multiply;" />
+                        <h1 style="font-size:42px; margin:0; color:#1E293B; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
-                    <!-- VERSICULO GIGANTE -->
-                    <div style="font-size:38px; font-style:italic; line-height:1.4; color:#E2E8F0; border-left:8px solid #fdcb6e; padding-left:35px; margin-bottom:20px; font-family:'Georgia', serif;">
-                        "${vers}"
-                    </div>
-                    <div style="color:#fdcb6e; font-size:26px; font-weight:bold; margin-bottom:50px; margin-left:40px;">— ${ref}</div>
-                    
-                    <!-- REFLEXION (MÁS GRANDE) -->
-                    <div style="margin-top:20px; background:rgba(255,255,255,0.03); border-radius:12px; padding:30px;">
-                        <p style="font-size:38px; line-height:1.6; color:#F8FAFC; margin:0; font-weight:400;">
-                            ${reflex}
-                        </p>
-                    </div>
-                    
-                    <!-- FOOTER -->
-                    <div style="text-align:center; margin-top:60px; padding-top:40px; border-top:1px solid rgba(255,255,255,0.1);">
-                        <span style="font-size:24px; font-weight:700; color:#94A3B8; letter-spacing:2px;">COMPARTIDO DESDE LA APP OFICIAL</span>
+                    <!-- CONTENIDO DE LECTURA (PIZARRA OSCURO) -->
+                    <div style="padding:10px 40px 40px 40px;">
+                        <!-- VERSICULO GIGANTE -->
+                        <div style="font-size:38px; font-style:italic; line-height:1.4; color:#E2E8F0; border-left:8px solid #fdcb6e; padding-left:35px; margin-bottom:20px; font-family:'Georgia', serif;">
+                            "${vers}"
+                        </div>
+                        <div style="color:#fdcb6e; font-size:26px; font-weight:bold; margin-bottom:50px; margin-left:40px;">— ${ref}</div>
+                        
+                        <!-- REFLEXION (MÁS GRANDE) -->
+                        <div style="margin-top:20px; background:rgba(255,255,255,0.03); border-radius:12px; padding:30px;">
+                            <p style="font-size:38px; line-height:1.6; color:#F8FAFC; margin:0; font-weight:400;">
+                                ${reflex}
+                            </p>
+                        </div>
+                        
+                        <!-- FOOTER -->
+                        <div style="text-align:center; margin-top:60px; padding-top:40px; border-top:1px solid rgba(255,255,255,0.1);">
+                            <span style="font-size:24px; font-weight:700; color:#94A3B8; letter-spacing:2px;">COMPARTIDO DESDE LA APP OFICIAL</span>
+                        </div>
                     </div>
                 </div>
             `;
