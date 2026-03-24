@@ -43,7 +43,7 @@
         // NO depende de fetch/red — comparación instantánea
         // Este número cambia con cada deploy en index.html
         // ═══════════════════════════════════════════════════
-        const _HTML_VERSION = '385'; // ← CAMBIAR EN CADA DEPLOY
+        const _HTML_VERSION = '386'; // ← CAMBIAR EN CADA DEPLOY
 
         async function checkVersion() {
             const versionGuardada = localStorage.getItem('legado_v3') || '0';
@@ -112,7 +112,8 @@
             navigator.serviceWorker.addEventListener('message', function(ev) {
                 if (ev.data && ev.data.type === 'SW_UPDATED') {
                     console.log('[PWA] Nuevo SW activo:', ev.data.cache, '→ recargando...');
-                    window.location.replace('./?v=sw&t=' + Date.now());
+                    // ELIMINADO EL DOBLE RELOAD DE 3 SEGS:
+                    // window.location.replace('./?v=sw&t=' + Date.now());
                 }
             });
         }
