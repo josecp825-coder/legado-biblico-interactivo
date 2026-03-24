@@ -237,9 +237,9 @@
             tarjContainer.innerHTML = `
                 <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; padding:20px; text-align:left;">
                     
-                    <!-- ENCABEZADO CON LOGO OFICIAL (GLOBOS Y MANOS) PERFECTAMENTE CIRCULAR -->
+                    <!-- ENCABEZADO CON LOGO OFICIAL GIGANTE (SIN CORTAR) -->
                     <div style="text-align:center; margin-bottom:45px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:30px;">
-                        <img src="logo_oficial.jpg" style="width:280px; height:280px; object-fit:cover; object-position:center; border-radius:50%; margin:0 auto 20px auto; display:block; box-shadow: 0 15px 35px rgba(0,0,0,0.8); background:#fff;" />
+                        <img src="logo_oficial.jpg" style="width:400px; height:auto; border-radius:24px; margin:0 auto 25px auto; display:block; box-shadow: 0 20px 40px rgba(0,0,0,0.5);" />
                         <h1 style="font-size:48px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
