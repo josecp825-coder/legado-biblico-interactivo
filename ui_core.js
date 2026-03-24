@@ -225,34 +225,35 @@
 
             // Crear un contenedor temporal moderno en el DOM (Ancho ampliado para mejor legibilidad)
             const tarjContainer = document.createElement('div');
-            tarjContainer.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:800px; background:#ffffff; color:#1a1a1a; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding:60px; overflow:hidden;";
+            // Fondo intermedio elegante: Slate Gray (#1E293B) - Ni tan claro como el blanco, ni tan oscuro como el negro
+            tarjContainer.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:800px; background:#1E293B; color:#F8FAFC; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding:55px; overflow:hidden;";
             
             tarjContainer.innerHTML = `
-                <div style="position:relative; z-index:2; border-radius:12px; background:#ffffff; padding:20px; text-align:left;">
+                <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; padding:20px; text-align:left;">
                     
                     <!-- ENCABEZADO MINIMALISTA -->
-                    <div style="text-align:center; margin-bottom:40px; border-bottom:1px solid #e0e0e0; padding-bottom:20px;">
-                        <span style="font-size:70px; display:block; margin-bottom:10px;">${icono}</span>
-                        <p style="color:#718096; font-size:18px; letter-spacing:4px; font-weight:700; margin:0 0 10px 0;">LEGADO BÍBLICO</p>
-                        <h1 style="font-size:42px; margin:0; color:#2d3748; font-weight:900; line-height:1.2;">${titulo}</h1>
+                    <div style="text-align:center; margin-bottom:45px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:30px;">
+                        <span style="font-size:75px; display:block; margin-bottom:15px;">${icono}</span>
+                        <p style="color:#94A3B8; font-size:20px; letter-spacing:4px; font-weight:700; margin:0 0 12px 0;">LEGADO BÍBLICO</p>
+                        <h1 style="font-size:48px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
                     <!-- VERSICULO GIGANTE -->
-                    <div style="font-size:38px; font-style:italic; line-height:1.4; color:#1a202c; border-left:8px solid #fdcb6e; padding-left:35px; margin-bottom:15px; font-family:'Georgia', serif;">
+                    <div style="font-size:38px; font-style:italic; line-height:1.4; color:#E2E8F0; border-left:8px solid #fdcb6e; padding-left:35px; margin-bottom:20px; font-family:'Georgia', serif;">
                         "${vers}"
                     </div>
-                    <div style="color:#718096; font-size:26px; font-weight:700; margin-bottom:50px; margin-left:40px;">— ${ref}</div>
+                    <div style="color:#fdcb6e; font-size:26px; font-weight:bold; margin-bottom:50px; margin-left:40px;">— ${ref}</div>
                     
-                    <!-- REFLEXION -->
-                    <div style="margin-top:20px;">
-                        <p style="font-size:32px; line-height:1.6; color:#2d3748; margin:0; font-weight:400;">
+                    <!-- REFLEXION (MÁS GRANDE) -->
+                    <div style="margin-top:20px; background:rgba(255,255,255,0.03); border-radius:12px; padding:30px;">
+                        <p style="font-size:38px; line-height:1.6; color:#F8FAFC; margin:0; font-weight:400;">
                             ${reflex}
                         </p>
                     </div>
                     
                     <!-- FOOTER -->
-                    <div style="text-align:center; margin-top:60px; padding-top:40px; border-top:1px solid #e0e0e0;">
-                        <span style="font-size:22px; font-weight:700; color:#a0aec0; letter-spacing:2px;">COMPARTIDO DESDE LA APP OFICIAL</span>
+                    <div style="text-align:center; margin-top:60px; padding-top:40px; border-top:1px solid rgba(255,255,255,0.1);">
+                        <span style="font-size:24px; font-weight:700; color:#94A3B8; letter-spacing:2px;">COMPARTIDO DESDE LA APP OFICIAL</span>
                     </div>
                 </div>
             `;
