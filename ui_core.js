@@ -154,14 +154,24 @@
                         <p style="color:rgba(255,255,255,0.75);font-size:0.88rem;line-height:1.85;margin:0;">${reflex}</p>
                     </div>
 
-                    <!-- Botón compartir -->
-                    <button onclick="compartirDevocional()" style="
-                        width:100%;padding:14px;
-                        background:linear-gradient(135deg,#6c5ce7,#a29bfe);
-                        border:none;border-radius:14px;color:#fff;
-                        font-weight:900;font-size:0.9rem;cursor:pointer;
-                        box-shadow:0 6px 20px rgba(108,92,231,0.3);
-                    ">📤 COMPARTIR DEVOCIONAL</button>
+                    <!-- Botones de compartir dual -->
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button id="btn-comp-texto" onclick="compartirDevocionalTexto()" style="
+                            flex:1; padding:14px;
+                            background:linear-gradient(135deg,#25D366,#128C7E);
+                            border:none; border-radius:14px; color:#fff;
+                            font-weight:900; font-size:0.85rem; cursor:pointer;
+                            box-shadow:0 6px 20px rgba(37,211,102,0.3);
+                        ">💬 SOLO TEXTO</button>
+
+                        <button id="btn-comp-img" onclick="compartirDevocionalImagen()" style="
+                            flex:1; padding:14px;
+                            background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+                            border:none; border-radius:14px; color:#fff;
+                            font-weight:900; font-size:0.85rem; cursor:pointer;
+                            box-shadow:0 6px 20px rgba(108,92,231,0.3);
+                        ">📸 TARJETA VISUAL</button>
+                    </div>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -177,7 +187,7 @@
             if (ov) ov.remove();
         }
 
-        function compartirDevocional() {
+        function compartirDevocionalTexto() {
             const icono = document.getElementById('dev-icon')?.textContent || '🙏';
             const titulo = document.getElementById('dev-label')?.textContent || 'Devocional del Día';
             const vers = document.getElementById('dev-versiculo')?.textContent || '';
@@ -198,6 +208,82 @@
                 navigator.clipboard?.writeText(mensaje).then(() => {
                     mostrarToast('✅ Devocional copiado al portapapeles');
                 });
+            }
+        }
+
+        async function compartirDevocionalImagen() {
+            const fBtn = document.getElementById('btn-comp-img');
+            const originalText = fBtn.innerText;
+            fBtn.innerText = "⏳ CREANDO TARJETA...";
+            fBtn.disabled = true;
+            
+            const icono = document.getElementById('dev-icon')?.textContent || '🙏';
+            const titulo = document.getElementById('dev-label')?.textContent || 'Devocional del Día';
+            const vers = document.getElementById('dev-versiculo')?.textContent || '';
+            const ref = document.getElementById('dev-referencia')?.textContent || '';
+            const reflex = document.getElementById('dev-reflexion')?.textContent || '';
+
+            // Crear un contenedor temporal moderno en el DOM
+            const tarjContainer = document.createElement('div');
+            tarjContainer.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:700px; background:#0B0B0E; color:#FFF; font-family:sans-serif; padding:50px; overflow:hidden;";
+            
+            tarjContainer.innerHTML = `
+                <div style="position:relative; z-index:2; border-radius:24px; background:linear-gradient(145deg, #1C1B2A, #100F17); padding:40px; border:2px solid rgba(253,203,110,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                    <div style="text-align:center; margin-bottom:30px;">
+                        <span style="font-size:70px;">${icono}</span>
+                        <h1 style="font-size:32px; margin:15px 0 5px; color:#fdcb6e;">${titulo}</h1>
+                        <p style="color:#A29BFE; font-size:16px; letter-spacing:4px; font-weight:bold; margin:0;">REFLEXIÓN DIARIA</p>
+                    </div>
+                    <div style="font-size:24px; font-style:italic; line-height:1.5; color:#FFF; border-left:6px solid #fdcb6e; padding-left:25px; margin-bottom:15px; font-family:'Georgia', serif;">
+                        "${vers}"
+                    </div>
+                    <div style="color:#fdcb6e; font-size:18px; font-weight:bold; margin-bottom:30px; margin-left:30px;">${ref}</div>
+                    
+                    <div style="background:rgba(255,255,255,0.05); border-radius:20px; padding:30px;">
+                        <span style="display:block; color:#A29BFE; font-size:14px; font-weight:bold; letter-spacing:2px; margin-bottom:10px;">💭 INSPIRACIÓN</span>
+                        <p style="font-size:20px; line-height:1.6; color:#E2E8F0; margin:0;">${reflex}</p>
+                    </div>
+                    
+                    <div style="text-align:center; margin-top:35px; border-top:1px solid rgba(255,255,255,0.1); padding-top:30px;">
+                        <span style="font-size:18px; font-weight:bold; color:#A29BFE; letter-spacing:2px;">APP LEGADO BÍBLICO 📖</span>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(tarjContainer);
+
+            try {
+                // Generar Canvas súper rápido (no daña el DOM principal)
+                const canvas = await html2canvas(tarjContainer, { scale: 2, backgroundColor: '#0B0B0E' });
+                document.body.removeChild(tarjContainer); // Limpieza instantánea para evitar lag
+                
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'devocional.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: titulo,
+                                text: '📖 Reflexión diaria de Legado Bíblico'
+                            });
+                        } catch(e) { }
+                    } else {
+                        // Fallback: Descargar
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'devocional.jpg';
+                        a.click();
+                        mostrarToast('📸 Imagen descargada. ¡Adjúntala a WhatsApp!');
+                    }
+                    fBtn.innerText = "📸 TARJETA VISUAL";
+                    fBtn.disabled = false;
+                }, 'image/jpeg', 0.95);
+            } catch(e) {
+                console.error("Error canvas", e);
+                document.body.removeChild(tarjContainer);
+                fBtn.innerText = "📸 TARJETA VISUAL";
+                fBtn.disabled = false;
+                mostrarToast('❌ Error creando imagen');
             }
         }
 
