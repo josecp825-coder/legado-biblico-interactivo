@@ -234,6 +234,12 @@
             // Fondo intermedio elegante: Slate Gray (#1E293B) - Ni tan claro como el blanco, ni tan oscuro como el negro
             tarjContainer.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:800px; background:#1E293B; color:#F8FAFC; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding:55px; overflow:hidden;";
             
+            // =========================================================================
+            // 🔒 [CANDADO REGLA GLOBAL] - PLANTILLA OFICIAL DEVOCIONALES
+            // Esta plantilla HTML de la Tarjeta Visual ha sido aprobada como la versión 
+            // FINAL Y OFICIAL (v396). NO debe ser alterada, mejorada ni modificada por 
+            // la IA a menos que el Creador lo ordene con instrucciones explícitas.
+            // =========================================================================
             tarjContainer.innerHTML = `
                 <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; border:1px solid rgba(255,255,255,0.1); text-align:left;">
                     
