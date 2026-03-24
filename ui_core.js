@@ -239,7 +239,7 @@
                     
                     <!-- ENCABEZADO FINAL: LOGO PNG TRANSPARENTE SOBRE FONDO PIZARRA -->
                     <div style="text-align:center; margin-bottom:5px; padding:35px 20px 20px 20px;">
-                        <img src="logo_oficial.png" style="width:380px; height:auto; margin:0 auto 20px auto; display:block; filter:drop-shadow(0 15px 25px rgba(0,0,0,0.6));" />
+                        <img src="logo_oficial.png" style="width:380px; height:auto; margin:0 auto 20px auto; display:block;" />
                         <h1 style="font-size:45px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
