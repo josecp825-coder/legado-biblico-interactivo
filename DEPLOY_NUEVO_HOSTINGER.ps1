@@ -7,7 +7,7 @@ $localPath = "C:\Users\jhose\OneDrive\Desktop\PROYECTO DE CODIGO\LEGADO_BIBLICO_
 $webclient = New-Object System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
 
-$archivos = @("index.html", "version.json", "sw.js", "manifest.json", "data_iglesia_v1.js")
+$archivos = @("index.html", "version.json", "sw.js", "manifest.json", "data_iglesia_v1.js", "datos_devocionales.js", "versiculos_hero.js", "ui_core.js")
 
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "  DEPLOY -> legadobiblicopro.com" -ForegroundColor Cyan
