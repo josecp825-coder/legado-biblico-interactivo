@@ -237,10 +237,10 @@
             tarjContainer.innerHTML = `
                 <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; border:1px solid rgba(255,255,255,0.1); text-align:left;">
                     
-                    <!-- ENCABEZADO DUAL-TONE: BLANCO PARA FUSIONAR EL LOGO -->
-                    <div style="text-align:center; margin-bottom:45px; border-bottom:4px solid #fdcb6e; background:#ffffff; border-radius:16px 16px 0 0; padding:40px 20px 35px 20px;">
-                        <img src="logo_oficial.jpg" style="width:380px; height:auto; margin:0 auto 20px auto; display:block; mix-blend-mode:multiply;" />
-                        <h1 style="font-size:42px; margin:0; color:#1E293B; font-weight:900; line-height:1.2;">${titulo}</h1>
+                    <!-- ENCABEZADO FINAL: LOGO PNG TRANSPARENTE SOBRE FONDO PIZARRA -->
+                    <div style="text-align:center; margin-bottom:5px; padding:35px 20px 20px 20px;">
+                        <img src="logo_oficial.png" style="width:380px; height:auto; margin:0 auto 20px auto; display:block; filter:drop-shadow(0 15px 25px rgba(0,0,0,0.6));" />
+                        <h1 style="font-size:45px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
                     <!-- CONTENIDO DE LECTURA (PIZARRA OSCURO) -->
@@ -274,7 +274,7 @@
                     const imgTest = new Image();
                     imgTest.onload = resolve;
                     imgTest.onerror = resolve; 
-                    imgTest.src = 'logo_oficial.jpg';
+                    imgTest.src = 'logo_oficial.png';
                     setTimeout(resolve, 2000); // 2 segundos de timeout si hay red lenta
                 });
 
