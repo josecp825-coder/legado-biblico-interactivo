@@ -231,10 +231,9 @@
             tarjContainer.innerHTML = `
                 <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; padding:20px; text-align:left;">
                     
-                    <!-- ENCABEZADO CON LOGO GLOBO TERRÁQUEO -->
+                    <!-- ENCABEZADO CON LOGO OFICIAL (GLOBOS Y MANOS) -->
                     <div style="text-align:center; margin-bottom:45px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:30px;">
-                        <img src="icon-512.png" style="width:160px; height:160px; border-radius:50%; margin:0 auto 20px auto; display:block; object-fit:cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border:4px solid #1E293B; outline:2px solid #fdcb6e;" />
-                        <p style="color:#94A3B8; font-size:22px; letter-spacing:6px; font-weight:900; margin:0 0 12px 0;">LEGADO BÍBLICO</p>
+                        <img src="logo_oficial.jpg" style="width:250px; height:auto; border-radius:20px; margin:0 auto 20px auto; display:block; box-shadow: 0 15px 35px rgba(0,0,0,0.6);" />
                         <h1 style="font-size:48px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
