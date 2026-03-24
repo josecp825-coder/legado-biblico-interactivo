@@ -260,7 +260,16 @@
             document.body.appendChild(tarjContainer);
 
             try {
-                // Generar Canvas rápido (useCORS asegura la imagen)
+                // Esperamos activamente a que el Logo se haya descargado al DOM antes del pantallazo
+                await new Promise((resolve) => {
+                    const imgTest = new Image();
+                    imgTest.onload = resolve;
+                    imgTest.onerror = resolve; 
+                    imgTest.src = 'logo_oficial.jpg';
+                    setTimeout(resolve, 2000); // 2 segundos de timeout si hay red lenta
+                });
+
+                // Generar Canvas rápido (useCORS asegura la imagen cruzada)
                 const canvas = await html2canvas(tarjContainer, { scale: 2, backgroundColor: '#1E293B', useCORS: true });
                 document.body.removeChild(tarjContainer); // Limpieza instantánea para evitar lag
                 
