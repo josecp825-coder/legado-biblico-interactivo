@@ -237,10 +237,10 @@
             tarjContainer.innerHTML = `
                 <div style="position:relative; z-index:2; border-radius:16px; background:#1E293B; border:1px solid rgba(255,255,255,0.1); text-align:left;">
                     
-                    <!-- ENCABEZADO FINAL: LOGO PNG TRANSPARENTE SOBRE FONDO PIZARRA -->
-                    <div style="text-align:center; margin-bottom:5px; padding:35px 20px 20px 20px;">
-                        <img src="logo_oficial.png" style="width:380px; height:auto; margin:0 auto 20px auto; display:block;" />
-                        <h1 style="font-size:45px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
+                    <!-- ENCABEZADO FINAL: LOGO PNG TRANSPARENTE GIGANTE SOBRE FONDO PIZARRA -->
+                    <div style="text-align:center; margin-bottom:10px; padding:10px 20px 20px 20px;">
+                        <img src="logo_oficial.png" style="width:500px; height:auto; margin:-20px auto 25px auto; display:block;" />
+                        <h1 style="font-size:48px; margin:0; color:#F1F5F9; font-weight:900; line-height:1.2;">${titulo}</h1>
                     </div>
                     
                     <!-- CONTENIDO DE LECTURA (PIZARRA OSCURO) -->
