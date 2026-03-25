@@ -356,7 +356,7 @@
     }
 
     window._AB_iniciarPlan = function(planKey) {
-        if (!PLANES[planKey]) return;
+        if (!PLANES[planKey]) { alert("FALLO -> PlanKey inválida"); return; }
         mostrarConfirm('📚 Iniciar "' + PLANES[planKey].nombre + '"', function() {
             try {
                 localStorage.setItem('plan_ano_biblico',  planKey);
@@ -364,7 +364,8 @@
                 localStorage.setItem('plan_dias_leidos',  '[]');
                 localStorage.removeItem('ab_caps_leidos');
                 var datos = obtenerDatos();
-                if (datos) _renderDashboard(datos, datos.diaEnCurso);
+                if (!datos) { alert("X4 -> obtenerDatos() devolvió null"); return; }
+                _renderDashboard(datos, datos.diaEnCurso);
             } catch(e) { alert("X2 -> " + e.message); }
         });
     };

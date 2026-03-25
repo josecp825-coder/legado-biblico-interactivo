@@ -14,8 +14,11 @@
                 '<button id="_confirm-si" style="padding:12px;background:linear-gradient(135deg,#e17055,#ff6b6b);border:none;color:#fff;border-radius:12px;cursor:pointer;font-weight:900;font-size:0.9rem;">Confirmar</button>' +
                 '</div></div>';
             document.body.appendChild(modal);
-            document.getElementById('_confirm-no').onclick = function() { modal.remove(); };
-            document.getElementById('_confirm-si').onclick = function() {
+            const noBtn = document.getElementById('_confirm-no');
+            const siBtn = document.getElementById('_confirm-si');
+            if (!noBtn || !siBtn) { alert("ERROR CRÍTICO: El botón de confirmar desapareció del DOM mágicamente"); return; }
+            noBtn.onclick = function() { modal.remove(); };
+            siBtn.onclick = function() {
                 try {
                     modal.remove();
                     if (typeof onConfirm === 'function') onConfirm();
