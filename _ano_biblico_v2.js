@@ -43,6 +43,37 @@
 
     var _abFontSize = parseFloat(localStorage.getItem('ab_font_size')) || 1.1;
 
+    // ─── DEFINICIÓN DE TROFEOS VISUALES ─────────────────────────
+    var TROFEOS = [
+        { id:'genesis', icono:'🌍', nombre:'Orígenes', desc:'Llenaste todos los capítulos de Génesis' },
+        { id:'salmos',  icono:'🎶', nombre:'El Salmista', desc:'Leíste los 150 Salmos de adoración' },
+        { id:'evangelios', icono:'✝️', nombre:'El Pescador', desc:'Completaste Mateo, Marcos, Lucas y Juan' },
+        { id:'apocalipsis', icono:'🕊️', nombre:'Revelación', desc:'Alcanzaste el cumplimiento de Apocalipsis' },
+        { id:'racha7',  icono:'🔥', nombre:'Fuego 7', desc:'7 días ininterrumpidos de Misiones' },
+        { id:'racha21', icono:'👑', nombre:'Discípulo', desc:'21 días sólidos de Misiones cumplidas' }
+    ];
+
+    function _esLibroLeido(libroStr) {
+        var capsLeidos = _getCapsLeidos();
+        var total = totalCapsLibro(libroStr);
+        var leidos = 0;
+        for(var i=1; i<=total; i++) {
+            if(capsLeidos.indexOf(_capKey(libroStr, i)) !== -1) leidos++;
+        }
+        return leidos === total;
+    }
+
+    function _calcularTrofeos(leidosArr, rachaFuego) {
+        var t = [];
+        if (_esLibroLeido('Genesis')) t.push(TROFEOS[0]);
+        if (_esLibroLeido('Salmos')) t.push(TROFEOS[1]);
+        if (_esLibroLeido('Mateo') && _esLibroLeido('Marcos') && _esLibroLeido('Lucas') && _esLibroLeido('Juan')) t.push(TROFEOS[2]);
+        if (_esLibroLeido('Apocalipsis')) t.push(TROFEOS[3]);
+        if (rachaFuego >= 7) t.push(TROFEOS[4]);
+        if (rachaFuego >= 21) t.push(TROFEOS[5]);
+        return t;
+    }
+
     // ─── HELPERS MARCADOR DE VERSÍCULO ──────────────────────────
     // Guarda por dónde iba el usuario dentro de un capítulo
 
@@ -397,6 +428,28 @@
         h += '<div class="ab-stat"><div style="color:' + col + ';font-size:1.35rem;font-weight:900;">' + leidos.length + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">VICTORIAS 🌟</div></div>';
         h += '<div class="ab-stat"><div style="font-size:1.35rem;font-weight:900;">' + (racha>0?'🔥':'🧊') + ' ' + racha + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">FUEGO 🔥</div></div>';
         h += '<div class="ab-stat"><div style="color:#55efc4;font-size:1.35rem;font-weight:900;">' + (datos.totalDias-leidos.length) + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">MISIONES 🎯</div></div>';
+        h += '</div>';
+
+        // ── MEDALLERO VISUAL (Fase 2 Gamificación) ──
+        var misTrofeos = _calcularTrofeos(leidos, racha);
+        h += '<div class="ab-card" style="margin-bottom:18px;background:rgba(255,215,0,0.02);border-color:rgba(255,215,0,0.1);">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+        h += '<div style="color:#fdcb6e;font-size:.65rem;font-weight:900;letter-spacing:2px;">🏆 TUS GALARDONES ESPIRITUALES</div>';
+        h += '<div style="color:rgba(255,255,255,.4);font-size:.6rem;font-weight:900;">' + misTrofeos.length + '/' + TROFEOS.length + '</div>';
+        h += '</div>';
+        
+        if (misTrofeos.length === 0) {
+            h += '<div style="color:rgba(255,255,255,.3);font-size:.7rem;text-align:center;padding:15px;border:1px dashed rgba(255,255,255,.1);border-radius:12px;">Completa libros y misiones para empezar a coleccionar. 💪</div>';
+        } else {
+            h += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:5px;">';
+            misTrofeos.forEach(function(tr){
+                h += '<div onclick="toast(\'' + tr.desc + '\')" style="cursor:pointer;min-width:70px;background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:12px 6px;text-align:center;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:transform 0.15s;" onactive="this.style.transform=\'scale(.93)\'">';
+                h += '<div style="font-size:1.6rem;margin-bottom:6px;filter:drop-shadow(0 2px 6px rgba(255,215,0,0.3));">' + tr.icono + '</div>';
+                h += '<div style="color:#fdcb6e;font-size:.56rem;font-weight:900;text-transform:uppercase;line-height:1.1;">' + tr.nombre + '</div>';
+                h += '</div>';
+            });
+            h += '</div>';
+        }
         h += '</div>';
 
         // Lectura del día — cabecera
