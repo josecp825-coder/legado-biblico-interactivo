@@ -136,22 +136,34 @@
         localStorage.setItem('ab_caps_leidos', JSON.stringify(lista));
     }
 
-    // Verifica si TODOS los capítulos del día están leídos → auto-completa el día
-    function _verificarDiaCompleto(planKey, dia) {
-        var caps = capitulosDia(planKey, dia);
-        var todosLeidos = caps.every(function(c) { return _estaCapLeido(c.libro, c.cap); });
-        if (todosLeidos) {
-            var leidos = JSON.parse(localStorage.getItem('plan_dias_leidos') || '[]');
-            if (leidos.indexOf(dia) === -1) {
-                leidos.push(dia);
-                localStorage.setItem('plan_dias_leidos', JSON.stringify(leidos));
-                var racha = calcularRacha(leidos, dia);
-                toast(racha >= 7 ? '🔥🔥 ¡' + racha + ' días! ¡IMPARABLE!' :
-                      racha >= 3 ? '🔥 ¡Racha de ' + racha + ' días! ' :
-                      '🎉 ¡Día ' + dia + ' completado! Todos los capítulos leídos');
-            }
+    // ─── RACHA UNIVERSAL BASADA EN FECHAS ───────────────────────
+    function _formatDateLocal(d) { var m=(d.getMonth()+1).toString(), d2=d.getDate().toString(); return d.getFullYear()+'-'+(m.length<2?'0'+m:m)+'-'+(d2.length<2?'0'+d2:d2); }
+
+    function _calcularRachaUniversal() {
+        var fechas = JSON.parse(localStorage.getItem('ab_fechas_leidas') || '[]');
+        if (fechas.length === 0) return 0;
+        var hoy = new Date(), ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+        var hoyStr = _formatDateLocal(hoy), ayerStr = _formatDateLocal(ayer), diaEval = new Date();
+        if (fechas.indexOf(hoyStr) !== -1) diaEval = hoy;
+        else if (fechas.indexOf(ayerStr) !== -1) diaEval = ayer;
+        else return 0;
+        var racha = 0;
+        while (true) {
+            if (fechas.indexOf(_formatDateLocal(diaEval)) !== -1) { racha++; diaEval.setDate(diaEval.getDate() - 1); }
+            else break;
         }
-        return todosLeidos;
+        return racha;
+    }
+
+    function _registrarActividadDiaria() {
+        var fechas = JSON.parse(localStorage.getItem('ab_fechas_leidas') || '[]');
+        var hoyStr = _formatDateLocal(new Date());
+        if (fechas.indexOf(hoyStr) === -1) {
+            fechas.push(hoyStr); fechas.sort();
+            localStorage.setItem('ab_fechas_leidas', JSON.stringify(fechas));
+            var r = _calcularRachaUniversal();
+            toast(r >= 7 ? '🔥🔥 ¡' + r + ' días seguidos! ¡IMPARABLE!' : r >= 3 ? '🔥 ¡Racha de ' + r + ' días!' : '🎉 ¡Lectura diaria registrada! Fuego encendido 🔥');
+        }
     }
 
     // ─── HELPERS GENERALES ────────────────────────────────────────
@@ -196,8 +208,13 @@
         var inicio = localStorage.getItem('plan_fecha_inicio');
         var leidos = JSON.parse(localStorage.getItem('plan_dias_leidos') || '[]');
         if (!plan || !inicio || !PLANES[plan]) return null;
+        
         var hoy = new Date(); hoy.setHours(0,0,0,0);
-        var fi  = new Date(inicio); fi.setHours(0,0,0,0);
+        // Correct timezone parsing from "YYYY-MM-DD" natively in local time
+        var partes = inicio.split('-');
+        var fi = new Date(parseInt(partes[0]), parseInt(partes[1])-1, parseInt(partes[2]));
+        fi.setHours(0,0,0,0);
+        
         var diff = Math.floor((hoy - fi) / 86400000) + 1;
         var totalDias = PLANES[plan].dias;
         var diaCalendario = Math.max(1, Math.min(diff, totalDias));
@@ -213,14 +230,7 @@
         return { plan, inicio:fi, leidos, diaActual:diaCalendario, diaCalendario:diaCalendario, diaEnCurso:diaEnCurso, totalDias };
     }
 
-    function calcularRacha(leidos, diaActual) {
-        var racha = 0;
-        for (var d=diaActual; d>=1; d--) {
-            if (leidos.indexOf(d) !== -1) racha++;
-            else if (d < diaActual) break;
-        }
-        return racha;
-    }
+    // (calcularRacha eliminada por _calcularRachaUniversal)
 
     function overlay() { return document.getElementById('ano-biblico-v2'); }
     function toast(msg) { if (typeof mostrarToast === 'function') mostrarToast(msg); }
@@ -235,6 +245,7 @@
             @keyframes ab_fadein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
             @keyframes ab_slidein{ from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
             @keyframes ab_pulse  { 0%,100%{opacity:1} 50%{opacity:.5} }
+            body:has(#ano-biblico-v2) #floating-bible-nav { display: none !important; }
             .ab-page { padding:20px;max-width:520px;margin:0 auto; }
             .ab-btn-primary { display:block;width:100%;padding:15px;
                 background:linear-gradient(135deg,#00b894,#55efc4);
@@ -303,7 +314,6 @@
     // ─── OVERLAY ──────────────────────────────────────────────────
 
     window.abrirAnoBiblico = function () {
-        var datos = obtenerDatos();
         var ov = overlay();
         if (!ov) {
             ov = document.createElement('div');
@@ -317,22 +327,35 @@
                 window.removeEventListener('popstate', _closeAB);
             });
         }
-        if (datos) _renderDashboard(datos);
-        else        _renderBienvenida();
+        // Siempre mostramos el Hub principal (Catálogo de planes)
+        _renderBienvenida();
     };
 
     // ─── PANTALLA 1: BIENVENIDA ────────────────────────────────────
 
     function _renderBienvenida() {
         var ov = overlay(); if (!ov) return;
+        var datos = obtenerDatos();
         var frase = FRASES[Math.floor(Math.random() * FRASES.length)];
         var h = '<div class="ab-page">';
-        h += '<div style="text-align:center;padding:32px 0 24px;">';
+        
+        // BOTÓN para volver al la App Main
+        h += '<div style="margin-bottom:15px;">';
+        h += '<button onclick="document.getElementById(\'ano-biblico-v2\').remove()" style="padding:10px 14px;background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.3);border-radius:12px;color:#ff6b6b;font-size:.75rem;font-weight:700;cursor:pointer;">← Volver al Menú Principal</button>';
+        h += '</div>';
+
+        h += '<div style="text-align:center;padding:10px 0 24px;">';
         h += '<div style="font-size:3.5rem;margin-bottom:10px;">🕊️</div>';
         h += '<h1 style="color:#a29bfe;font-size:1.7rem;font-weight:900;letter-spacing:1px;margin:0 0 8px;">RETO BÍBLICO ESPIRITUAL</h1>';
         h += '<p style="color:rgba(255,255,255,.45);font-size:.78rem;font-style:italic;max-width:280px;margin:0 auto;">' + frase + '</p>';
         h += '</div>';
-        h += '<p style="color:rgba(255,255,255,.45);font-size:.8rem;font-weight:700;text-align:center;letter-spacing:1px;margin-bottom:16px;">ELIGE TU MISIÓN DE FE 🎯</p>';
+
+        if (datos) {
+            h += '<p style="color:rgba(255,255,255,.45);font-size:.8rem;font-weight:700;text-align:center;letter-spacing:1px;margin-bottom:16px;">TOCA TU RETO ACTUAL PARA CONTINUAR 👇</p>';
+        } else {
+            h += '<p style="color:rgba(255,255,255,.45);font-size:.8rem;font-weight:700;text-align:center;letter-spacing:1px;margin-bottom:16px;">ELIGE TU MISIÓN DE FE 🎯</p>';
+        }
+
         h += '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">';
         Object.keys(PLANES).forEach(function(k) {
             var p = PLANES[k];
@@ -357,93 +380,75 @@
 
     window._AB_iniciarPlan = function(planKey) {
         if (!PLANES[planKey]) { alert("FALLO -> PlanKey inválida"); return; }
-        mostrarConfirm('📚 Iniciar "' + PLANES[planKey].nombre + '"', function() {
-            try {
-                localStorage.setItem('plan_ano_biblico',  planKey);
-                localStorage.setItem('plan_fecha_inicio', new Date().toISOString().split('T')[0]);
-                localStorage.setItem('plan_dias_leidos',  '[]');
-                localStorage.removeItem('ab_caps_leidos');
-                var datos = obtenerDatos();
-                if (!datos) { alert("X4 -> obtenerDatos() devolvió null"); return; }
-                _renderDashboard(datos, datos.diaEnCurso);
-            } catch(e) { alert("X2 -> " + e.message); }
-        });
+        var datosExistentes = obtenerDatos();
+        
+        if (datosExistentes && datosExistentes.plan !== planKey) {
+            mostrarConfirm('⚠️ Ya tienes activo "' + PLANES[datosExistentes.plan].nombre + '". ¿Quieres empezar tu calendario de cero con este nuevo plan?', function() {
+                _ejecutarInicioPlan(planKey);
+            });
+        } else if (datosExistentes && datosExistentes.plan === planKey) {
+            // El usuario clickeó su plan actual desde el menú, entonces reanuda sin borrar fechas!
+            _renderDashboard(datosExistentes, datosExistentes.diaEnCurso);
+        } else {
+            // No tiene planes
+            _ejecutarInicioPlan(planKey);
+        }
     };
+
+    function _ejecutarInicioPlan(planKey) {
+        try {
+            var tzHoy = new Date();
+            var locDate = tzHoy.getFullYear() + '-' + String(tzHoy.getMonth()+1).padStart(2,'0') + '-' + String(tzHoy.getDate()).padStart(2,'0');
+            localStorage.setItem('plan_ano_biblico',  planKey);
+            localStorage.setItem('plan_fecha_inicio', locDate);
+            localStorage.setItem('plan_dias_leidos',  '[]');
+            // Quitamos el borrado de ab_caps_leidos para que los checks sean universales
+            var datos = obtenerDatos();
+            if (!datos) { alert("X4 -> obtenerDatos() devolvió null"); return; }
+            _renderDashboard(datos, datos.diaEnCurso);
+        } catch(e) { alert("X2 -> " + e.message); }
+    }
 
     // ─── PANTALLA 2: DASHBOARD ─────────────────────────────────────
 
-    function _renderDashboard(datos, diaVer) {
+    function _renderDashboard(datos, diaVerIgnorado) {
         try {
             var ov = overlay(); if (!ov) return;
-            // Por defecto abre donde el usuario se quedó (no el día de calendario)
-            diaVer = (diaVer !== undefined) ? diaVer : datos.diaEnCurso;
-            var p       = PLANES[datos.plan];
-            var col     = p.color;
-            var leidos  = datos.leidos;
-            var pct     = Math.round((leidos.length / datos.totalDias) * 100);
-            var racha   = calcularRacha(leidos, datos.diaActual);
-            var caps    = capitulosDia(datos.plan, diaVer);
-            var esHoy   = diaVer === datos.diaCalendario; // HOY = el día real del calendario
-            var diaLeido = leidos.indexOf(diaVer) !== -1;
+            var leidosGlobal = _getCapsLeidos(); // GLOBAL progress!
+            var pACT = PLANES[datos.plan] || PLANES['anual'];
+            var col = pACT.color || '#a29bfe';
+            var pct = Math.round((leidosGlobal.length / 1189) * 100);
+            var racha = _calcularRachaUniversal();
+            
+            var h = '<div class="ab-page" style="animation:ab_slidein .2s;padding-bottom:80px;">';
 
-            // Calcular atraso
-            var diasAtrasado = datos.diaCalendario - diaVer;
-            var cpd = Math.ceil(1189 / datos.totalDias);
-            var capsAtrasadas = diasAtrasado * cpd;
-
-            // Cuenta cuántos capítulos del día ya están leídos
-            var capsLeidos = caps.filter(function(c) { return _estaCapLeido(c.libro, c.cap); }).length;
-            var capsTotal  = caps.length;
-            var todoLeido  = capsLeidos === capsTotal;
-
-            var h = '<div class="ab-page" style="animation:ab_slidein .2s;">';
-
-            // ── BANNER DE ATRASO (si el día calendario > día donde se quedó) ──
-            if (diasAtrasado > 0) {
-                h += '<div style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:rgba(255,107,107,0.1);border:1.5px solid rgba(255,107,107,0.3);border-radius:14px;margin-bottom:16px;">';
-                h += '<span style="font-size:1.4rem;line-height:1;">⏰</span>';
-                h += '<div style="flex:1;">';
-                h += '<div style="color:#ff6b6b;font-weight:900;font-size:.85rem;margin-bottom:3px;">¡La Palabra de Dios te espera! 💪</div>';
-                h += '<div style="color:rgba(255,255,255,.5);font-size:.72rem;line-height:1.4;">El calendario marca la <b style="color:#ff6b6b;">misión ' + datos.diaCalendario + '</b>, pero vas en la <b style="color:#fff;">misión ' + diaVer + '</b>.<br>';
-                h += 'Te faltan ~<b style="color:#fdcb6e;">' + capsAtrasadas + ' misiones</b> para ponerte al día.</div>';
-                h += '</div>';
-                h += '<button onclick="_AB_verDia(' + datos.diaCalendario + ')" style="padding:8px 10px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.4);border-radius:10px;color:#ff6b6b;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap;">Ver hoy</button>';
-                h += '</div>';
-            }
-
-            // Botón cambiar plan
+            // Cabecera: Volver al menú y Compartir
             h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">';
-            h += '<button onclick="_AB_confirmarCambiarPlan()" style="padding:10px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.6);font-size:.8rem;font-weight:700;cursor:pointer;">← Cambiar plan</button>';
+            h += '<button onclick="abrirAnoBiblico()" style="padding:10px 14px;background:rgba(253,203,110,.1);border:1.5px solid rgba(253,203,110,.4);border-radius:12px;color:#fdcb6e;font-size:.75rem;font-weight:700;cursor:pointer;">← Ver otros Desafíos</button>';
+            h += '<button onclick="_AB_compartirProgreso()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;border-radius:12px;color:#fff;font-size:.8rem;font-weight:900;cursor:pointer;box-shadow:0 4px 15px rgba(108,92,231,.3);">📲 Compartir</button>';
             h += '</div>';
 
             // Nombre del plan + barra progreso
             h += '<div style="text-align:center;margin-bottom:20px;">';
-            h += '<div style="font-size:2.2rem;margin-bottom:6px;">' + p.ico + '</div>';
-            h += '<h2 style="color:' + col + ';font-size:1.1rem;font-weight:900;letter-spacing:2px;margin:0 0 4px;">' + p.nombre.toUpperCase() + '</h2>';
-            h += '<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 14px;">';
-            h += '<span style="color:rgba(255,255,255,.35);font-size:.75rem;font-weight:700;">Misión</span>';
-            h += '<input type="number" id="ab-jump-input" value="' + diaVer + '" min="1" max="' + datos.totalDias + '" ';
-            h += 'onchange="var v=parseInt(this.value); if(v>0 && v<=' + datos.totalDias + ') _AB_verDia(v); else toast(\'Día inválido\');" ';
-            h += 'style="width:45px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:2px;text-align:center;font-size:.8rem;font-weight:900;outline:none;-moz-appearance:textfield;" ';
-            h += 'title="Escribe un día y presiona Enter para saltar">';
-            h += '<span style="color:rgba(255,255,255,.35);font-size:.75rem;font-weight:700;">de ' + datos.totalDias + (esHoy?' · HOY':'') + '</span>';
-            h += '<span style="font-size:1.1rem;cursor:pointer;background:rgba(255,255,255,0.1);border-radius:6px;padding:3px 7px;transition:0.2s;" onclick="_AB_buscarPorLibro()" title="Buscar misión por nombre de libro">🔍</span>';
-            h += '</div>';
+            h += '<div style="font-size:2.2rem;margin-bottom:6px;">' + pACT.ico + '</div>';
+            h += '<h2 style="color:' + col + ';font-size:1.1rem;font-weight:900;letter-spacing:2px;margin:0 0 4px;">' + (pACT.nombre).toUpperCase() + '</h2>';
+            h += '<div style="color:rgba(255,255,255,.4);font-size:.75rem;font-weight:700;margin-bottom:14px;">BIBLIA PERSONAL (LOS 66 LIBROS)</div>';
+            
             h += '<div style="background:rgba(255,255,255,.06);border-radius:20px;height:24px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);">';
             h += '<div style="background:linear-gradient(90deg,' + col + ',' + col + 'aa);height:100%;border-radius:20px;width:' + pct + '%;min-width:' + (pct>0?'28px':'0') + ';"></div>';
             h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:.7rem;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.6);">' + pct + '% de Victoria 🏆</div>';
             h += '</div>';
             h += '</div>';
 
-            // Stats
+            // Stats auto-explicativos
             h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">';
-            h += '<div class="ab-stat"><div style="color:' + col + ';font-size:1.35rem;font-weight:900;">' + leidos.length + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">VICTORIAS 🌟</div></div>';
-            h += '<div class="ab-stat"><div style="font-size:1.35rem;font-weight:900;">' + (racha>0?'🔥':'🧊') + ' ' + racha + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">FUEGO 🔥</div></div>';
-            h += '<div class="ab-stat"><div style="color:#55efc4;font-size:1.35rem;font-weight:900;">' + (datos.totalDias-leidos.length) + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">MISIONES 🎯</div></div>';
+            h += '<div class="ab-stat" onclick="toast(\'Total de capítulos de la Biblia que has leído en total.\')"><div style="color:' + col + ';font-size:1.35rem;font-weight:900;">' + leidosGlobal.length + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">CAP. LEÍDOS 🌟</div></div>';
+            h += '<div class="ab-stat" onclick="toast(\'Días consecutivos entrando a leer. ¡No pierdas tu racha!\')"><div style="font-size:1.35rem;font-weight:900;">' + (racha>0?'🔥':'🧊') + ' ' + racha + '</div><div style="color:rgba(255,255,255,.35);font-size:.55rem;margin-top:2px;letter-spacing:-0.2px;">DÍAS SEGUIDOS 🔥</div></div>';
+            h += '<div class="ab-stat" onclick="toast(\'Capítulos que te faltan para terminar toda la Biblia.\')"><div style="color:#55efc4;font-size:1.35rem;font-weight:900;">' + (1189-leidosGlobal.length) + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">POR LEER 🎯</div></div>';
             h += '</div>';
 
-            // ── MEDALLERO VISUAL (Fase 2 Gamificación) ──
-            var misTrofeos = _calcularTrofeos(leidos, racha);
+            // ── MEDALLERO VISUAL ──
+            var misTrofeos = _calcularTrofeos(leidosGlobal, racha);
             h += '<div class="ab-card" style="margin-bottom:18px;background:rgba(255,215,0,0.02);border-color:rgba(255,215,0,0.1);">';
             h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
             h += '<div style="color:#fdcb6e;font-size:.65rem;font-weight:900;letter-spacing:2px;">🏆 TUS GALARDONES ESPIRITUALES</div>';
@@ -464,56 +469,58 @@
             }
             h += '</div>';
 
-            // Lectura del día — cabecera
-            h += '<div class="ab-card" style="border-color:' + (todoLeido?'rgba(85,239,196,.4)':col+'33') + ';background:rgba(' + (todoLeido?'85,239,196,0.07':'255,255,255,0.03') + ');margin-bottom:14px;">';
-            h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">';
-            h += '<div style="color:' + col + ';font-weight:900;font-size:.68rem;letter-spacing:2px;">' + (esHoy?'👑 MISIÓN DE HOY — ':'🎯 MISIÓN ') + diaVer + '</div>';
-            h += '<div style="color:' + (todoLeido?'#55efc4':'rgba(255,255,255,.4)') + ';font-size:.7rem;font-weight:900;">' + capsLeidos + '/' + capsTotal + (todoLeido?' ✅':'') + '</div>';
-            h += '</div>';
+            // ── GRID 66 LIBROS ──
+            h += '<div style="margin-top:24px;margin-bottom:14px;color:' + col + ';font-weight:900;font-size:1rem;text-align:center;letter-spacing:1px;">📚 MISIONES POR LIBRO</div>';
 
-            // ── TARJETAS INDIVIDUALES POR CAPÍTULO ──
-            caps.forEach(function(c) {
-                var leido = _estaCapLeido(c.libro, c.cap);
-                h += '<div class="ab-cap-card ' + (leido?'leido':'pendiente') + '" ';
-                h += 'onclick="_AB_leerDesde(\'' + c.libro + '\',' + c.cap + ',' + diaVer + ')">';
-                h += '<div class="ab-cap-icon">' + (leido ? '🏆' : '📜') + '</div>';
+            BIBLIA_AB.forEach(function(b) {
+                var libro = b[0];
+                var totalCaps = b[1];
+                var countLeidos = 0;
+                for (var c=1; c<=totalCaps; c++) {
+                    if (leidosGlobal.indexOf(_capKey(libro, c)) !== -1) countLeidos++;
+                }
+
+                var estado = 'sin_leer';
+                if (countLeidos === totalCaps) estado = 'leido';
+                else if (countLeidos > 0) estado = 'progreso';
+
+                var cardStyle = 'background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);';
+                var textCol = '#fff';
+                var subCol = 'rgba(255,255,255,.4)';
+                var icon = '📖';
+                var btnTxt = 'Sin Leer →';
+
+                if (estado === 'leido') {
+                    cardStyle = 'background:rgba(85,239,196,0.1);border-color:rgba(85,239,196,0.4);';
+                    textCol = '#55efc4';
+                    subCol = '#55efc4';
+                    icon = '🏆';
+                    btnTxt = 'Completado ✓';
+                } else if (estado === 'progreso') {
+                    cardStyle = 'background:rgba(253,203,110,0.1);border-color:rgba(253,203,110,0.4);';
+                    textCol = '#fdcb6e';
+                    subCol = '#fdcb6e';
+                    icon = '🔥';
+                    btnTxt = 'En Progreso →';
+                }
+
+                h += '<div class="ab-cap-card" style="' + cardStyle + '" onclick="_AB_verLibro(\'' + libro + '\')">';
+                h += '<div class="ab-cap-icon" style="color:' + textCol + ';">' + icon + '</div>';
                 h += '<div class="ab-cap-info">';
-                h += '<div class="ab-cap-titulo" style="color:' + (leido?'#55efc4':'#fff') + ';">' + c.libro + '</div>';
-                h += '<div class="ab-cap-sub">Capítulo ' + c.cap + '</div>';
+                h += '<div class="ab-cap-titulo" style="color:' + textCol + ';">' + libro + '</div>';
+                h += '<div class="ab-cap-sub" style="color:' + subCol + ';">' + countLeidos + ' de ' + totalCaps + ' leídos</div>';
                 h += '</div>';
-                h += '<div class="ab-cap-check" style="color:' + (leido?'#55efc4':col) + ';font-weight:' + (leido?'900':'700') + ';">' + (leido?'Cumplida ✅':'Cumplir →') + '</div>';
+                h += '<div class="ab-cap-check" style="color:' + textCol + ';font-weight:900;font-size:.8rem;">' + btnTxt + '</div>';
                 h += '</div>';
             });
 
-            h += '</div>'; // cierra ab-card
-
-            // Navegación días
-            h += '<div style="display:flex;gap:8px;margin-bottom:14px;">';
-            if (diaVer > 1) h += '<button onclick="_AB_verDia(' + (diaVer-1) + ')" style="flex:1;padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;cursor:pointer;">← Día ' + (diaVer-1) + '</button>';
-            if (diaVer < datos.totalDias) h += '<button onclick="_AB_verDia(' + (diaVer+1) + ')" style="flex:1;padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;cursor:pointer;">Día ' + (diaVer+1) + ' →</button>';
+            // ZONA DE PELIGRO: Abandonar Plan
+            h += '<div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);text-align:center;">';
+            h += '<button onclick="_AB_confirmarCambiarPlan()" style="background:transparent;border:1px solid rgba(255,107,107,.3);color:#ff6b6b;padding:8px 16px;border-radius:12px;font-size:.75rem;font-weight:700;cursor:pointer;margin-bottom:14px;">🗑️ Abandonar Desafío Actual</button>';
             h += '</div>';
 
-            // Mini calendario
-            h += '<div class="ab-card" style="margin-bottom:14px;">';
-            h += '<div style="color:rgba(255,255,255,.3);font-size:.58rem;letter-spacing:2px;margin-bottom:12px;">ÚLTIMOS 7 DÍAS</div>';
-            h += '<div style="display:flex;gap:5px;justify-content:center;">';
-            var diasSem = ['D','L','M','X','J','V','S'];
-            for (var i=6; i>=0; i--) {
-                var d = datos.diaActual - i;
-                if (d < 1) continue;
-                var leidoD = leidos.indexOf(d) !== -1;
-                var esEsteHoy = i === 0;
-                var fd = new Date(datos.inicio); fd.setDate(fd.getDate() + d - 1);
-                h += '<div class="ab-cal-dia">';
-                h += '<div style="color:rgba(255,255,255,.3);font-size:.52rem;margin-bottom:3px;">' + diasSem[fd.getDay()] + '</div>';
-                h += '<div class="ab-cal-circulo" style="background:' + (leidoD?col+'22':'rgba(255,255,255,.04)') + ';border:2px solid ' + (esEsteHoy?col:leidoD?col+'60':'rgba(255,255,255,.1)') + ';">';
-                h += '<span style="color:' + (leidoD?'#55efc4':'rgba(255,255,255,.3)') + ';font-size:' + (leidoD?'.75rem':'.6rem') + ';">' + (leidoD?'✓':d) + '</span>';
-                h += '</div></div>';
-            }
-            h += '</div></div>';
-
-            // Cerrar
-            h += '<button class="ab-btn-sec" onclick="document.getElementById(\'ano-biblico-v2\').remove()">✕ Cerrar</button>';
+            // Cerrar App Módulo
+            h += '<button class="ab-btn-sec" onclick="document.getElementById(\'ano-biblico-v2\').remove()">✕ Cerrar Módulo</button>';
             h += '</div>';
             ov.innerHTML = h;
             ov.scrollTop = 0;
@@ -522,19 +529,84 @@
         }
     }
 
+    window._AB_verLibro = function(libro) {
+        var ov = overlay(); if (!ov) return;
+        var totalCaps = totalCapsLibro(libro);
+        var leidosGlobal = _getCapsLeidos();
+        var datos = obtenerDatos();
+        var pACT = (datos && PLANES[datos.plan]) ? PLANES[datos.plan] : PLANES['anual'];
+        var col = pACT.color || '#a29bfe';
+
+        var h = '<div class="ab-page" style="animation:ab_slidein .2s;padding-bottom:80px;">';
+
+        h += '<button onclick="_AB_verDia(1)" style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.7);font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:18px;width:100%;">← Volver a Todos los Libros</button>';
+        
+        h += '<div style="text-align:center;margin-bottom:20px;">';
+        h += '<h2 style="color:' + col + ';font-size:1.6rem;font-weight:900;letter-spacing:2px;margin:0 0 4px;">' + libro.toUpperCase() + '</h2>';
+        h += '<p style="color:rgba(255,255,255,.4);font-size:.8rem;">' + totalCaps + ' capítulos para leer</p>';
+        h += '</div>';
+
+        // Tarjetas individuales por capítulo de este libro
+        for (var c=1; c<=totalCaps; c++) {
+            var leido = (leidosGlobal.indexOf(_capKey(libro, c)) !== -1);
+            h += '<div class="ab-cap-card ' + (leido?'leido':'pendiente') + '" onclick="_AB_leerDesde(\'' + libro + '\',' + c + ', 1)">';
+            h += '<div class="ab-cap-icon">' + (leido ? '🏆' : '📜') + '</div>';
+            h += '<div class="ab-cap-info">';
+            h += '<div class="ab-cap-titulo" style="color:' + (leido?'#55efc4':'#fff') + ';">Capítulo ' + c + '</div>';
+            h += '</div>';
+            h += '<div class="ab-cap-check" style="color:' + (leido?'#55efc4':col) + ';font-weight:' + (leido?'900':'700') + ';">' + (leido?'Cumplida ✅':'Leer →') + '</div>';
+            h += '</div>';
+        }
+
+        h += '</div>';
+        ov.innerHTML = h;
+        ov.scrollTop = 0;
+    };
+
     window._AB_verDia = function(dia) {
         var datos = obtenerDatos();
         if (datos) _renderDashboard(datos, dia);
     };
 
     window._AB_confirmarCambiarPlan = function() {
-        mostrarConfirm('⚠️ ¿Cambiar de plan? Se perderá tu progreso.', function() {
+        mostrarConfirm('⚠️ ¿Cambiar la misión de fe? Se reiniciará el conteo de días, pero tus capítulos leídos individualmente seguirán guardados.', function() {
             localStorage.removeItem('plan_ano_biblico');
             localStorage.removeItem('plan_fecha_inicio');
             localStorage.removeItem('plan_dias_leidos');
-            localStorage.removeItem('ab_caps_leidos');
+            // Quitamos el borrado de ab_caps_leidos aquí también
             _renderBienvenida();
         });
+    };
+
+    window._AB_compartirProgreso = function() {
+        var datos = obtenerDatos();
+        if(!datos) return;
+        var p = PLANES[datos.plan];
+        var pct = Math.round((_getCapsLeidos().length / 1189) * 100);
+        var racha = _calcularRachaUniversal();
+        var misTrofeos = _calcularTrofeos(_getCapsLeidos(), racha);
+        
+        var texto = "🕊️ ¡Mi Reto Bíblico Espiritual!\n\n" +
+                    "Estoy en la misión: " + p.ico + " *" + p.nombre + "*\n" +
+                    "🏆 Victoria al: *" + pct + "%*\n" +
+                    "🔥 Racha actual: *" + racha + " días*\n" +
+                    "🏅 Galardones: *" + misTrofeos.length + "*\n\n" +
+                    "📖 Únete a mí en Legado Bíblico: https://legadobiblicopro.com/";
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Mi Reto Bíblico',
+                text: texto
+            }).catch(function(){}); // ignorar si el usuario cancela
+        } else {
+            // fallback portapapeles
+            try {
+                navigator.clipboard.writeText(texto);
+                toast('📋 Progreso copiado al portapapeles');
+            } catch(e) {
+                toast('⚠️ No se pudo copiar el progreso automáticamente');
+            }
+        }
     };
 
     // ─── PANTALLA 3: LECTOR INTEGRADO ────────────────────────────
@@ -583,7 +655,7 @@
             var body = document.getElementById('ab-lector-body');
             if (!body) return;
             if (!data || !data.vers || data.vers.length === 0) {
-                body.innerHTML = '<div style="color:#ff6b6b;text-align:center;padding:40px;">No se pudo cargar.<br>Verifica tu conexión.</div>';
+                body.innerHTML = '<div style="color:#ff6b6b;text-align:center;padding:40px;"><div style="font-size:2rem;margin-bottom:10px;">⚠️</div>La API de la Biblia no devolvió el capítulo.<br>Posible bloqueo de red o servidor ocupado.<button onclick="_AB_leerDesde(\''+libro+'\','+cap+','+diaRef+')" style="display:block;width:100%;margin-top:20px;padding:12px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.5);border-radius:12px;color:#ff6b6b;font-weight:900;cursor:pointer;">🔄 VOLVER A INTENTAR</button></div>';
                 return;
             }
             var yaLeidoNow = _estaCapLeido(libro, cap);
@@ -649,9 +721,9 @@
             body.style.textAlign = '';
             body.style.padding = '';
         })
-        .catch(function() {
+        .catch(function(err) {
             var body = document.getElementById('ab-lector-body');
-            if (body) body.innerHTML = '<div style="color:#ff6b6b;text-align:center;padding:40px;">Sin conexión a internet.</div>';
+            if (body) body.innerHTML = '<div style="color:#ff6b6b;text-align:center;padding:40px;"><div style="font-size:2rem;margin-bottom:10px;">📉</div>Error de red conectando con la Biblia.<br><span style="font-size:0.6rem;opacity:0.6;">'+err.message+'</span><button onclick="_AB_leerDesde(\''+libro+'\','+cap+','+diaRef+')" style="display:block;width:100%;margin-top:20px;padding:12px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.5);border-radius:12px;color:#ff6b6b;font-weight:900;cursor:pointer;">🔄 VOLVER A INTENTAR</button></div>';
         });
     }
 
@@ -865,9 +937,7 @@
 
     window._AB_marcarCapituloLeido = function(libro, cap, diaRef) {
         _marcarCapLeido(libro, cap);
-        // Verificar si el día entero está completo
-        var datos = obtenerDatos();
-        if (datos) _verificarDiaCompleto(datos.plan, diaRef);
+        _registrarActividadDiaria();
         // Actualizar el botón inline sin recargar toda la pantalla
         var btn = document.getElementById('ab-btn-leido');
         if (btn) {

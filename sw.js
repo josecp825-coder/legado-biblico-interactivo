@@ -7,7 +7,7 @@
 // ESTRATEGIA: Cache First + Network Update (v368)
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v406';
+const CACHE_NAME = 'legado-biblico-v418';
 
 // ✅ SOLO archivos de LEGADO BÍBLICO (raíz)
 const ARCHIVOS_CACHE = [
@@ -40,9 +40,10 @@ const ARCHIVOS_CACHE = [
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
+    './musica_fondo.mp3',
     './logo_oficial.png',
     './version.json',
-    './_ano_biblico_v2.js?v=406',
+    './_ano_biblico_v2.js?v=413',
     './fix_herramientas_culto.js',
     './_juego_penal_biblico.js',
     './_penal_visual.js',
@@ -56,7 +57,16 @@ self.addEventListener('install', evento => {
             let ok = 0, fail = 0;
             for (const archivo of ARCHIVOS_CACHE) {
                 try {
-                    await cache.add(new Request(archivo, { cache: 'no-cache' }));
+                    // 🔥TÉCNICA BLINDADA: Evita el caché de servidor/CDN (Hostinger) y caché del navegador.
+                    const separator = archivo.includes('?') ? '&' : '?';
+                    const cacheBusterUrl = archivo + separator + 'byp=' + Date.now();
+                    const req = new Request(cacheBusterUrl, { cache: 'reload' });
+                    const res = await fetch(req);
+                    
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    
+                    // Se almacena usando el string ORIGINAL para que coincida perfectamente con fetch() después.
+                    await cache.put(archivo, res);
                     ok++;
                 } catch (e) {
                     fail++;
@@ -152,7 +162,8 @@ self.addEventListener('fetch', evento => {
 
     evento.respondWith(
         caches.open(CACHE_NAME).then(cache => {
-            return cache.match(evento.request).then(respuestaCache => {
+            // Ignorar los query '?v=xxx' asegura que obtenemos la copia blindada instalada
+            return cache.match(evento.request, { ignoreSearch: true }).then(respuestaCache => {
 
                 // Actualizar caché en segundo plano (no bloquea)
                 const fetchPromise = fetch(evento.request, { cache: 'no-cache' })
