@@ -416,7 +416,15 @@
         h += '<div style="text-align:center;margin-bottom:20px;">';
         h += '<div style="font-size:2.2rem;margin-bottom:6px;">' + p.ico + '</div>';
         h += '<h2 style="color:' + col + ';font-size:1.1rem;font-weight:900;letter-spacing:2px;margin:0 0 4px;">' + p.nombre.toUpperCase() + '</h2>';
-        h += '<p style="color:rgba(255,255,255,.35);font-size:.75rem;margin:0 0 14px;font-weight:700;">Misión ' + diaVer + ' de ' + datos.totalDias + (esHoy?' · HOY':'') + '</p>';
+        h += '<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 14px;">';
+        h += '<span style="color:rgba(255,255,255,.35);font-size:.75rem;font-weight:700;">Misión</span>';
+        h += '<input type="number" id="ab-jump-input" value="' + diaVer + '" min="1" max="' + datos.totalDias + '" ';
+        h += 'onchange="var v=parseInt(this.value); if(v>0 && v<=' + datos.totalDias + ') _AB_verDia(v); else toast(\'Día inválido\');" ';
+        h += 'style="width:45px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:2px;text-align:center;font-size:.8rem;font-weight:900;outline:none;-moz-appearance:textfield;" ';
+        h += 'title="Escribe un día y presiona Enter para saltar">';
+        h += '<span style="color:rgba(255,255,255,.35);font-size:.75rem;font-weight:700;">de ' + datos.totalDias + (esHoy?' · HOY':'') + '</span>';
+        h += '<span style="font-size:1.1rem;cursor:pointer;background:rgba(255,255,255,0.1);border-radius:6px;padding:3px 7px;transition:0.2s;" onclick="_AB_buscarPorLibro()" title="Buscar misión por nombre de libro">🔍</span>';
+        h += '</div>';
         h += '<div style="background:rgba(255,255,255,.06);border-radius:20px;height:24px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);">';
         h += '<div style="background:linear-gradient(90deg,' + col + ',' + col + 'aa);height:100%;border-radius:20px;width:' + pct + '%;min-width:' + (pct>0?'28px':'0') + ';"></div>';
         h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:.7rem;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.6);">' + pct + '% de Victoria 🏆</div>';
@@ -894,6 +902,27 @@
         _abFontSize = Math.min(1.9, _abFontSize + 0.1);
         localStorage.setItem('ab_font_size', _abFontSize);
         document.querySelectorAll('.ab-txt').forEach(function(el) { el.style.fontSize = _abFontSize + 'rem'; });
+    };
+
+    // ── BÚSQUEDA RÁPIDA POR LIBRO ──
+    window._AB_buscarPorLibro = function() {
+        var texto = prompt("¿Qué libro deseas buscar? (Ej: Salmos, Mateo)");
+        if (!texto) return;
+        texto = texto.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        var datos = obtenerDatos();
+        if (!datos) return;
+        
+        for (var i=1; i<=datos.totalDias; i++) {
+            var caps = capitulosDia(datos.plan, i);
+            for (var c=0; c<caps.length; c++) {
+                if (caps[c].libro.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(texto)) {
+                    _AB_verDia(i);
+                    toast("✨ " + caps[c].libro + " está en la misión " + i);
+                    return;
+                }
+            }
+        }
+        toast("⚠️ Libro no encontrado en el plan.");
     };
 
     // 🎧 LÓGICA DEL MODO ZEN (INMERSIÓN)
