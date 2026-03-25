@@ -297,11 +297,11 @@
         var frase = FRASES[Math.floor(Math.random() * FRASES.length)];
         var h = '<div class="ab-page">';
         h += '<div style="text-align:center;padding:32px 0 24px;">';
-        h += '<div style="font-size:3.5rem;margin-bottom:10px;">📖</div>';
-        h += '<h1 style="color:#a29bfe;font-size:1.7rem;font-weight:900;letter-spacing:2px;margin:0 0 8px;">AÑO BÍBLICO</h1>';
+        h += '<div style="font-size:3.5rem;margin-bottom:10px;">🕊️</div>';
+        h += '<h1 style="color:#a29bfe;font-size:1.7rem;font-weight:900;letter-spacing:1px;margin:0 0 8px;">RETO BÍBLICO ESPIRITUAL</h1>';
         h += '<p style="color:rgba(255,255,255,.45);font-size:.78rem;font-style:italic;max-width:280px;margin:0 auto;">' + frase + '</p>';
         h += '</div>';
-        h += '<p style="color:rgba(255,255,255,.45);font-size:.75rem;text-align:center;letter-spacing:1px;margin-bottom:16px;">ELIGE TU RITMO DE LECTURA</p>';
+        h += '<p style="color:rgba(255,255,255,.45);font-size:.8rem;font-weight:700;text-align:center;letter-spacing:1px;margin-bottom:16px;">ELIGE TU MISIÓN DE FE 🎯</p>';
         h += '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">';
         Object.keys(PLANES).forEach(function(k) {
             var p = PLANES[k];
@@ -368,9 +368,9 @@
             h += '<div style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:rgba(255,107,107,0.1);border:1.5px solid rgba(255,107,107,0.3);border-radius:14px;margin-bottom:16px;">';
             h += '<span style="font-size:1.4rem;line-height:1;">⏰</span>';
             h += '<div style="flex:1;">';
-            h += '<div style="color:#ff6b6b;font-weight:900;font-size:.85rem;margin-bottom:3px;">Vas ' + diasAtrasado + ' día' + (diasAtrasado>1?'s':'') + ' atrasado</div>';
-            h += '<div style="color:rgba(255,255,255,.5);font-size:.72rem;line-height:1.4;">Deberías estar en el <b style="color:#ff6b6b;">día ' + datos.diaCalendario + '</b>, pero vas en el <b style="color:#fff;">día ' + diaVer + '</b>.<br>';
-            h += 'Te faltan ~<b style="color:#fdcb6e;">' + capsAtrasadas + ' capítulos</b> para ponerte al día.</div>';
+            h += '<div style="color:#ff6b6b;font-weight:900;font-size:.85rem;margin-bottom:3px;">¡La Palabra de Dios te espera! 💪</div>';
+            h += '<div style="color:rgba(255,255,255,.5);font-size:.72rem;line-height:1.4;">El calendario marca la <b style="color:#ff6b6b;">misión ' + datos.diaCalendario + '</b>, pero vas en la <b style="color:#fff;">misión ' + diaVer + '</b>.<br>';
+            h += 'Te faltan ~<b style="color:#fdcb6e;">' + capsAtrasadas + ' misiones</b> para ponerte al día.</div>';
             h += '</div>';
             h += '<button onclick="_AB_verDia(' + datos.diaCalendario + ')" style="padding:8px 10px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.4);border-radius:10px;color:#ff6b6b;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap;">Ver hoy</button>';
             h += '</div>';
@@ -385,24 +385,24 @@
         h += '<div style="text-align:center;margin-bottom:20px;">';
         h += '<div style="font-size:2.2rem;margin-bottom:6px;">' + p.ico + '</div>';
         h += '<h2 style="color:' + col + ';font-size:1.1rem;font-weight:900;letter-spacing:2px;margin:0 0 4px;">' + p.nombre.toUpperCase() + '</h2>';
-        h += '<p style="color:rgba(255,255,255,.35);font-size:.75rem;margin:0 0 14px;">Día ' + diaVer + ' de ' + datos.totalDias + (esHoy?' · HOY':'') + '</p>';
+        h += '<p style="color:rgba(255,255,255,.35);font-size:.75rem;margin:0 0 14px;font-weight:700;">Misión ' + diaVer + ' de ' + datos.totalDias + (esHoy?' · HOY':'') + '</p>';
         h += '<div style="background:rgba(255,255,255,.06);border-radius:20px;height:24px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);">';
         h += '<div style="background:linear-gradient(90deg,' + col + ',' + col + 'aa);height:100%;border-radius:20px;width:' + pct + '%;min-width:' + (pct>0?'28px':'0') + ';"></div>';
-        h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:.7rem;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.6);">' + pct + '% completado</div>';
+        h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:.7rem;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.6);">' + pct + '% de Victoria 🏆</div>';
         h += '</div>';
         h += '</div>';
 
         // Stats
         h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">';
-        h += '<div class="ab-stat"><div style="color:' + col + ';font-size:1.35rem;font-weight:900;">' + leidos.length + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">DÍAS ✓</div></div>';
-        h += '<div class="ab-stat"><div style="font-size:1.35rem;font-weight:900;">' + (racha>0?'🔥':'😴') + ' ' + racha + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">RACHA</div></div>';
-        h += '<div class="ab-stat"><div style="color:#55efc4;font-size:1.35rem;font-weight:900;">' + (datos.totalDias-leidos.length) + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">RESTANTES</div></div>';
+        h += '<div class="ab-stat"><div style="color:' + col + ';font-size:1.35rem;font-weight:900;">' + leidos.length + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">VICTORIAS 🌟</div></div>';
+        h += '<div class="ab-stat"><div style="font-size:1.35rem;font-weight:900;">' + (racha>0?'🔥':'🧊') + ' ' + racha + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">FUEGO 🔥</div></div>';
+        h += '<div class="ab-stat"><div style="color:#55efc4;font-size:1.35rem;font-weight:900;">' + (datos.totalDias-leidos.length) + '</div><div style="color:rgba(255,255,255,.35);font-size:.58rem;margin-top:2px;">MISIONES 🎯</div></div>';
         h += '</div>';
 
         // Lectura del día — cabecera
         h += '<div class="ab-card" style="border-color:' + (todoLeido?'rgba(85,239,196,.4)':col+'33') + ';background:rgba(' + (todoLeido?'85,239,196,0.07':'255,255,255,0.03') + ');margin-bottom:14px;">';
         h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">';
-        h += '<div style="color:' + col + ';font-weight:900;font-size:.68rem;letter-spacing:2px;">📖 ' + (esHoy?'HOY — ':'DÍA ') + diaVer + '</div>';
+        h += '<div style="color:' + col + ';font-weight:900;font-size:.68rem;letter-spacing:2px;">' + (esHoy?'👑 MISIÓN DE HOY — ':'🎯 MISIÓN ') + diaVer + '</div>';
         h += '<div style="color:' + (todoLeido?'#55efc4':'rgba(255,255,255,.4)') + ';font-size:.7rem;font-weight:900;">' + capsLeidos + '/' + capsTotal + (todoLeido?' ✅':'') + '</div>';
         h += '</div>';
 
@@ -411,12 +411,12 @@
             var leido = _estaCapLeido(c.libro, c.cap);
             h += '<div class="ab-cap-card ' + (leido?'leido':'pendiente') + '" ';
             h += 'onclick="_AB_leerDesde(\'' + c.libro + '\',' + c.cap + ',' + diaVer + ')">';
-            h += '<div class="ab-cap-icon">' + (leido ? '✅' : '📖') + '</div>';
+            h += '<div class="ab-cap-icon">' + (leido ? '🏆' : '📜') + '</div>';
             h += '<div class="ab-cap-info">';
             h += '<div class="ab-cap-titulo" style="color:' + (leido?'#55efc4':'#fff') + ';">' + c.libro + '</div>';
             h += '<div class="ab-cap-sub">Capítulo ' + c.cap + '</div>';
             h += '</div>';
-            h += '<div class="ab-cap-check" style="color:' + (leido?'#55efc4':col) + ';">' + (leido?'Leído':'Leer →') + '</div>';
+            h += '<div class="ab-cap-check" style="color:' + (leido?'#55efc4':col) + ';font-weight:' + (leido?'900':'700') + ';">' + (leido?'Cumplida ✅':'Cumplir →') + '</div>';
             h += '</div>';
         });
 
@@ -484,13 +484,14 @@
         function headerHTML() {
             return [
                 '<div id="ab-lector-header" style="position:sticky;top:0;background:#0a1628;padding-bottom:12px;z-index:10;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:16px;">',
-                '<button onclick="_AB_volverDashboard(' + diaRef + ')" style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.7);font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:12px;width:100%;">← Volver al plan</button>',
+                '<button onclick="_AB_volverDashboard(' + diaRef + ')" style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.7);font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:12px;width:100%;">← Volver a Misiones</button>',
                 '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">',
                 '<div>',
                 '<div style="color:#fff;font-size:1.05rem;font-weight:900;">' + libro + ' ' + cap + '</div>',
-                '<div style="color:rgba(255,255,255,.4);font-size:.68rem;">Capítulo ' + cap + ' de ' + totalCaps + '</div>',
+                '<div style="color:rgba(255,255,255,.4);font-size:.68rem;">Misión ' + cap + ' de ' + totalCaps + '</div>',
                 '</div>',
                 '<div style="display:flex;gap:5px;">',
+                '<button id="ab-btn-zen" onclick="window._AB_toggleZen()" style="display:flex;align-items:center;gap:4px;padding:0 10px;height:32px;background:linear-gradient(135deg,#a29bfe,#6c5ce7);border:none;border-radius:8px;color:#fff;font-weight:900;cursor:pointer;font-size:.75rem;transition:all 0.3s;box-shadow:0 3px 10px rgba(108,92,231,0.4);">🎧 Zen</button>',
                 '<button onclick="_AB_fuenteMenos()" style="width:32px;height:32px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-weight:900;cursor:pointer;font-size:.8rem;">A-</button>',
                 '<button onclick="_AB_fuenteMas()" style="width:32px;height:32px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-weight:900;cursor:pointer;font-size:.8rem;">A+</button>',
                 '</div>',
@@ -501,7 +502,7 @@
 
         ov.innerHTML = '<div class="ab-page" style="animation:ab_slidein .2s;">' +
             headerHTML() +
-            '<div id="ab-lector-body" class="ab-loading"><div class="ab-loading-ico">📖</div><div style="color:rgba(255,255,255,.4);font-size:.8rem;margin-top:10px;">Cargando ' + libro + ' ' + cap + '...</div></div>' +
+            '<div id="ab-lector-body" class="ab-loading"><div class="ab-loading-ico">📜</div><div style="color:rgba(255,255,255,.4);font-size:.8rem;margin-top:10px;">Cargando misión ' + libro + ' ' + cap + '...</div></div>' +
             '</div>';
         ov.scrollTop = 0;
 
@@ -840,6 +841,38 @@
         _abFontSize = Math.min(1.9, _abFontSize + 0.1);
         localStorage.setItem('ab_font_size', _abFontSize);
         document.querySelectorAll('.ab-txt').forEach(function(el) { el.style.fontSize = _abFontSize + 'rem'; });
+    };
+
+    // 🎧 LÓGICA DEL MODO ZEN (INMERSIÓN)
+    var zenAudio = null;
+    window._AB_toggleZen = function() {
+        if (!zenAudio) {
+            zenAudio = new Audio('musica_fondo.mp3');
+            zenAudio.loop = true;
+            zenAudio.volume = 0.4; // Volumen suave para no interrumpir lectura
+        }
+        
+        var btn = document.getElementById('ab-btn-zen');
+        if (zenAudio.paused) {
+            zenAudio.play().then(function() {
+                if(btn) {
+                    btn.innerHTML = '⏸️ Zen';
+                    btn.style.boxShadow = '0 0 15px rgba(108,92,231,0.8)';
+                    btn.style.transform = 'scale(1.05)';
+                }
+                toast('🎧 Modo Zen Activado. Disfruta tu lectura.');
+            }).catch(function(e) {
+                toast('⚠️ No se encontró la pista. Sube "musica_fondo.mp3" al servidor.');
+            });
+        } else {
+            zenAudio.pause();
+            if(btn) {
+                btn.innerHTML = '🎧 Zen';
+                btn.style.boxShadow = '0 3px 10px rgba(108,92,231,0.4)';
+                btn.style.transform = 'scale(1)';
+            }
+            toast('🔇 Modo Zen Pausado.');
+        }
     };
 
 })(); // fin módulo
