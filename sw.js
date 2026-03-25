@@ -7,7 +7,7 @@
 // ESTRATEGIA: Cache First + Network Update (v368)
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v399';
+const CACHE_NAME = 'legado-biblico-v400';
 
 // ✅ SOLO archivos de LEGADO BÍBLICO (raíz)
 const ARCHIVOS_CACHE = [
