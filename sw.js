@@ -7,7 +7,7 @@
 // ESTRATEGIA: Cache First + Network Update (v368)
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v400';
+const CACHE_NAME = 'legado-biblico-v402';
 
 // ✅ SOLO archivos de LEGADO BÍBLICO (raíz)
 const ARCHIVOS_CACHE = [
@@ -42,7 +42,7 @@ const ARCHIVOS_CACHE = [
     './icon-512.png',
     './logo_oficial.png',
     './version.json',
-    './_ano_biblico_v2.js',
+    './_ano_biblico_v2.js?v=402',
     './fix_herramientas_culto.js',
     './_juego_penal_biblico.js',
     './_penal_visual.js',

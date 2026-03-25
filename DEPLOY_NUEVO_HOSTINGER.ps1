@@ -7,7 +7,7 @@ $localPath = "C:\Users\jhose\OneDrive\Desktop\PROYECTO DE CODIGO\LEGADO_BIBLICO_
 $webclient = New-Object System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
 
-$archivos = @("index.html", "version.json", "sw.js", "manifest.json", "data_iglesia_v1.js", "datos_devocionales.js", "ui_core.js", "logo_oficial.png", "_ano_biblico_v2.js", "versiculos_hero.js")
+$archivos = @("index.html", "version.json", "sw.js", "manifest.json", "data_iglesia_v1.js", "datos_devocionales.js", "ui_core.js", "_ano_biblico_v2.js", "versiculos_hero.js")
 
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "  DEPLOY -> legadobiblicopro.com" -ForegroundColor Cyan
@@ -20,7 +20,8 @@ foreach ($f in $archivos) {
             $webclient.UploadFile("$ftpBase/$f", $localFile)
             Write-Host "  [OK] $f" -ForegroundColor Green
         } catch {
-            Write-Host "  [ERROR] $f : $_" -ForegroundColor Red
+            $err = $_.Exception.Message
+            Write-Host "  [ERROR] $f : $err" -ForegroundColor Red
         }
     } else {
         Write-Host "  [NOT FOUND] $f" -ForegroundColor Yellow
