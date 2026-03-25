@@ -1,4 +1,27 @@
-        let usuarioActual = { nombre: localStorage.getItem('legado_user_name') || "Invitado", nivel: "" };
+    // 🛡️ CONFIRMAR GLOBAL — Redirigido desde data_motor
+    window.mostrarConfirm = function(mensaje, onConfirm) {
+        const prev = document.getElementById('_confirm-modal-legado');
+        if (prev) prev.remove();
+        const modal = document.createElement('div');
+        modal.id = '_confirm-modal-legado';
+        modal.style.cssText = 'position:fixed;inset:0;z-index:9999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:fadeIn 0.15s ease;';
+        modal.innerHTML = '<div style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:28px 24px;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.7);text-align:center;">' +
+            '<div style="font-size:2rem;margin-bottom:10px;">⚠️</div>' +
+            '<div style="color:#fff;font-size:1rem;font-weight:700;line-height:1.4;margin-bottom:24px;">' + mensaje + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+            '<button id="_confirm-no" style="padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);border-radius:12px;cursor:pointer;font-weight:700;font-size:0.9rem;">Cancelar</button>' +
+            '<button id="_confirm-si" style="padding:12px;background:linear-gradient(135deg,#e17055,#ff6b6b);border:none;color:#fff;border-radius:12px;cursor:pointer;font-weight:900;font-size:0.9rem;">Confirmar</button>' +
+            '</div></div>';
+        document.body.appendChild(modal);
+        document.getElementById('_confirm-no').onclick = function() { modal.remove(); };
+        document.getElementById('_confirm-si').onclick = function() {
+            modal.remove();
+            if (typeof onConfirm === 'function') onConfirm();
+        };
+        modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+    };
+
+    let usuarioActual = { nombre: localStorage.getItem('legado_user_name') || "Invitado", nivel: "" };
 
         window.onload = () => {
             // 🔧 BUG-2 FIX: Limpiar hash al abrir la app — siempre mostrar la pantalla de inicio
