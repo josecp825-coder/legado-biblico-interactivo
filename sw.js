@@ -7,7 +7,7 @@
 // ESTRATEGIA: Cache First + Network Update (v368)
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v418';
+const CACHE_NAME = 'legado-biblico-v517';
 
 // ✅ SOLO archivos de LEGADO BÍBLICO (raíz)
 const ARCHIVOS_CACHE = [
@@ -16,7 +16,11 @@ const ARCHIVOS_CACHE = [
     './legado.html',
     './style.css',
     './mobile.css',
-    './data_motor.js',
+    './auth_mundial.js',
+    './biblia_datos.js',
+    './biblia_busqueda.js',
+    './biblia_lector.js',
+    './biblia_wizard.js',
     './cba_motor.js',
     './data_kids_v2.js',
     './kids_cinema.js',
@@ -40,10 +44,11 @@ const ARCHIVOS_CACHE = [
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
+    './pwa_installer.js?v=1',
     './musica_fondo.mp3',
     './logo_oficial.png',
     './version.json',
-    './_ano_biblico_v2.js?v=413',
+    './_ano_biblico_v2.js?v=414',
     './fix_herramientas_culto.js',
     './_juego_penal_biblico.js',
     './_penal_visual.js',
@@ -102,11 +107,18 @@ self.addEventListener('activate', evento => {
     self.clients.claim();
 });
 
-// ─── MENSAJE: SKIP_WAITING desde la app ──────────────────────────
+// ─── MENSAJE: SKIP_WAITING y NUCLEAR_BYPASS ──────────────────────
+let isBypassing = false;
+
 self.addEventListener('message', evento => {
     if (evento.data && evento.data.type === 'SKIP_WAITING') {
         console.log('[SW-LEGADO] 📨 SKIP_WAITING — activando SW inmediatamente');
         self.skipWaiting();
+    }
+    if (evento.data && evento.data.type === 'NUCLEAR_BYPASS') {
+        console.log('[SW-LEGADO] ☢️ NUCLEAR BYPASS ACTIVADO — Se ignorará el caché por 15 segundos');
+        isBypassing = true;
+        setTimeout(() => { isBypassing = false; }, 15000);
     }
 });
 
@@ -128,14 +140,22 @@ self.addEventListener('fetch', evento => {
         url.href.includes('firestore') ||
         url.href.includes('googleapis') ||
         url.href.includes('bible-api') ||
-        url.href.includes('github') ||
         url.href.includes('githubusercontent') ||
-        url.href.includes('gemini') ||
-        url.href.includes('vite') ||
         url.pathname.endsWith('.tsx') ||
         url.pathname.endsWith('.ts');
 
     if (bloqueado) return;
+
+    // ☢️ SI EL BYPASS NUCLEAR ESTÁ ACTIVO -> SALTADOR DIRECTO A RED
+    if (isBypassing) {
+        return evento.respondWith(
+            fetch(evento.request, { cache: 'no-store' })
+                .then(r => {
+                    caches.open(CACHE_NAME).then(c => c.put(evento.request, r.clone()));
+                    return r;
+                }).catch(() => caches.match(evento.request))
+        );
+    }
 
     // ✅ Cache First + Network Update
     // EXCEPCIÓN: index.html y version.json siempre van a la red primero

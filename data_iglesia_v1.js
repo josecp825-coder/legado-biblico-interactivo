@@ -1973,13 +1973,52 @@ function renderControlCultosSemana() {
       <div style="padding:12px 14px 0;max-width:600px;margin:0 auto;">
         <div style="display:flex;gap:8px;margin-bottom:15px;" id="tabs-culto">
           <button id="tab-btn-form" onclick="cambiarTabCulto('form')" style="${tabStyle(true)}">📝<br>Formulario</button>
+          <button id="tab-btn-cultos" onclick="cambiarTabCulto('cultos')" style="${tabStyle(false)}">📋<br>Historial<br>de Culto</button>
+          <button id="tab-btn-eventos" onclick="cambiarTabCulto('eventos')" style="${tabStyle(false)}">⭐<br>Programas<br>Especiales</button>
           <button id="tab-btn-buscar" onclick="cambiarTabCulto('buscar')" style="${tabStyle(false)}">🔍<br>Buscar</button>
-          <button id="tab-btn-cultos" onclick="cambiarTabCulto('cultos')" style="${tabStyle(false)}">📋<br>Cultos</button>
-          <button id="tab-btn-eventos" onclick="cambiarTabCulto('eventos')" style="${tabStyle(false)}">⭐<br>Eventos</button>
         </div>
 
         <!-- ======== TAB 1: FORMULARIO ======== -->
         <div id="tab-content-form">
+
+          <!-- ===== PANTALLA DE SELECCION DE TIPO DE CULTO ===== -->
+          <div id="selector-tipo-culto" style="display:block;">
+            <div style="text-align:center;padding:10px 0 20px;">
+              <div style="color:rgba(255,255,255,0.35);font-size:0.6rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">PASO 1</div>
+              <div style="color:#fff;font-weight:900;font-size:1rem;letter-spacing:0.5px;">¿Qué tipo de culto vas a registrar?</div>
+            </div>
+
+            <!-- CARD SÁBADO -->
+            <div onclick="elegirTipoCulto('sabado')" style="cursor:pointer;background:linear-gradient(135deg,rgba(253,203,110,0.15),rgba(253,203,110,0.05));border:2px solid rgba(253,203,110,0.5);border-radius:18px;padding:22px 18px;margin-bottom:14px;display:flex;align-items:center;gap:16px;transition:all 0.2s;" 
+                 onmouseover="this.style.background='linear-gradient(135deg,rgba(253,203,110,0.3),rgba(253,203,110,0.1))';this.style.transform='scale(1.02)'"
+                 onmouseout="this.style.background='linear-gradient(135deg,rgba(253,203,110,0.15),rgba(253,203,110,0.05))';this.style.transform='scale(1)'">
+              <div style="font-size:2.8rem;line-height:1;">⛪</div>
+              <div style="flex:1;">
+                <div style="color:#fdcb6e;font-weight:900;font-size:1rem;letter-spacing:0.5px;margin-bottom:4px;">CULTO DE SÁBADO</div>
+                <div style="color:rgba(255,255,255,0.45);font-size:0.72rem;">Programa completo — 12 pasos litúrgicos</div>
+              </div>
+              <div style="color:#fdcb6e;font-size:1.4rem;">›</div>
+            </div>
+
+            <!-- CARD SEMANA -->
+            <div onclick="elegirTipoCulto('semana')" style="cursor:pointer;background:linear-gradient(135deg,rgba(116,185,255,0.15),rgba(116,185,255,0.05));border:2px solid rgba(116,185,255,0.5);border-radius:18px;padding:22px 18px;display:flex;align-items:center;gap:16px;transition:all 0.2s;"
+                 onmouseover="this.style.background='linear-gradient(135deg,rgba(116,185,255,0.3),rgba(116,185,255,0.1))';this.style.transform='scale(1.02)'"
+                 onmouseout="this.style.background='linear-gradient(135deg,rgba(116,185,255,0.15),rgba(116,185,255,0.05))';this.style.transform='scale(1)'">
+              <div style="font-size:2.8rem;line-height:1;">📅</div>
+              <div style="flex:1;">
+                <div style="color:#74b9ff;font-weight:900;font-size:1rem;letter-spacing:0.5px;margin-bottom:4px;">CULTO DE SEMANA</div>
+                <div style="color:rgba(255,255,255,0.45);font-size:0.72rem;">Miércoles o Viernes — Culto regular</div>
+              </div>
+              <div style="color:#74b9ff;font-size:1.4rem;">›</div>
+            </div>
+          </div>
+
+          <!-- ===== FORMULARIO SÁBADO (oculto hasta elegir) ===== -->
+          <div id="formulario-sabado-wrapper" style="display:none;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+              <button onclick="volverSelectorCulto()" style="background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.4);color:#fdcb6e;padding:7px 14px;border-radius:8px;font-weight:900;font-size:0.8rem;cursor:pointer;">← Volver</button>
+              <div style="color:#fdcb6e;font-weight:900;font-size:0.85rem;">⛪ CULTO DE SÁBADO</div>
+            </div>
           <style>
 @keyframes pulso-fecha {
   0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,0.0),0 0 0 0 rgba(255,107,107,0.0);}
@@ -2006,7 +2045,7 @@ function renderControlCultosSemana() {
     style="width:100%;padding:14px;background:rgba(0,0,0,0.45);border:2px solid rgba(255,107,107,0.6);color:#fff;border-radius:12px;outline:none;font-size:1.05rem;font-weight:700;box-sizing:border-box;">
   <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
     <label style="color:rgba(255,255,255,0.45);font-size:0.65rem;font-weight:900;white-space:nowrap;">\u26EA D\u00cdA:</label>
-    <select id="culto-tipo" style="flex:1;padding:9px 11px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:10px;outline:none;font-size:0.85rem;">
+    <select id="culto-tipo" onchange="_actualizarFormularioPorDia(this.value)" style="flex:1;padding:9px 11px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:10px;outline:none;font-size:0.85rem;">
       <option>Domingo</option><option>Lunes</option><option>Martes</option>
       <option>Mi\u00e9rcoles</option><option>Jueves</option><option>Viernes</option>
       <option>S\u00e1bado</option><option>Especial</option>
@@ -2018,63 +2057,71 @@ function renderControlCultosSemana() {
             <button onclick="guardarCultoSemana()" style="padding:15px;background:linear-gradient(135deg,#55efc4,#00b894);border:none;color:#000;border-radius:14px;font-weight:900;font-size:0.9rem;cursor:pointer;box-shadow:0 5px 18px rgba(85,239,196,0.3);">\u{1F4BE} GUARDAR</button>
             <button onclick="compartirCultoActual()" style="padding:15px;background:linear-gradient(135deg,#a29bfe,#6c5ce7);border:none;color:#fff;border-radius:14px;font-weight:900;font-size:0.9rem;cursor:pointer;box-shadow:0 5px 18px rgba(108,92,231,0.3);">\u{1F4E4} COMPARTIR</button>
           </div>
+          </div><!-- /formulario-sabado-wrapper -->
         </div>
 
         <!-- ======== TAB 2: BUSCAR / HERRAMIENTAS ======== -->
         <div id="tab-content-buscar" style="display:none;">
           <!-- BÚSQUEDA RÁPIDA -->
           <div style="background:rgba(255,159,67,0.05);border:1px solid rgba(255,159,67,0.2);border-radius:16px;padding:16px;margin-bottom:14px;">
-            <div style="color:#ff9f43;font-weight:900;font-size:0.75rem;letter-spacing:1.5px;margin-bottom:12px;">\u{1F50D} B\u00daSQUEDA R\u00c1PIDA</div>
-            <input type="text" id="input-busqueda-global" placeholder="Ej: Santa Cena, Bautismo..." 
-                oninput="ejecutarBusquedaGlobal(this.value)" 
+            <div style="color:#ff9f43;font-weight:900;font-size:0.75rem;letter-spacing:1.5px;margin-bottom:12px;">🔍 BÚSQUEDA RÁPIDA</div>
+            <input type="text" id="input-busqueda-global" placeholder="Ej: Santa Cena, Bautismo..."
+                oninput="ejecutarBusquedaGlobal(this.value)"
                 onkeydown="if(event.key==='Enter' || event.keyCode===13){ event.preventDefault(); return false; }"
                 onkeypress="if(event.key==='Enter' || event.keyCode===13){ event.preventDefault(); return false; }"
                 style="width:100%;padding:13px;background:rgba(0,0,0,0.5);border:1.5px solid rgba(255,159,67,0.4);color:#fff;border-radius:10px;outline:none;font-size:0.9rem;margin-bottom:6px;font-weight:700;">
-
             <div id="resultados-busqueda-global"></div>
           </div>
-          <!-- PDF por perÃ­odo -->
+          <!-- PDF por período -->
           <div style="background:rgba(85,239,196,0.05);border:1px solid rgba(85,239,196,0.2);border-radius:16px;padding:16px;margin-bottom:14px;">
-            <div style="color:#55efc4;font-weight:900;font-size:0.75rem;letter-spacing:1.5px;margin-bottom:12px;">\u{1F4C4} IMPRIMIR POR PER\u00cdODO</div>
+            <div style="color:#55efc4;font-weight:900;font-size:0.75rem;letter-spacing:1.5px;margin-bottom:12px;">📄 IMPRIMIR POR PERÍODO</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-              <button onclick="generarPDFCultosPeriodo('semana')" style="padding:12px 4px;background:rgba(85,239,196,0.08);border:1px solid rgba(85,239,196,0.3);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4C4}<br>Esta Semana</button>
-              <button onclick="generarPDFCultosPeriodo('mes')" style="padding:12px 4px;background:rgba(85,239,196,0.08);border:1px solid rgba(85,239,196,0.3);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4C4}<br>Este Mes</button>
-              <button onclick="generarPDFCultosPeriodo('anio')" style="padding:12px 4px;background:rgba(85,239,196,0.08);border:1px solid rgba(85,239,196,0.3);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4C4}<br>Este A\u00f1o</button>
+              <button onclick="generarPDFCultosPeriodo('semana')" style="padding:12px 4px;background:rgba(85,239,196,0.08);border:1px solid rgba(85,239,196,0.3);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;">📄<br>Esta Semana</button>
+              <button onclick="generarPDFCultosPeriodo('mes')" style="padding:12px 4px;background:rgba(85,239,196,0.08);border:1px solid rgba(85,239,196,0.3);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;">📄<br>Este Mes</button>
+              <button onclick="generarPDFCultosPeriodo('anio')" style="padding:12px 4px;background:rgba(85,239,196,0.08);border:1px solid rgba(85,239,196,0.3);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;">📄<br>Este Año</button>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input type="month" id="pdf-mes-especifico" style="flex:1;padding:9px;background:rgba(0,0,0,0.35);border:1px solid rgba(85,239,196,0.2);color:#fff;border-radius:8px;outline:none;font-size:0.8rem;">
-              <button onclick="generarPDFCultosPeriodo('mes-especifico')" style="padding:9px 12px;background:rgba(85,239,196,0.12);border:1px solid rgba(85,239,196,0.35);color:#55efc4;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.7rem;white-space:nowrap;">\u{1F4C4} Mes elegido</button>
+              <button onclick="generarPDFCultosPeriodo('mes-especifico')" style="padding:9px 12px;background:rgba(85,239,196,0.12);border:1px solid rgba(85,239,196,0.35);color:#55efc4;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.7rem;white-space:nowrap;">📄 Mes elegido</button>
             </div>
           </div>
-          <!-- EstadÃ­sticas participante -->
+          <!-- Estadísticas participante -->
           <div style="background:rgba(162,155,254,0.05);border:1px solid rgba(162,155,254,0.2);border-radius:16px;padding:16px;">
-            <div style="color:#a29bfe;font-weight:900;font-size:0.75rem;letter-spacing:1.5px;margin-bottom:12px;">\u{1F4CA} PARTICIPACI\u00d3N POR PERSONA</div>
+            <div style="color:#a29bfe;font-weight:900;font-size:0.75rem;letter-spacing:1.5px;margin-bottom:12px;">📊 PARTICIPACIÓN POR PERSONA</div>
             <select id="select-participante" onchange="mostrarEstadisticasParticipante(this.value)" style="width:100%;padding:11px;background:rgba(0,0,0,0.4);border:1px solid rgba(162,155,254,0.3);color:#fff;border-radius:10px;outline:none;font-size:0.85rem;margin-bottom:10px;">
-              <option value="">â€” Elegir participante â€”</option>
+              <option value="">— Elegir participante —</option>
             </select>
             <div id="stats-participante"></div>
           </div>
         </div>
 
-        <!-- ======== TAB 3: CULTOS REGISTRADOS ======== -->
+        <!-- ======== TAB 3: HISTORIAL DE CULTOS ======== -->
         <div id="tab-content-cultos" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div style="color:#ff6b6b;font-weight:900;font-size:0.8rem;letter-spacing:1px;">\u{1F4CA} HISTORIAL</div>
-            <input type="text" id="search-culto" placeholder="\u{1F50D} Buscar nombre, fecha..." 
-                oninput="cargarCultosSemana()" 
+          <div style="margin-bottom:14px;">
+            <div style="color:rgba(255,255,255,0.35);font-size:0.58rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;padding-left:2px;">
+              ⬇️ ELEGIR DÍA DE CULTO
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <select id="tipo-historial-select" onchange="cargarCultosSemana()" style="flex:1;background:rgba(255,107,107,0.1);border:1.5px solid #ff6b6b;color:#ff6b6b;font-weight:900;font-size:0.8rem;letter-spacing:1px;padding:9px 12px;border-radius:10px;outline:none;cursor:pointer;">
+                <option value="sabado">⛪ CULTO DE SÁBADO</option>
+                <option value="semana">📅 CULTO DE SEMANA</option>
+              </select>
+              <input type="text" id="search-culto" placeholder="🔍 Buscar..."
+                oninput="cargarCultosSemana()"
                 onkeydown="if(event.key==='Enter' || event.keyCode===13){ event.preventDefault(); return false; }"
                 onkeypress="if(event.key==='Enter' || event.keyCode===13){ event.preventDefault(); return false; }"
-                style="padding:9px 12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;outline:none;font-size:0.75rem;width:170px;">
-
+                style="padding:9px 12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:8px;outline:none;font-size:0.75rem;width:120px;">
+            </div>
           </div>
           <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-              <button onclick="exportarCultosBackup()" style="flex:1;min-width:90px;padding:8px;background:rgba(85,239,196,0.1);border:1px solid rgba(85,239,196,0.25);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;letter-spacing:0.5px;">\u{1F4BE} EXPORTAR</button>
-              <button onclick="importarCultosBackup()" style="flex:1;min-width:90px;padding:8px;background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.25);color:#fdcb6e;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;letter-spacing:0.5px;">\u{1F4C2} RESTAURAR</button>
-              <button onclick="sincronizarCultosDesdeFirebase()" style="flex:1;min-width:90px;padding:8px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);color:#ff4757;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;letter-spacing:0.5px;">\u{1F525} FIREBASE SYNC</button>
+              <button onclick="exportarCultosBackup()" style="flex:1;min-width:90px;padding:8px;background:rgba(85,239,196,0.1);border:1px solid rgba(85,239,196,0.25);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;letter-spacing:0.5px;">💾 EXPORTAR</button>
+              <button onclick="importarCultosBackup()" style="flex:1;min-width:90px;padding:8px;background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.25);color:#fdcb6e;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;letter-spacing:0.5px;">📂 RESTAURAR</button>
+              <button onclick="sincronizarCultosDesdeFirebase()" style="flex:1;min-width:90px;padding:8px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);color:#ff4757;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;letter-spacing:0.5px;">🔥 FIREBASE SYNC</button>
           </div>
           <div id="historico-cultos" style="display:grid;gap:10px;"></div>
         </div>
-        <!-- ======== TAB 4: EVENTOS ESPECIALES ======== -->
+
+        <!-- ======== TAB 4: PROGRAMAS ESPECIALES ======== -->
         <div id="tab-content-eventos" style="display:none;">
           <div id="eventos-modulo-contenedor">
             <div style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;font-size:0.8rem;">Toca para cargar eventos...</div>
@@ -2085,6 +2132,37 @@ function renderControlCultosSemana() {
     </div>`;
 
     // Funciones de pestanas
+    // ===== SELECTOR DE TIPO DE CULTO =====
+    window.elegirTipoCulto = function(tipo) {
+        const selector = document.getElementById('selector-tipo-culto');
+        const wrapperSab = document.getElementById('formulario-sabado-wrapper');
+
+        if (tipo === 'sabado') {
+            if (selector) selector.style.display = 'none';
+            if (wrapperSab) wrapperSab.style.display = 'block';
+            // Asegurarse que el selector de día apunte a Sábado
+            const tipoCulto = document.getElementById('culto-tipo');
+            if (tipoCulto) {
+                tipoCulto.value = 'Sábado';
+                if (typeof _actualizarFormularioPorDia === 'function') _actualizarFormularioPorDia(true);
+            }
+        } else if (tipo === 'semana') {
+            // Ir al formulario de culto de semana (Miércoles/Viernes)
+            if (typeof renderCultosRegulares === 'function') {
+                renderCultosRegulares();
+            } else {
+                alert('El módulo de Cultos de Semana no está disponible.');
+            }
+        }
+    };
+
+    window.volverSelectorCulto = function() {
+        const selector = document.getElementById('selector-tipo-culto');
+        const wrapperSab = document.getElementById('formulario-sabado-wrapper');
+        if (selector) selector.style.display = 'block';
+        if (wrapperSab) wrapperSab.style.display = 'none';
+    };
+
     window.cambiarTabCulto = function(tab) {
         ['form','buscar','cultos','eventos'].forEach(function(t) {
             var content = document.getElementById('tab-content-' + t);
@@ -2097,6 +2175,12 @@ function renderControlCultosSemana() {
                 : 'flex:1;padding:11px 4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:10px;cursor:pointer;font-weight:700;font-size:0.7rem;';
         });
         if (tab === 'cultos') cargarCultosSemana();
+        if (tab === 'form') {
+            var s = document.getElementById('selector-tipo-culto');
+            var w = document.getElementById('formulario-sabado-wrapper');
+            if (s) s.style.display = 'block';
+            if (w) w.style.display = 'none';
+        }
         if (tab === 'buscar') { if(typeof actualizarListaParticipantes === 'function') actualizarListaParticipantes(); }
         if (tab === 'eventos') {
             var cont = document.getElementById('eventos-modulo-contenedor');
@@ -2112,7 +2196,12 @@ function renderControlCultosSemana() {
 
     autoDetectarTipoCulto(hoyStr);
     cargarCultosSemana();
-    // ?? Sincronizar con Firebase al abrir el módulo
+    // Mostrar selector de tipo de culto al inicio
+    var selInicio = document.getElementById('selector-tipo-culto');
+    var wrpInicio = document.getElementById('formulario-sabado-wrapper');
+    if (selInicio) selInicio.style.display = 'block';
+    if (wrpInicio) wrpInicio.style.display = 'none';
+    // Sincronizar con Firebase al abrir el módulo
     setTimeout(function() {
         if (typeof sincronizarCultosDesdeFirebase === 'function') {
             sincronizarCultosDesdeFirebase();
@@ -2573,7 +2662,63 @@ window.importarCultosBackup = function() {
     input.click();
 };
 
+
+window.manejarEdicionExternaRegular = function(id) {
+    if (typeof renderCultosRegulares === 'function') {
+        renderCultosRegulares();
+        setTimeout(() => {
+            if (typeof editarCultoRegular === 'function') {
+                editarCultoRegular(id);
+            }
+        }, 500);
+    } else {
+        alert("El módulo de Cultos Regulares no está cargado.");
+    }
+};
+
 function cargarCultosSemana() {
+    const selector = document.getElementById('tipo-historial-select');
+    const esSemana = selector && selector.value === 'semana';
+    
+    if (esSemana) {
+        const sEl = document.getElementById('search-culto'); if(sEl) sEl.style.display = 'none';
+        let registros = JSON.parse(localStorage.getItem('legado_cultos_regulares') || '[]');
+        const contenedor = document.getElementById('historico-cultos');
+        if (!contenedor) return;
+
+        if (registros.length === 0) {
+            contenedor.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:20px;">No hay cultos de semana registrados.</div>';
+            return;
+        }
+
+        contenedor.innerHTML = registros.map(reg => {
+            const diaMayus = reg.dia.toUpperCase();
+            const fechaFormateada = reg.fecha.split('-').reverse().join('/');
+            const colorTema = reg.dia === 'miercoles' || reg.dia === 'mi\u00e9rcoles' ? '#0984e3' : '#e84393'; 
+            
+            return `
+                <div style="background:rgba(255,255,255,0.05);padding:18px;border-radius:12px;border-left:5px solid ${colorTema};position:relative;margin-bottom:10px;">
+                    <button onclick="borrarCultoRegular(${reg.id}); setTimeout(cargarCultosSemana, 500);" style="position:absolute;top:15px;right:15px;background:transparent;border:none;color:#ff7675;font-size:1.2rem;cursor:pointer;" title="Eliminar">🗑️</button>
+                    
+                    <div style="color:${colorTema};font-weight:900;font-size:0.9rem;margin-bottom:10px;">📅 CULTO DE ${diaMayus} - ${fechaFormateada}</div>
+                    
+                    <div style="font-size:0.85rem;color:#fff;display:grid;gap:6px;">
+                        <div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:rgba(255,255,255,0.5);">P. Mensaje:</span><b style="color:#2ed573;">${reg.mensaje || "-"}</b></div>
+                        <div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed rgba(255,255,255,0.1);"><span style="color:rgba(255,255,255,0.5);">Ancianato:</span><b>${reg.anciano || "-"}</b></div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px;">
+                        <button onclick="compartirPlantillaRegular(${reg.id})" style="padding:10px;background:linear-gradient(135deg,rgba(37,211,102,0.2),rgba(37,211,102,0.1));border:1px solid rgba(37,211,102,0.4);color:#2ed573;font-weight:900;border-radius:8px;cursor:pointer;font-size:0.8rem;">📲 WhatsApp</button>
+                        <button onclick="manejarEdicionExternaRegular(${reg.id})" style="padding:10px;background:linear-gradient(135deg,rgba(253,203,110,0.2),rgba(253,203,110,0.1));border:1px solid rgba(253,203,110,0.4);color:#fdcb6e;font-weight:900;border-radius:8px;cursor:pointer;font-size:0.8rem;">✏️ Editar</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        return;
+    }
+
+    if(document.getElementById('search-culto')) document.getElementById('search-culto').style.display = 'block';
+
     let historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
     const query = document.getElementById('search-culto')?.value?.toLowerCase() || '';
     const contenedor = document.getElementById('historico-cultos');
@@ -2758,7 +2903,7 @@ function autoDetectarTipoCulto(fechaStr) {
     const diasMap = { 0: "Domingo", 1: "Lunes", 2: "Martes", 3: "Mi\u00e9rcoles", 4: "Jueves", 5: "Viernes", 6: "S\u00e1bado" };
     select.value = diasMap[diaSemana] || "Otro";
     // \u2728 MODO S\u00c1BADO: activa el formulario de 12 pasos de liturgia
-    _actualizarFormularioPorDia(diaSemana === 6);
+    _actualizarFormularioPorDia(diaSemana === 6 ? true : diasMap[diaSemana]);
 }
 
 // =================================================================
@@ -2768,7 +2913,24 @@ function autoDetectarTipoCulto(fechaStr) {
 function _actualizarFormularioPorDia(esSabado) {
     const cont = document.getElementById('culto-campos-dinamicos');
     if (!cont) return;
-    cont.innerHTML = esSabado ? _html12PasosSabado() : _htmlCamposNormal();
+    const select = document.getElementById('culto-tipo');
+    const dStr = select ? select.value : '';
+    if (dStr === 'Miércoles' || dStr === 'Viernes' || dStr === 'Mi\u00e9rcoles') {
+        if (typeof renderCultosRegulares === 'function') {
+            const fechaStr = document.getElementById('culto-fecha') ? document.getElementById('culto-fecha').value : '';
+            renderCultosRegulares();
+            setTimeout(() => {
+                if (document.getElementById('reg-dia')) {
+                    document.getElementById('reg-dia').value = (dStr.toLowerCase() === 'viernes') ? 'viernes' : 'miercoles';
+                    if (typeof actualizarVisibilidadTestimonios === 'function') actualizarVisibilidadTestimonios();
+                }
+                if (document.getElementById('reg-fecha') && fechaStr) document.getElementById('reg-fecha').value = fechaStr;
+            }, 100);
+            return;
+        }
+    }
+    const realSab = (esSabado === true || dStr === 'Sábado' || dStr === 'S\u00e1bado');
+    cont.innerHTML = realSab ? _html12PasosSabado() : _htmlCamposNormal();
 }
 
 function _campoItem(id, num, icon, label, ph, rgb, esHimno, extra) {
@@ -2790,109 +2952,201 @@ function _campoItem(id, num, icon, label, ph, rgb, esHimno, extra) {
 
 function _html12PasosSabado() {
     const ORO = '253,203,110';
+    const VERDE = '85,239,196';
+    const AZUL = '116,185,255';
+    const ROJO = '255,107,107';
+    const MORADO = '162,155,254';
+
+    // Helper: campo de diacono/diaconisa (titulo especial en verde-azul)
+    function campoDiacono(id, num, icon, titulo, placeholder, color) {
+        const C = color || '85,239,196';
+        return `<div style="background:rgba(${C},0.06);border:1.5px solid rgba(${C},0.3);border-radius:14px;padding:14px;">
+            <label style="display:flex;align-items:center;gap:8px;color:rgba(${C},0.9);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+                <span style="font-size:1.1rem;">${icon}</span>
+                <span style="color:rgba(${C},0.7);font-size:0.6rem;background:rgba(${C},0.15);padding:2px 8px;border-radius:6px;">${num}</span>
+                ${titulo}
+            </label>
+            <input type="text" id="culto-${id}" placeholder="${placeholder}"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${C},0.35);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;">
+        </div>`;
+    }
+
     const banner = `<div style="background:rgba(${ORO},0.08);border:1.5px solid rgba(${ORO},0.35);border-radius:16px;padding:14px;">
-        <div style="color:#fdcb6e;font-weight:900;font-size:0.72rem;letter-spacing:2px;text-align:center;">\u26ea CULTO DE S\u00c1BADO \u2014 PROGRAMA LIT\u00daRGICO</div>
-        <div style="color:rgba(255,255,255,0.3);font-size:0.62rem;text-align:center;margin-top:3px;">12 pasos del programa oficial</div>
+        <div style="color:#fdcb6e;font-weight:900;font-size:0.72rem;letter-spacing:2px;text-align:center;">⛪ CULTO DE SÁBADO — PROGRAMA LITÚRGICO</div>
+        <div style="color:rgba(255,255,255,0.3);font-size:0.62rem;text-align:center;margin-top:3px;">Programa completo del servicio</div>
     </div>`;
+
+    // ANCIANO DE TURNO
+    const anciano = `<div style="background:rgba(${ROJO},0.07);border:2px solid rgba(${ROJO},0.45);border-radius:14px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;color:rgba(${ROJO},0.9);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+            <span style="font-size:1.1rem;">&#x1F9D3;</span>
+            <span style="color:rgba(0,0,0,0.7);font-size:0.6rem;background:#ff6b6b;padding:2px 8px;border-radius:6px;font-weight:900;">★</span>
+            ANCIANO(S) DE TURNO
+        </label>
+        <select id="culto-sab_anciano_tipo"
+            style="width:100%;padding:11px 12px;background:rgba(0,0,0,0.45);border:1.5px solid rgba(${ROJO},0.6);color:#ff6b6b;border-radius:10px;outline:none;font-size:0.88rem;font-weight:900;margin-bottom:8px;cursor:pointer;">
+            <option value="">— Seleccionar categoría —</option>
+            <option value="Anciano de Turno">&#x1F9D3; Anciano de Turno</option>
+            <option value="Ancianos de Turno">&#x1F9D3;&#x1F9D3; Ancianos de Turno</option>
+            <option value="Anciana de Turno">&#x1F9D2; Anciana de Turno</option>
+            <option value="Ancianas de Turno">&#x1F9D2;&#x1F9D2; Ancianas de Turno</option>
+            <option value="Anciano y Anciana de Turno">&#x1F9D3;&#x1F9D2; Anciano y Anciana de Turno</option>
+        </select>
+        <input type="text" id="culto-sab_anciano" placeholder="Nombre(s) del anciano/a de turno..."
+            style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(${ROJO},0.5);color:#fff;border-radius:10px;outline:none;font-size:0.95rem;font-weight:700;">
+    </div>`;
+
+    // DIACONOS / DIACONISAS (PUERTA)
+    const diaconosPuerta = campoDiacono('sab_diaconos_puerta', '🚪', '🧑‍⚖️', 'DIÁCONOS (PUERTA)', '¿Quién(es) atienden la puerta?', VERDE);
+    const diaconisasPuerta = campoDiacono('sab_diaconisas_puerta', '🚪', '👩‍⚖️', 'DIACONISAS (PUERTA)', '¿Quién(es) atienden la puerta?', VERDE);
+
+    // DIACONOS / DIACONISAS (OFRENDAS)
+    const diaconosOfrendas = campoDiacono('sab_diaconos_ofrendas', '🙏', '🧑‍⚖️', 'DIÁCONOS (OFRENDAS)', '¿Quién(es) recogen las ofrendas?', AZUL);
+    const diaconisasOfrendas = campoDiacono('sab_diaconisas_ofrendas', '🙏', '👩‍⚖️', 'DIACONISAS (OFRENDAS)', '¿Quién(es) recogen las ofrendas?', AZUL);
+
+    // MINISTERIO DE MUSICA (nuevo - hasta 4 himnos)
+    const ministerioMusica = `<div style="background:rgba(116,185,255,0.07);border:2px solid rgba(116,185,255,0.4);border-radius:14px;padding:14px;">
+        <label style="display:flex;align-items:center;gap:8px;color:rgba(116,185,255,0.9);font-size:0.68rem;margin-bottom:10px;font-weight:900;letter-spacing:1px;">
+            <span style="font-size:1.1rem;">🎵</span>
+            <span style="color:rgba(0,0,0,0.7);font-size:0.6rem;background:#74b9ff;padding:2px 8px;border-radius:6px;">♪</span>
+            MINISTERIO DE MÚSICA — ANTE EL CULTO
+        </label>
+        <input type="text" id="culto-sab_musica_ante_quien" placeholder="¿Quién dirige/conduce el ministerio de música?"
+            style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(116,185,255,0.35);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:10px;">
+        <div style="color:rgba(116,185,255,0.6);font-size:0.62rem;font-weight:900;letter-spacing:1px;margin-bottom:8px;">HIMNOS A CANTAR (1–4):</div>
+        <!-- Himno 1 -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="color:rgba(116,185,255,0.8);font-size:0.7rem;font-weight:900;min-width:16px;">1.</span>
+            <input type="text" id="culto-sab_musica_himno1" placeholder="# o nombre del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
+                style="flex:1;padding:9px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(116,185,255,0.3);color:#74b9ff;border-radius:8px;outline:none;font-size:0.82rem;font-weight:bold;">
+        </div>
+        <div id="himno-titulo-sab_musica_himno1" style="color:#74b9ff;font-size:0.72rem;margin-bottom:6px;font-style:italic;padding-left:22px;"></div>
+        <!-- Himno 2 -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="color:rgba(116,185,255,0.8);font-size:0.7rem;font-weight:900;min-width:16px;">2.</span>
+            <input type="text" id="culto-sab_musica_himno2" placeholder="# o nombre del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
+                style="flex:1;padding:9px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(116,185,255,0.3);color:#74b9ff;border-radius:8px;outline:none;font-size:0.82rem;font-weight:bold;">
+        </div>
+        <div id="himno-titulo-sab_musica_himno2" style="color:#74b9ff;font-size:0.72rem;margin-bottom:6px;font-style:italic;padding-left:22px;"></div>
+        <!-- Himno 3 -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="color:rgba(116,185,255,0.8);font-size:0.7rem;font-weight:900;min-width:16px;">3.</span>
+            <input type="text" id="culto-sab_musica_himno3" placeholder="# o nombre del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
+                style="flex:1;padding:9px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(116,185,255,0.25);color:#74b9ff;border-radius:8px;outline:none;font-size:0.82rem;font-weight:bold;">
+        </div>
+        <div id="himno-titulo-sab_musica_himno3" style="color:#74b9ff;font-size:0.72rem;margin-bottom:6px;font-style:italic;padding-left:22px;"></div>
+        <!-- Himno 4 -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="color:rgba(116,185,255,0.8);font-size:0.7rem;font-weight:900;min-width:16px;">4.</span>
+            <input type="text" id="culto-sab_musica_himno4" placeholder="# o nombre del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
+                style="flex:1;padding:9px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(116,185,255,0.2);color:#74b9ff;border-radius:8px;outline:none;font-size:0.82rem;font-weight:bold;">
+        </div>
+        <div id="himno-titulo-sab_musica_himno4" style="color:#74b9ff;font-size:0.72rem;font-style:italic;padding-left:22px;"></div>
+    </div>`;
+
+    // HIMNO ADORACION (paso 6)
     const himnoAdoracion = `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
         <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-            <span style="font-size:1.1rem;">\u{1f3b5}</span>
+            <span style="font-size:1.1rem;">🎵</span>
             <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">6</span>
-            HIMNO DE ADORACI\u00d3N
+            HIMNO DE ADORACIÓN
         </label>
-        <input type="text" id="culto-sab_himno_anuncia" placeholder="\u00bfQui\u00e9n anuncia el himno?"
+        <input type="text" id="culto-sab_himno_anuncia" placeholder="¿Quién anuncia el himno?"
             style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
         <input type="text" id="culto-sab_himno6" placeholder="# del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
             style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.4);color:#fdcb6e;border-radius:8px;outline:none;font-size:0.9rem;font-weight:bold;">
         <div id="himno-titulo-sab_himno6" style="color:#feca57;font-size:0.75rem;margin-top:5px;font-style:italic;"></div>
     </div>`;
+
+    // PREDICADOR
     const predicador = `<div style="background:rgba(${ORO},0.1);border:2px solid rgba(${ORO},0.5);border-radius:14px;padding:14px;">
         <label style="display:flex;align-items:center;gap:8px;color:#fdcb6e;font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-            <span style="font-size:1.1rem;">\u{1f3a4}</span>
+            <span style="font-size:1.1rem;">🎤</span>
             <span style="color:rgba(0,0,0,0.7);font-size:0.6rem;background:#fdcb6e;padding:2px 8px;border-radius:6px;">10</span>
             TEMA / PREDICADOR
         </label>
-        <input type="text" id="culto-sab_pred_anuncia" placeholder="\u00bfQui\u00e9n presenta al predicador?"
+        <input type="text" id="culto-sab_pred_anuncia" placeholder="¿Quién presenta al predicador?"
             style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
         <input type="text" id="culto-sab_predicador" placeholder="Nombre del predicador..."
             style="width:100%;padding:11px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.5);color:#fdcb6e;border-radius:8px;outline:none;font-size:0.9rem;font-weight:900;margin-bottom:6px;">
-        <input type="text" id="culto-sab_tema" placeholder="T\u00edtulo del serm\u00f3n..."
+        <input type="text" id="culto-sab_tema" placeholder="Título del sermón..."
             style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;font-style:italic;">
     </div>`;
+
+    // HIMNO FINAL
     const himnoFinal = `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
         <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-            <span style="font-size:1.1rem;">\u{1f3b6}</span>
+            <span style="font-size:1.1rem;">🎶</span>
             <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">11</span>
             HIMNO FINAL
         </label>
-        <input type="text" id="culto-sab_himno_final_quien" placeholder="\u00bfQui\u00e9n anuncia el himno final?"
+        <input type="text" id="culto-sab_himno_final_quien" placeholder="¿Quién anuncia el himno final?"
             style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
         <input type="text" id="culto-sab_himno_final" placeholder="# del himno..." oninput="if(typeof autocompleteHimno==='function')autocompleteHimno(this)"
             style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.4);color:#fdcb6e;border-radius:8px;outline:none;font-size:0.9rem;font-weight:bold;">
         <div id="himno-titulo-sab_himno_final" style="color:#feca57;font-size:0.75rem;margin-top:5px;font-style:italic;"></div>
     </div>`;
+
     return banner +
-        `<div style="background:rgba(255,107,107,0.07);border:2px solid rgba(255,107,107,0.45);border-radius:14px;padding:14px;">
-            <label style="display:flex;align-items:center;gap:8px;color:rgba(255,107,107,0.9);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-                <span style="font-size:1.1rem;">&#x1F9D3;</span>
-                <span style="color:rgba(0,0,0,0.7);font-size:0.6rem;background:#ff6b6b;padding:2px 8px;border-radius:6px;font-weight:900;">&#x2605;</span>
-                ANCIANO(S) DE TURNO
-            </label>
-            <select id="culto-sab_anciano_tipo"
-                style="width:100%;padding:11px 12px;background:rgba(0,0,0,0.45);border:1.5px solid rgba(255,107,107,0.6);color:#ff6b6b;border-radius:10px;outline:none;font-size:0.88rem;font-weight:900;margin-bottom:8px;cursor:pointer;">
-                <option value="">&#x2014; Seleccionar categor&#237;a &#x2014;</option>
-                <option value="Anciano de Turno">&#x1F9D3; Anciano de Turno</option>
-                <option value="Ancianos de Turno">&#x1F9D3;&#x1F9D3; Ancianos de Turno</option>
-                <option value="Anciana de Turno">&#x1F9D2; Anciana de Turno</option>
-                <option value="Ancianas de Turno">&#x1F9D2;&#x1F9D2; Ancianas de Turno</option>
-                <option value="Anciano y Anciana de Turno">&#x1F9D3;&#x1F9D2; Anciano y Anciana de Turno</option>
-            </select>
-            <input type="text" id="culto-sab_anciano" placeholder="Nombre(s) del anciano/a de turno..."
-                style="width:100%;padding:12px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,107,107,0.5);color:#fff;border-radius:10px;outline:none;font-size:0.95rem;font-weight:700;">
-        </div>` +
+        anciano +
+        diaconosPuerta +
+        diaconisasPuerta +
+        ministerioMusica +
         `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
             <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-                <span style="font-size:1.1rem;">\u{1f4ef}</span>
+                <span style="font-size:1.1rem;">📯</span>
                 <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">0</span>
-                LLAMADO A LA ADORACI\u00d3N
+                LLAMADO A LA ADORACIÓN
             </label>
-            <input type="text" id="culto-sab_llamado" placeholder="\u00bfQui\u00e9n hace el llamado a la adoraci\u00f3n?"
+            <input type="text" id="culto-sab_llamado" placeholder="¿Quién hace el llamado a la adoración?"
                 style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;">
         </div>` +
-        _campoItem('sab_doxologia', '1', '\u2728', 'DOXOLOG\u00cdA', '# del himno de doxolog\u00eda...', ORO, true) +
-        _campoItem('sab_invocacion', '2', '\u{1f64f}', 'INVOCACI\u00d3N', 'Nombre del responsable...', ORO) +
-        _campoItem('sab_bienvenida', '3', '\u{1f64c}', 'BIENVENIDA', 'Nombre del responsable...', ORO) +
+        _campoItem('sab_doxologia', '1', '✨', 'DOXOLOGÍA', '# del himno de doxología...', ORO, true) +
+        _campoItem('sab_invocacion', '2', '🙏', 'INVOCACIÓN', 'Nombre del responsable...', ORO) +
+        _campoItem('sab_bienvenida', '3', '🤗', 'BIENVENIDA', 'Nombre del responsable...', ORO) +
         `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
             <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-                <span style="font-size:1.1rem;">\u{1f476}</span>
+                <span style="font-size:1.1rem;">👶</span>
                 <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">4</span>
-                RINC\u00d3N INFANTIL
+                RINCÓN INFANTIL
             </label>
-            <input type="text" id="culto-sab_infantil_anuncia" placeholder="\u00bfQui\u00e9n anuncia el rinc\u00f3n infantil?"
+            <input type="text" id="culto-sab_infantil_anuncia" placeholder="¿Quién anuncia el rincón infantil?"
                 style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.25);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
-            <input type="text" id="culto-sab_infantil" placeholder="\u00bfQui\u00e9n conduce el rinc\u00f3n infantil?"
+            <input type="text" id="culto-sab_infantil" placeholder="¿Quién conduce el rincón infantil?"
                 style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;">
         </div>` +
-        _campoItem('sab_ofrendas', '5', '\u{1f4b0}', 'DIEZMOS Y OFRENDAS', 'Nombre del encargado...', ORO) +
+        _campoItem('sab_ofrendas', '5', '💰', 'DIEZMOS Y OFRENDAS', 'Nombre del encargado...', ORO) +
+        diaconosOfrendas +
+        diaconisasOfrendas +
         himnoAdoracion +
         `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
             <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
-                <span style="font-size:1.1rem;">\u{1f4d6}</span>
+                <span style="font-size:1.1rem;">📖</span>
                 <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">7</span>
-                LECTURA B\u00cdBLICA
+                LECTURA BÍBLICA
             </label>
-            <input type="text" id="culto-sab_lectura_quien" placeholder="\u00bfQui\u00e9n lee la cita?"
+            <input type="text" id="culto-sab_lectura_quien" placeholder="¿Quién lee la cita?"
                 style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
             ${renderBibliaStructHTML('sab_lectura')}
             <input type="hidden" id="culto-sab_lectura" value="">
         </div>` +
-        _campoItem('sab_oracion_intercesora', '8', '\u{1f64f}', 'ORACI\u00d3N INTERCESORA', 'Nombre del responsable...', ORO) +
-        _campoItem('sab_musica_especial', '9', '\u{1f3a4}', 'M\u00daSICA ESPECIAL', 'Qui\u00e9n o qu\u00e9 grupo canta...', ORO) +
+        _campoItem('sab_oracion_intercesora', '8', '🙏', 'ORACIÓN INTERCESORA', 'Nombre del responsable...', ORO) +
+        `<div style="background:rgba(${ORO},0.04);border:1.5px solid rgba(${ORO},0.2);border-radius:14px;padding:14px;">
+            <label style="display:flex;align-items:center;gap:8px;color:rgba(${ORO},0.8);font-size:0.68rem;margin-bottom:8px;font-weight:900;letter-spacing:1px;">
+                <span style="font-size:1.1rem;">🎤</span>
+                <span style="color:rgba(${ORO},0.6);font-size:0.6rem;background:rgba(${ORO},0.1);padding:2px 8px;border-radius:6px;">9</span>
+                MÚSICA ESPECIAL
+            </label>
+            <input type="text" id="culto-sab_musica_especial_anuncia" placeholder="¿Quién anuncia la música especial?"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.3);color:#fff;border-radius:8px;outline:none;font-size:0.85rem;margin-bottom:6px;">
+            <input type="text" id="culto-sab_musica_especial" placeholder="¿Quién o qué grupo canta?"
+                style="width:100%;padding:11px;background:rgba(0,0,0,0.35);border:1.5px solid rgba(${ORO},0.4);color:#fff;border-radius:8px;outline:none;font-size:0.9rem;">
+        </div>` +
         predicador +
         himnoFinal +
-        _campoItem('sab_oracion_final', '12', '\u{1f932}', 'ORACI\u00d3N FINAL', 'Nombre del responsable...', ORO) +
-        _campoItem('sab_sonido', '\u{1f39b}\ufe0f', '\u{1f39b}\ufe0f', 'ENCARGADO DE SONIDO', 'Nombre...', ORO) +
-        _campoItem('sab_obs', '\u{1f4dd}', '\u{1f4dd}', 'OBSERVACIONES', 'Notas adicionales...', '116,185,255');
+        _campoItem('sab_oracion_final', '12', '🙌', 'ORACIÓN FINAL', 'Nombre del responsable...', ORO) +
+        _campoItem('sab_sonido', '🎛️', '🎛️', 'ENCARGADO DE SONIDO', 'Nombre...', ORO) +
+        _campoItem('sab_obs', '📝', '📝', 'OBSERVACIONES', 'Notas adicionales...', AZUL);
 }
 
 function _htmlCamposNormal() {

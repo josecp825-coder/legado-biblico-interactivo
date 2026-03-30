@@ -73,9 +73,16 @@
             // Limpiar la barra flotante del lector que se queda encima
             const barraNav = document.getElementById('floating-bible-nav');
             if (barraNav) barraNav.remove();
-            // Limpiar pantalla-estudio para que no quede contenido detrás
+
+            const pnav = document.getElementById('panel-lector-ctrl');
+            if (pnav) pnav.remove();
+
+            // Limpiar pantalla-estudio para que no queden restos visuales detrás
             const pantalla = document.getElementById('pantalla-estudio');
-            if (pantalla) pantalla.innerHTML = '';
+            if (pantalla) {
+                pantalla.innerHTML = '';
+                pantalla.className = 'container-estudio';
+            }
 
             // Mostramos el selector en un overlay fullscreen
             const overlay = document.createElement('div');
@@ -109,14 +116,37 @@
         // 🤝 VERSÍCULOS DE ALIENTO — Acceso directo
         // ═══════════════════════════════════════════
         function abrirAliento() {
-            // Abrir el selector de Biblia primero
-            abrirSelectorBiblias();
-            // Cambiar a la pestaña ALIENTO automáticamente
-            setTimeout(() => {
-                if (typeof cambiarModoSelectorBiblia === 'function') {
-                    cambiarModoSelectorBiblia('aliento');
-                }
-            }, 200);
+            const existente = document.getElementById('aliento-overlay-dedicated');
+            if (existente) existente.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.id = 'aliento-overlay-dedicated';
+            overlay.style.cssText = `
+                position:fixed; top:0; left:0; width:100%; height:100%;
+                background:#0F172A; z-index:50000; overflow-y:auto; box-sizing:border-box;
+                animation: devFadeIn 0.3s ease-out;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);padding:14px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,159,67,0.25);position:sticky;top:0;z-index:101;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                    <button onclick="document.getElementById('aliento-overlay-dedicated').remove()" style="background:rgba(255,159,67,0.1);border:1px solid rgba(255,159,67,0.3);color:#ff9f43;padding:8px 14px;border-radius:12px;cursor:pointer;font-size:0.75rem;font-weight:900;transition:transform 0.2s;">✕ CERRAR</button>
+                    <div style="flex:1;">
+                        <div style="color:rgba(255,159,67,0.6);font-size:0.6rem;letter-spacing:3px;font-weight:700;">LEGADO BÍBLICO</div>
+                        <div style="color:#ff9f43;font-weight:900;font-size:0.95rem;letter-spacing:1px;">ESPACIO DE ALIENTO</div>
+                    </div>
+                </div>
+                <div style="padding:20px; max-width:600px; margin:0 auto; min-height:100vh;">
+                    <div id="libros-dinamicos-root"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            if (typeof renderModoAliento === 'function') {
+                renderModoAliento(document.getElementById('libros-dinamicos-root'));
+            } else {
+                document.getElementById('libros-dinamicos-root').innerHTML = "<div style='color:#fff;text-align:center;margin-top:40px;'>Cargando base de datos...</div>";
+            }
         }
 
         function cerrarBibliaOverlay() {
@@ -141,11 +171,12 @@
         // 🙏 DEVOCIONAL — Abre overlay con devocional completo
         // ═══════════════════════════════════════════
         function abrirDevocional() {
-            const icono = document.getElementById('dev-icon')?.textContent || '🙏';
-            const titulo = document.getElementById('dev-label')?.textContent || 'Devocional del Día';
-            const vers = document.getElementById('dev-versiculo')?.textContent || '';
-            const ref = document.getElementById('dev-referencia')?.textContent || '';
-            const reflex = document.getElementById('dev-reflexion')?.textContent || '';
+            const getVal = (id) => document.getElementById(id) ? document.getElementById(id).textContent : null;
+            const icono = getVal('dev-icon') || '🙏';
+            const titulo = getVal('dev-label') || 'Devocional del Día';
+            const vers = getVal('dev-versiculo') || '';
+            const ref = getVal('dev-referencia') || '';
+            const reflex = getVal('dev-reflexion') || '';
 
             const overlay = document.createElement('div');
             overlay.id = 'devocional-overlay';
@@ -408,22 +439,44 @@
         }
 
         function volverMenuPrincipal() {
-            // Limpiar overlays que puedan estar encima
+            // 1. Limpiar overlays que puedan estar encima
             const bibliaOv = document.getElementById('biblia-overlay');
             if (bibliaOv) bibliaOv.remove();
 
+            // 2. Limpiar panel flotante del lector
+            const floatingNav = document.getElementById('floating-bible-nav');
+            if (floatingNav) floatingNav.remove();
+            const panelCtrl = document.getElementById('panel-lector-ctrl');
+            if (panelCtrl) panelCtrl.remove();
+            
+            // 3. Desmarcar lector-biblico-activo del body
+            document.body.classList.remove('lector-biblico-activo');
+
+            // 4. Limpiar pantalla estudio
             const pantalla = document.getElementById('pantalla-estudio');
-            const intro = document.querySelector('.intro-container');
-            if (!pantalla || !intro) return;
-            pantalla.innerHTML = '';
-            pantalla.className = 'container-estudio';
-            intro.style.transition = 'none';
-            intro.style.opacity = '0';
-            intro.style.display = '';
-            requestAnimationFrame(() => {
-                intro.style.transition = 'opacity 0.4s ease';
-                intro.style.opacity = '1';
-            });
+            if (pantalla) {
+                pantalla.innerHTML = '';
+                pantalla.className = 'container-estudio';
+            }
+
+            // 5. Determinar dónde volver a través de las variables master
+            if (localStorage.getItem('lb_master_key') === 'true') {
+                const intro = document.querySelector('.intro-container');
+                if (intro) {
+                    intro.style.transition = 'opacity 0.4s ease';
+                    intro.style.opacity = '1';
+                    intro.style.display = 'block';
+                }
+                const sb = document.getElementById('lb-santuario-layer');
+                if (sb) sb.style.display = 'none';
+            } else {
+                if (typeof AuthGlobal !== 'undefined' && typeof AuthGlobal._mostrarSantuario === 'function') {
+                    AuthGlobal._mostrarSantuario();
+                } else {
+                    const sb = document.getElementById('lb-santuario-layer');
+                    if (sb) sb.style.display = 'block';
+                }
+            }
             window.scrollTo(0, 0);
         }
 

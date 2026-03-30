@@ -28,7 +28,7 @@ const vJSON = { version: nuevaVersion, nombre: 'DEPLOY-v' + nuevaVersion, fecha:
 fs.writeFileSync(vPath, JSON.stringify(vJSON), 'utf8');
 console.log('  ✅ version.json : v' + vOld + ' → v' + nuevaVersion);
 
-// ── 2. index.html — _HTML_VERSION ─────────────────────────────
+// ── 2. index.html — _HTML_VERSION y SCRIPTS ──────────────────────
 const hPath = path.join(BASE, 'index.html');
 let html = fs.readFileSync(hPath, 'utf8');
 const hOld = html.match(/const _HTML_VERSION = '(\d+)'/)?.[1];
@@ -37,9 +37,16 @@ if (!hOld) {
     process.exit(1);
 }
 html = html.replace(
-    /const _HTML_VERSION = '\d+';(\s*\/\/ ← CAMBIAR EN CADA DEPLOY)/,
+    /const _HTML_VERSION = '\d+';(\s*\/\/.*CAMBIAR EN CADA DEPLOY)/,
     "const _HTML_VERSION = '" + nuevaVersion + "';$1"
 );
+
+// FORZAR BYPASS DEL CACHÉ VIEJO (Truco Loophole "vite") // Aplica globalmente a todos los JS
+html = html.replace(/(\.js\?v=)\d+/g, '$1' + nuevaVersion);
+html = html.replace(/(&safe=vite)?/g, function(match, p1) { return p1 ? '' : ''; }); // limpiamos posibles sobrantes
+html = html.replace(/auth_mundial\.js\?v=\d+/g, 'auth_mundial.js?v=' + nuevaVersion + '&safe=vite');
+html = html.replace(/ui_core\.js\?v=\d+/g, 'ui_core.js?v=' + nuevaVersion + '&safe=vite');
+
 fs.writeFileSync(hPath, html, 'utf8');
 console.log('  ✅ index.html   : v' + hOld + ' → v' + nuevaVersion);
 

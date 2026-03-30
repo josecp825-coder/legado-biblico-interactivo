@@ -2,26 +2,26 @@
 <html lang="es">
 
 <head>
-    <script src="versiculos_hero.js?v=395"></script>
-    <script src="datos_devocionales.js?v=395"></script>
+    <script src="versiculos_hero.js?v=517"></script>
+    <script src="datos_devocionales.js?v=517"></script>
     <script>
-        // ═══════════════════════════════════════════
-        // 🛡️ ESCUDO ANTI-LOOP DE RECARGA v84
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ðŸ›¡ï¸ ESCUDO ANTI-LOOP DE RECARGA v84
         // Previene congelamientos por recargas infinitas
-        // ═══════════════════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         function puedeRecargar() {
-            const COOLDOWN_MS = 15000; // 15 segundos de espera mínima entre recargas
+            const COOLDOWN_MS = 15000; // 15 segundos de espera mÃ­nima entre recargas
             const ultimaRecarga = parseInt(sessionStorage.getItem('legado_reload_ts') || '0');
             const ahora = Date.now();
             if (ahora - ultimaRecarga < COOLDOWN_MS) {
-                console.warn('[ANTI-LOOP] ⛔ Recarga bloqueada — cooldown activo (' + Math.round((COOLDOWN_MS - (ahora - ultimaRecarga)) / 1000) + 's restantes)');
+                console.warn('[ANTI-LOOP] â›” Recarga bloqueada â€” cooldown activo (' + Math.round((COOLDOWN_MS - (ahora - ultimaRecarga)) / 1000) + 's restantes)');
                 return false;
             }
             sessionStorage.setItem('legado_reload_ts', ahora.toString());
             return true;
         }
 
-        // 🔥 RESET NUCLEAR por URL: agendatecnicadigital.com/?reset=1
+        // ðŸ”¥ RESET NUCLEAR por URL: agendatecnicadigital.com/?reset=1
         if (window.location.search.includes('reset=1')) {
             (async function() {
                 if ('serviceWorker' in navigator) {
@@ -38,21 +38,21 @@
             })();
         }
 
-        // ═══════════════════════════════════════════════════
-        // SISTEMA DE VERSIÓN EMBEBIDA v247
-        // NO depende de fetch/red — comparación instantánea
-        // Este número cambia con cada deploy en index.html
-        // ═══════════════════════════════════════════════════
-        const _HTML_VERSION = '423'; // ← CAMBIAR EN CADA DEPLOY
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // SISTEMA DE VERSIÃ“N EMBEBIDA    <script>
+        // -----------------------------------------------------
+        // âœ… GESTIÃ“N DE VERSIÃ“N Y ACTUALIZACIONES PWA (ATÃ“MICO Y ESTABLE)
+        // -----------------------------------------------------
+        const _HTML_VERSION = '517'; // â† CAMBIAR EN CADA DEPLOY
 
         async function checkVersion() {
             const versionGuardada = localStorage.getItem('legado_v3') || '0';
 
-            // 1. Verificación instantánea: ¿el HTML que se cargó es nuevo?
+            // 1. VerificaciÃ³n instantÃ¡nea: Â¿el HTML que se cargÃ³ es nuevo?
             if (versionGuardada !== '0' && versionGuardada !== _HTML_VERSION) {
-                // El index.html actual tiene una versión DIFERENTE a la guardada
-                // → Limpiar caché y recargar
-                console.log('[VERSION] 🆕 HTML v' + _HTML_VERSION + ' vs guardado v' + versionGuardada + ' → ACTUALIZANDO');
+                // El index.html actual tiene una versiÃ³n DIFERENTE a la guardada
+                // â†’ Limpiar cachÃ© y recargar
+                console.log('[VERSION] ðŸ†• HTML v' + _HTML_VERSION + ' vs guardado v' + versionGuardada + ' â†’ ACTUALIZANDO');
                 const msg = document.getElementById('pwa-splash-msg');
                 if (msg) msg.textContent = 'Actualizando a v' + _HTML_VERSION + '...';
 
@@ -65,96 +65,99 @@
                         const keys = await caches.keys();
                         await Promise.all(keys.map(k => caches.delete(k)));
                     }
+                    localStorage.setItem('legado_v3', _HTML_VERSION);
+                    console.log('[VERSION] ðŸ”„ Se descargÃ³ una nueva versiÃ³n (' + _HTML_VERSION + '). Mostrando banner...');
+                    if (typeof window.mostrarBannerActualizacion === 'function') window.mostrarBannerActualizacion(_HTML_VERSION);
+                    return;
                 } catch(e) { console.warn('[VERSION] cleanup error:', e); }
-
-                localStorage.setItem('legado_v3', _HTML_VERSION);
-                sessionStorage.removeItem('legado_reload_ts');
-                window.location.replace('./?v=' + _HTML_VERSION + '&t=' + Date.now());
-                return;
             }
 
-            // 2. Primera vez o versión correcta → guardar y confirmar con servidor
+            // 2. Primera vez o versiÃ³n correcta â†’ guardar y confirmar con servidor
             localStorage.setItem('legado_v3', _HTML_VERSION);
 
-            // 3. Verificación secundaria con servidor (no bloquea el splash)
+            // 3. VerificaciÃ³n secundaria con servidor (no bloquea el splash)
             try {
                 const res = await fetch('./version.json?nocache=' + Date.now(), {cache:'no-store'});
                 const data = await res.json();
                 if (data.version !== _HTML_VERSION) {
-                    // El servidor tiene una versión AÚN más nueva que este HTML
-                    console.log('[VERSION] 🔄 Servidor tiene v' + data.version + ', actualizando...');
-                    if ('serviceWorker' in navigator) {
-                        const regs = await navigator.serviceWorker.getRegistrations();
-                        await Promise.all(regs.map(r => r.unregister()));
-                    }
-                    if ('caches' in window) {
-                        const keys = await caches.keys();
-                        await Promise.all(keys.map(k => caches.delete(k)));
-                    }
-                    localStorage.setItem('legado_v3', data.version);
-                    sessionStorage.removeItem('legado_reload_ts');
-                    window.location.replace('./?v=' + data.version + '&t=' + Date.now());
+                    // El servidor tiene una versiÃ³n AÃšN mÃ¡s nueva que este HTML
+                    console.log('[VERSION] ðŸ”„ Servidor tiene v' + data.version + ', actualizaciÃ³n disp. Mostrando banner...');
+                    if (typeof window.mostrarBannerActualizacion === 'function') window.mostrarBannerActualizacion(data.version);
                     return;
                 }
             } catch (e) {
                 console.warn('[VERSION] Sin acceso al servidor (modo offline ok):', e);
             }
 
-            // ✅ Todo bien — ocultar splash
+            // âœ… Todo bien â€” ocultar splash
             window._ocultarSplash();
         }
 
         checkVersion();
         window.addEventListener('online', () => checkVersion());
 
-        // ✅ Escuchar cuando el Service Worker se actualiza → recargar página seguro
+        // âœ… Escuchar cuando el Service Worker se actualiza â†’ mostrar banner en vez de recargar forzado
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', function(ev) {
                 if (ev.data && ev.data.type === 'SW_UPDATED') {
-                    console.log('[PWA] Nuevo SW activo:', ev.data.cache);
-                    // Prevenir el doble reload infinito usando sessionStorage
-                    if (!sessionStorage.getItem('pwa_sw_reloaded')) {
-                        sessionStorage.setItem('pwa_sw_reloaded', '1');
-                        console.log('🔄 Aplicando actualización en 1.5s...');
-                        setTimeout(() => {
-                            window.location.replace('./?v=sw_update_' + Date.now());
-                        }, 1500);
+                    // Evitar el bucle infinito si acabamos de forzar la actualizacion en esta sesiÃ³n
+                    if (sessionStorage.getItem('just_updated')) {
+                        console.log('[PWA] Ignorando SW_UPDATED porque ya acabamos de hacer superHuracanUpdate.');
+                        sessionStorage.removeItem('just_updated');
+                        return;
+                    }
+                    console.log('[PWA] Nuevo SW descargado en fondo. Mostrando banner UI...');
+                    if (typeof window.mostrarBannerActualizacion === 'function') {
+                        window.mostrarBannerActualizacion('SW');
                     }
                 }
             });
         }
 
-        // ✅ Función global para forzar actualización manual (botón en la UI)
+        // âœ… FunciÃ³n global para forzar actualizaciÃ³n manual (botÃ³n en la UI)
         window.forzarActualizacion = async function() {
-            if (!confirm('🔄 Actualizar Legado Bíblico\n\nSe descargará el código más reciente.\nTus datos están protegidos.\n\n¿Continuar?')) return;
-            try {
-                if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(regs.map(r => r.unregister()));
-                }
-                if ('caches' in window) {
-                    const keys = await caches.keys();
-                    await Promise.all(keys.map(k => caches.delete(k)));
-                }
-                localStorage.removeItem('legado_v3');
-            } catch(e) { console.warn(e); }
-            window.location.replace('./index.html?nocache=' + Date.now());
+            if (!confirm('ðŸ”„ Actualizar Legado BÃ­blico\n\nSe descargarÃ¡ el cÃ³digo mÃ¡s reciente.\nTus datos estÃ¡n protegidos.\n\nÂ¿Continuar?')) return;
+            // Usamos el mismo motor nuclear que garantiza que la pantalla vieja no parpadee
+            if (typeof superHuracanUpdate === 'function') {
+                superHuracanUpdate();
+            } else {
+                window.location.replace('./index.html?nocache=' + Date.now());
+            }
+        };
+
+        window.mostrarBannerActualizacion = function (nuevaVersion) {
+            window._ocultarSplash();
+            const prev = document.getElementById('bnnr-update');
+            if (prev) return;
+            const div = document.createElement('div');
+            div.id = 'bnnr-update';
+            div.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00b894,#55efc4);color:#000;padding:25px 20px;border-radius:24px;z-index:9999999;box-shadow:0 10px 50px rgba(0,200,100,0.5);width:90%;max-width:400px;text-align:center;animation:fadeInUp 0.5s ease-out;font-family:'Outfit',sans-serif;";
+            div.innerHTML = `
+                <div style="font-size:3.5rem;margin-bottom:5px;">ðŸš€</div>
+                <div style="font-weight:900;font-size:1.3rem;margin-bottom:8px;letter-spacing:1px;color:#000;">NUEVA ACTUALIZACIÃ“N</div>
+                <div style="font-size:0.85rem;color:#111;margin-bottom:18px;line-height:1.4;font-weight:700;">Hemos instalado mejoras y solucionado varios errores.<br><br>Toca el botÃ³n para refrescar la App y aplicar los cambios sin desinstalar.</div>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="document.getElementById('bnnr-update').remove()" style="padding:14px;background:rgba(0,0,0,0.05);color:#000;border:2px solid rgba(0,0,0,0.2);border-radius:14px;font-weight:900;font-size:0.85rem;cursor:pointer;opacity:0.6;">CERRAR</button>
+                    <button onclick="superHuracanUpdate();this.innerText='Cargando..';this.disabled=true;this.style.background='#333';this.style.color='#fff';" style="flex:1;padding:14px;background:#000;color:#55efc4;border:none;border-radius:14px;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:1px;box-shadow:0 8px 20px rgba(0,0,0,0.3);transition:0.2s;">ðŸ”„ ACTUALIZAR</button>
+                </div>
+            `;
+            document.body.appendChild(div);
         };
 
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEGADO BÍBLICO | Experiencia Digital</title>
-    <link rel="stylesheet" href="style.css?v=418">
-    <link rel="stylesheet" href="mobile.css?v=418">
+    <title>LEGADO BÃBLICO | Experiencia Digital</title>
+    <link rel="stylesheet" href="style.css?v=505">
+    <link rel="stylesheet" href="mobile.css?v=505">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
         rel="stylesheet">
 
-    <!-- ✅ PWA CONFIGURACION -->
-    <link rel="manifest" href="/manifest.json?v=180">
+    <!-- âœ… PWA CONFIGURACION -->
+    <link rel="manifest" href="/manifest.json?v=505">
     <meta name="theme-color" content="#6c5ce7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -164,7 +167,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="./firebase-config.js?v=418"></script>
+    <script src="./firebase-config.js?v=517"></script>
     <script>
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -172,15 +175,16 @@
 </head>
 
 <body>
-    <!-- 🛡️ SPLASH ANTI-CONTENIDO-VIEJO v245 -->
+    <div style="position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg,#ff4797,#ff6b81);color:white;text-align:center;font-weight:900;font-size:0.85rem;padding:6px;letter-spacing:1px;z-index:999999999;box-shadow:0 4px 15px rgba(255,107,107,0.4);border-bottom:2px solid #fff;">ðŸ§ª MODO FABRICA (TESTER VIP) ðŸ§ª</div>
+    <!-- ðŸ›¡ï¸ SPLASH ANTI-CONTENIDO-VIEJO v245 -->
     <!-- Cubre la pantalla mientras checkVersion() decide si actualizar o no -->
     <div id="pwa-splash" style="
         position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;
         background:linear-gradient(170deg,#0a0818,#1a0f3c,#0a0818);
         display:flex;flex-direction:column;align-items:center;justify-content:center;
         font-family:'Segoe UI',sans-serif;">
-        <div style="font-size:3.5rem;margin-bottom:16px;">📖</div>
-        <div style="color:#a29bfe;font-weight:900;font-size:1.3rem;letter-spacing:3px;margin-bottom:8px;">LEGADO BÍBLICO</div>
+        <div style="font-size:3.5rem;margin-bottom:16px;">ðŸ“–</div>
+        <div style="color:#a29bfe;font-weight:900;font-size:1.3rem;letter-spacing:3px;margin-bottom:8px;">LEGADO BÃBLICO</div>
         <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;letter-spacing:2px;margin-bottom:28px;">CARGANDO...</div>
         <div style="width:48px;height:3px;background:rgba(162,155,254,0.2);border-radius:4px;overflow:hidden;">
             <div style="height:100%;background:#a29bfe;border-radius:4px;animation:splashProg 1.5s ease-in-out infinite;"></div>
@@ -196,7 +200,7 @@
         #pwa-splash.oculto { opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
     </style>
     <script>
-        // Función global para ocultar el splash (llamada por checkVersion())
+        // FunciÃ³n global para ocultar el splash (llamada por checkVersion())
         window._ocultarSplash = function() {
             const splash = document.getElementById('pwa-splash');
             if (splash) {
@@ -204,15 +208,15 @@
                 setTimeout(() => splash.remove(), 500);
             }
         };
-        // Seguro máximo: si checkVersion() tarda más de 2.5s (sin internet), ocultar igual
+        // Seguro mÃ¡ximo: si checkVersion() tarda mÃ¡s de 2.5s (sin internet), ocultar igual
         setTimeout(window._ocultarSplash, 2500);
     </script>
 
-    <!-- 🚀 MOTOR DE ACTUALIZACIÓN ATÓMICA v90 -->
+    <!-- ðŸš€ MOTOR DE ACTUALIZACIÃ“N ATÃ“MICA v90 -->
     <script>
         async function superHuracanUpdate() {
             const btn = document.getElementById('btn-actualizar-pwa');
-            if (btn) { btn.innerHTML = '🔥 RESPALDANDO Y LIMPIANDO...'; btn.disabled = true; btn.style.background='linear-gradient(135deg,#e17055,#d63031)'; }
+            if (btn) { btn.innerHTML = 'ðŸš€ ACTUALIZANDO...'; btn.disabled = true; btn.style.background='linear-gradient(135deg,#e17055,#d63031)'; }
 
             try {
                 // 1. FORZAR GUARDADO EN LA NUBE (por si acaso)
@@ -220,9 +224,10 @@
                     try { await window.superGuardarNubeUniversal(); } catch(e) {}
                 }
 
-                // 2. Destruir SW activo forzando skips y deletes
+                // 2. Destruir SW activo y APLICAR BYPASS NUCLEAR
                 if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
                     navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                    navigator.serviceWorker.controller.postMessage({ type: 'NUCLEAR_BYPASS' });
                 }
 
                 // 3. Desregistrar TODOS los Service Workers (MEGA PURGA)
@@ -231,7 +236,7 @@
                     for(let r of regs) { await r.unregister(); }
                 }
 
-                // 4. Borrar TODOS los cachés del navegador
+                // 4. Borrar TODOS los cachÃ©s del navegador
                 if ('caches' in window) {
                     const keys = await caches.keys();
                     for(let k of keys) { await caches.delete(k); }
@@ -248,45 +253,45 @@
                     if (v) _save[k] = v;
                 });
                 
-                // Purgar localStorage por completo de basura y caché antigua
+                // Purgar localStorage por completo de basura y cachÃ© antigua
                 localStorage.clear();
                 sessionStorage.clear();
                 
                 // Restaurar los datos vitales puros
                 Object.keys(_save).forEach(k => localStorage.setItem(k, _save[k]));
 
-                // Forzar reload físico desde el servidor
-                if (btn) btn.innerHTML = '🚀 REINICIANDO...';
+                // Forzar reload fÃ­sico desde el servidor (esperando lo suficiente para que el SW muera de verdad)
                 setTimeout(() => {
-                    window.location.href = window.location.pathname + '?hard_reset=' + Date.now();
-                }, 400);
+                    sessionStorage.setItem('just_updated', '1');
+                    window.location.href = window.location.pathname + '?v_limpia=' + Date.now();
+                }, 800);
 
             } catch (err) {
                 // Fallback nuclear
-                window.location.href = window.location.pathname + '?hard_reset_err=' + Date.now();
+                window.location.href = window.location.pathname + '?err_limpia=' + Date.now();
             }
         }
 
     </script>
 
-    <!-- 🔤 SISTEMA DE FUENTE GLOBAL - Persistente + MutationObserver -->
+    <!-- ðŸ”¤ SISTEMA DE FUENTE GLOBAL - Persistente + MutationObserver -->
     <script>
         (function () {
             const CLAVE_PASO = 'legado_font_paso';
             const PASOS = [0.82, 0.9, 1.0, 1.1, 1.22, 1.38, 1.55, 1.75];
             let pasoActual = parseInt(localStorage.getItem(CLAVE_PASO) || '2');
 
-            /* ── Aplica el tamaño a UN elemento ── */
+            /* â”€â”€ Aplica el tamaÃ±o a UN elemento â”€â”€ */
             function aplicarAEl(el, tamRem) {
                 el.style.setProperty('font-size', tamRem + 'rem', 'important');
             }
 
-            /* ── Aplica a TODOS los .lectura-texto del DOM + actualiza variable ── */
+            /* â”€â”€ Aplica a TODOS los .lectura-texto del DOM + actualiza variable â”€â”€ */
             function aplicarEscala() {
                 const escala = PASOS[pasoActual];
                 const tamRem = parseFloat((escala * 1.08).toFixed(3));
 
-                // Variable CSS raíz
+                // Variable CSS raÃ­z
                 document.documentElement.style.setProperty('--font-scale', escala);
                 document.documentElement.style.setProperty('--font-lect', tamRem + 'rem');
 
@@ -300,11 +305,11 @@
                 // Guardar preferencia
                 localStorage.setItem(CLAVE_PASO, pasoActual);
 
-                // Guardar tamaño actual globalmente para el Observer
+                // Guardar tamaÃ±o actual globalmente para el Observer
                 window._fontLectRem = tamRem;
             }
 
-            /* ── MutationObserver: detecta elementos nuevos automáticamente ── */
+            /* â”€â”€ MutationObserver: detecta elementos nuevos automÃ¡ticamente â”€â”€ */
             const observer = new MutationObserver(mutations => {
                 const tam = window._fontLectRem;
                 if (!tam) return;
@@ -327,18 +332,18 @@
                 observer.observe(document.body, { childList: true, subtree: true });
             }
 
-            /* ── API pública — SISTEMA UNIVERSAL v3 ── */
+            /* â”€â”€ API pÃºblica â€” SISTEMA UNIVERSAL v3 â”€â”€ */
             window.fontMas = function () {
                 console.log('[WIDGET] A+ pulsado');
-                // 🔥 Detectar si estamos en el lector bíblico
+                // ðŸ”¥ Detectar si estamos en el lector bÃ­blico
                 const vb = document.getElementById('verses-body');
                 if (vb) {
-                    // MANIPULACIÓN DIRECTA del font-size del lector bíblico
+                    // MANIPULACIÃ“N DIRECTA del font-size del lector bÃ­blico
                     let tam = parseFloat(vb.style.fontSize) || 1.15;
                     tam = Math.min(2.5, tam + 0.12);
                     vb.style.fontSize = tam + 'rem';
                     localStorage.setItem('bibleFontSize', tam);
-                    mostrarToastFuente('🔤 Biblia: ' + Math.round(tam * 100) + '%');
+                    mostrarToastFuente('ðŸ”¤ Biblia: ' + Math.round(tam * 100) + '%');
                     pulsoWidget();
                     console.log('[WIDGET] Biblia fontSize:', tam);
                     return;
@@ -346,7 +351,7 @@
                 // Sistema lectura-texto (home, devocional)
                 if (pasoActual < PASOS.length - 1) { pasoActual++; aplicarEscala(); }
                 mostrarToastFuente(pasoActual >= PASOS.length - 1
-                    ? '🔤 MÁXIMO' : '🔤 ' + Math.round(PASOS[pasoActual] * 100) + '%');
+                    ? 'ðŸ”¤ MÃXIMO' : 'ðŸ”¤ ' + Math.round(PASOS[pasoActual] * 100) + '%');
                 pulsoWidget();
             };
 
@@ -358,21 +363,21 @@
                     tam = Math.max(0.7, tam - 0.12);
                     vb.style.fontSize = tam + 'rem';
                     localStorage.setItem('bibleFontSize', tam);
-                    mostrarToastFuente('🔤 Biblia: ' + Math.round(tam * 100) + '%');
+                    mostrarToastFuente('ðŸ”¤ Biblia: ' + Math.round(tam * 100) + '%');
                     pulsoWidget();
                     console.log('[WIDGET] Biblia fontSize:', tam);
                     return;
                 }
                 if (pasoActual > 0) { pasoActual--; aplicarEscala(); }
                 mostrarToastFuente(pasoActual <= 0
-                    ? '🔤 MÍNIMO' : '🔤 ' + Math.round(PASOS[pasoActual] * 100) + '%');
+                    ? 'ðŸ”¤ MÃNIMO' : 'ðŸ”¤ ' + Math.round(PASOS[pasoActual] * 100) + '%');
                 pulsoWidget();
             };
 
-            // Llamar esto al final de cualquier función de render dinámica
+            // Llamar esto al final de cualquier funciÃ³n de render dinÃ¡mica
             window.refrescarFuente = aplicarEscala;
 
-            /* ── Toast universal ── */
+            /* â”€â”€ Toast universal â”€â”€ */
             function mostrarToastFuente(msg) {
                 let toast = document.getElementById('font-toast');
                 if (!toast) {
@@ -426,7 +431,7 @@
             bottom: 22px;
             left: 14px;
             z-index: 10000001;
-            display: flex;
+            display: none !important; /* Desactivado a peticion del usuario */
             align-items: center;
             background: rgba(13, 10, 35, 0.93);
             border: 1px solid rgba(162, 155, 254, 0.4);
@@ -495,9 +500,9 @@
         }
     </style>
 
-    <!-- Widget A- / A+ flotante — ARRASTRABLE -->
+    <!-- Widget A- / A+ flotante â€” ARRASTRABLE -->
     <div id="font-widget">
-        <button id="fw-btn-menos" title="Reducir fuente" style="font-size:0.85rem;color:#ccc;">A−</button>
+        <button id="fw-btn-menos" title="Reducir fuente" style="font-size:0.85rem;color:#ccc;">Aâˆ’</button>
         <span id="font-ind">100%</span>
         <button id="fw-btn-mas" title="Aumentar fuente" style="font-size:1.1rem;">A+</button>
     </div>
@@ -578,25 +583,24 @@
 
 
 
+    <div class="intro-container" style="display:none;">
 
-    <div class="intro-container">
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <!-- ðŸ”· HERO â€” Minimalista, inspirador, sin ruido              -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 
-        <!-- ═══════════════════════════════════════════════════════════ -->
-        <!-- 🔷 HERO — Minimalista, inspirador, sin ruido              -->
-        <!-- ═══════════════════════════════════════════════════════════ -->
-
-        <!-- Botón de actualización prominente y Botón Guardar Universal -->
-        <div style="position:fixed; top:10px; right:10px; display:flex; gap:6px; align-items:center; z-index:10001;">
+        <!-- BotÃ³n de actualizaciÃ³n prominente y BotÃ³n Guardar Universal -->
+        <div style="position:fixed; top:25px; right:10px; display:flex; gap:6px; align-items:center; z-index:10001;">
             <button id="btn-guardar-universal" onclick="superGuardarNubeUniversal()"
                 style="background:linear-gradient(135deg,#0984e3,#74b9ff);border:none;color:#fff;padding:7px 13px;border-radius:20px;font-size:0.68rem;font-weight:900;cursor:pointer;box-shadow:0 3px 14px rgba(9,132,227,0.5);letter-spacing:0.5px;display:flex;align-items:center;gap:5px;white-space:nowrap;"
                 title="Sincronizar todo a la Nube Segura">
-                💾 GUARDAR TODO
+                ðŸ’¾ GUARDAR TODO
             </button>
-            <div id="ver-badge" style="font-size:9px; color:rgba(255,255,255,0.25); font-family:monospace; background:rgba(0,0,0,0.25); padding:3px 6px; border-radius:4px;">v<script>document.write(_HTML_VERSION)</script></div>
+            <div id="ver-badge" style="font-size:9px; color:rgba(255,255,255,0.25); font-family:monospace; background:rgba(0,0,0,0.25); padding:3px 6px; border-radius:4px;">v<script>document.write(_HTML_VERSION)</script> TESTER</div>
             <button id="btn-actualizar-pwa" onclick="superHuracanUpdate()"
                 style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;padding:7px 13px;border-radius:20px;font-size:0.68rem;font-weight:900;cursor:pointer;box-shadow:0 3px 14px rgba(108,92,231,0.5);letter-spacing:0.5px;display:flex;align-items:center;gap:5px;white-space:nowrap;"
-                title="Forzar actualización de la app">
-                🔥 MEGA ACTUALIZAR
+                title="Forzar actualizaciÃ³n de la app">
+                ðŸ”¥ MEGA ACTUALIZAR
             </button>
         </div>
 
@@ -606,7 +610,7 @@
                 if (!btn) return;
                 const oldHtml = btn.innerHTML;
                 const oldBg = btn.style.background;
-                btn.innerHTML = '⏳ Guardando Nube...';
+                btn.innerHTML = 'â³ Guardando Nube...';
                 btn.disabled = true;
 
                 try {
@@ -635,7 +639,7 @@
                         } catch(e) { console.warn('[GuardarUniversal] Error con', clave, e); }
                     }
 
-                    btn.innerHTML = '✅ ¡Seguro en la Nube!';
+                    btn.innerHTML = 'âœ… Â¡Seguro en la Nube!';
                     btn.style.background = 'linear-gradient(135deg,#00b894,#55efc4)';
                     setTimeout(() => {
                         btn.innerHTML = oldHtml;
@@ -645,7 +649,7 @@
 
                 } catch (e) {
                     console.error('[GuardarUniversal] Error:', e);
-                    btn.innerHTML = '❌ Error Nube';
+                    btn.innerHTML = 'âŒ Error Nube';
                     btn.style.background = 'linear-gradient(135deg,#d63031,#e17055)';
                     setTimeout(() => { btn.innerHTML = oldHtml; btn.disabled = false; btn.style.background = oldBg; }, 3500);
                 }
@@ -653,28 +657,28 @@
         </script>
 
         <div class="welcome-text" style="padding-top: 14px;">
-            <!-- Estado de conexión -->
+            <!-- Estado de conexiÃ³n -->
             <div class="db-status"
                 style="font-size:0.5rem;opacity:0.3;display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:10px;">
                 <span id="db-dot"
                     style="height:5px;width:5px;background-color:#2ed573;border-radius:50%;display:inline-block;"></span>
-                <span id="db-text">CENTRO BÍBLICO GLOBAL</span>
+                <span id="db-text">CENTRO BÃBLICO GLOBAL</span>
             </div>
 
-            <!-- Título principal -->
+            <!-- TÃ­tulo principal -->
             <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:4px;">
                 <h1
                     style="font-family:'Crimson Text',serif; font-size:2.6rem; margin:0; font-weight:700; letter-spacing:4px; color:#f5f6fa; -webkit-text-fill-color:#f5f6fa; background:none; text-shadow:0 2px 12px rgba(0,0,0,0.5);">
-                    LEGADO BÍBLICO
+                    LEGADO BÃBLICO
                 </h1>
-                <!-- Subtítulo sutil — no destacar la versión -->
+                <!-- SubtÃ­tulo sutil â€” no destacar la versiÃ³n -->
                 <p
                     style="letter-spacing:3px; color:rgba(255,255,255,0.25); font-weight:400; margin:6px 0 0; font-size:0.55rem;">
-                    EXPERIENCIA BÍBLICA DIGITAL
+                    EXPERIENCIA BÃBLICA DIGITAL
                 </p>
             </div>
 
-            <!-- ✨ Versículo inspirador del Hero -->
+            <!-- âœ¨ VersÃ­culo inspirador del Hero -->
             <div style="margin:20px 10px 16px; position:relative;">
                 <p id="hero-vers-texto" class="lectura-texto" style="
                     font-family:'Crimson Text',serif;
@@ -691,96 +695,137 @@
             </div>
         </div>
 
-        <!-- ═══════════════════���═══════════════════════════════════════ -->
-        <!-- 🔷 TARJETAS PRINCIPALES — Las 3 puertas de la fe          -->
-        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•ï¿½ï¿½ï¿½â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <!-- ðŸ”· TARJETAS PRINCIPALES â€” Las 3 puertas de la fe          -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 
         <div class="category-grid" style="margin-top:4px">
 
-            <!-- 📖 LEER LA BIBLIA — Full-width, tarjeta principal -->
+            <!-- ðŸ“– LEER LA BIBLIA â€” Full-width, tarjeta principal -->
             <div class="category-card" onclick="abrirSelectorBiblias()" style="
                 background:linear-gradient(135deg, rgba(85,239,196,0.12) 0%, rgba(85,239,196,0.04) 100%);
                 border:1.5px solid rgba(85,239,196,0.3);
                 position:relative; overflow:hidden; grid-column:1/-1;
                 cursor:pointer;
             ">
-                <div class="card-bg-icon" style="color:rgba(85,239,196,0.06);font-size:6rem;">📖</div>
+                <div class="card-bg-icon" style="color:rgba(85,239,196,0.06);font-size:6rem;">ðŸ“–</div>
                 <div class="card-content" style="justify-content:center; padding:22px 24px;">
-                    <div style="font-size:2.2rem;margin-bottom:6px;">📖</div>
+                    <div style="font-size:2.2rem;margin-bottom:6px;">ðŸ“–</div>
                     <h2 style="color:#55efc4;font-size:1.3rem;margin-bottom:4px;">LEER LA BIBLIA</h2>
-                    <p style="color:rgba(255,255,255,0.5);font-size:0.75rem;line-height:1.5;">Múltiples versiones, audio
-                        e idiomas — Elige cómo quieres explorar la Palabra</p>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.75rem;line-height:1.5;">MÃºltiples versiones, audio
+                        e idiomas â€” Elige cÃ³mo quieres explorar la Palabra</p>
                 </div>
             </div>
 
-            <!-- 🙏 DEVOCIONAL DEL DÍA — Tarjeta media -->
+            <!-- ðŸ™ DEVOCIONAL DEL DÃA â€” Tarjeta media -->
             <div class="category-card" onclick="abrirDevocional()" style="
                 background:linear-gradient(135deg, rgba(253,203,110,0.1) 0%, rgba(225,112,85,0.06) 100%);
                 border:1.5px solid rgba(253,203,110,0.25);
                 position:relative; overflow:hidden;
                 cursor:pointer;
             ">
-                <div class="card-bg-icon" style="color:rgba(253,203,110,0.06);font-size:5rem;">🙏</div>
+                <div class="card-bg-icon" style="color:rgba(253,203,110,0.06);font-size:5rem;">ðŸ™</div>
                 <div class="card-content" style="justify-content:center; padding:20px;">
-                    <div style="font-size:2rem;margin-bottom:6px;">🙏</div>
-                    <h2 style="color:#fdcb6e;font-size:1.1rem;margin-bottom:4px;">DEVOCIONAL DEL DÍA</h2>
+                    <div style="font-size:2rem;margin-bottom:6px;">ðŸ™</div>
+                    <h2 style="color:#fdcb6e;font-size:1.1rem;margin-bottom:4px;">DEVOCIONAL DEL DÃA</h2>
                     <p id="devocional-card-titulo"
                         style="color:rgba(255,255,255,0.55);font-size:0.72rem;line-height:1.4;font-style:italic;">
                         Cargando...</p>
                 </div>
             </div>
 
-            <!-- 📅 AÑO BÍBLICO — Tarjeta media -->
-            <!-- M8 FIX: Guard si el módulo _ano_biblico_v2.js tarda en cargar -->
-            <div class="category-card" onclick="typeof abrirAnoBiblico==='function'?abrirAnoBiblico():mostrarToast('⏳ Módulo cargando, intenta de nuevo...')" style="
+            <!-- ðŸ“… AÃ‘O BÃBLICO â€” Tarjeta media -->
+            <!-- M8 FIX: Guard si el mÃ³dulo _ano_biblico_v2.js tarda en cargar -->
+            <div class="category-card" onclick="typeof abrirAnoBiblico==='function'?abrirAnoBiblico():mostrarToast('â³ MÃ³dulo cargando, intenta de nuevo...')" style="
                 background:linear-gradient(135deg, rgba(162,155,254,0.1) 0%, rgba(108,92,231,0.06) 100%);
                 border:1.5px solid rgba(162,155,254,0.25);
                 position:relative; overflow:hidden;
                 cursor:pointer;
             ">
-                <div class="card-bg-icon" style="color:rgba(162,155,254,0.06);font-size:5rem;">📖</div>
+                <div class="card-bg-icon" style="color:rgba(162,155,254,0.06);font-size:5rem;">ðŸ“–</div>
                 <div class="card-content" style="justify-content:center; padding:20px;">
-                    <div style="font-size:2rem;margin-bottom:6px;">📖✝️</div>
-                    <h2 style="color:#a29bfe;font-size:1.1rem;margin-bottom:4px;">AÑO BÍBLICO</h2>
+                    <div style="font-size:2rem;margin-bottom:6px;">ðŸ“–âœï¸</div>
+                    <h2 style="color:#a29bfe;font-size:1.1rem;margin-bottom:4px;">AÃ‘O BÃBLICO</h2>
                     <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Plan de lectura
-                        personalizado — De 1 semana a 2 años</p>
+                        personalizado â€” De 1 semana a 2 aÃ±os</p>
                 </div>
             </div>
 
-            <!-- 🤝 VERSÍCULOS DE ALIENTO — Tarjeta media -->
+            <!-- ðŸ¤ VERSÃCULOS DE ALIENTO â€” Tarjeta media -->
             <div class="category-card" onclick="abrirAliento()" style="
                 background:linear-gradient(135deg, rgba(255,159,67,0.1) 0%, rgba(225,112,85,0.06) 100%);
                 border:1.5px solid rgba(255,159,67,0.25);
                 position:relative; overflow:hidden;
                 cursor:pointer;
             ">
-                <div class="card-bg-icon" style="color:rgba(255,159,67,0.06);font-size:5rem;">🤝</div>
+                <div class="card-bg-icon" style="color:rgba(255,159,67,0.06);font-size:5rem;">ðŸ¤</div>
                 <div class="card-content" style="justify-content:center; padding:20px;">
-                    <div style="font-size:2rem;margin-bottom:6px;">🤝</div>
-                    <h2 style="color:#ff9f43;font-size:1.1rem;margin-bottom:4px;">VERSÍCULOS DE ALIENTO</h2>
-                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Encuentra versículos
-                        para cada situación de la vida</p>
+                    <div style="font-size:2rem;margin-bottom:6px;">ðŸ¤</div>
+                    <h2 style="color:#ff9f43;font-size:1.1rem;margin-bottom:4px;">VERSÃCULOS DE ALIENTO</h2>
+                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Encuentra versÃ­culos
+                        para cada situaciÃ³n de la vida</p>
                 </div>
             </div>
 
-            <!-- 🏫 ACADEMIA BÍBLICA — Agrupa Niños, Adolescentes, Jóvenes, Adultos -->
+            <!-- ðŸ« ACADEMIA BÃBLICA â€” Agrupa NiÃ±os, Adolescentes, JÃ³venes, Adultos -->
             <div class="category-card" onclick="abrirAcademiaBiblica()" style="
                 background:linear-gradient(135deg, rgba(116,185,255,0.1) 0%, rgba(9,132,227,0.06) 100%);
                 border:1.5px solid rgba(116,185,255,0.25);
                 position:relative; overflow:hidden;
                 cursor:pointer;
             ">
-                <div class="card-bg-icon" style="color:rgba(116,185,255,0.06);font-size:5rem;">🏫</div>
+                <div class="card-bg-icon" style="color:rgba(116,185,255,0.06);font-size:5rem;">ðŸ«</div>
                 <div class="card-content" style="justify-content:center; padding:20px;">
-                    <div style="font-size:2rem;margin-bottom:6px;">🏫</div>
-                    <h2 style="color:#74b9ff;font-size:1.1rem;margin-bottom:4px;">ACADEMIA BÍBLICA</h2>
-                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Estudios por edades —
-                        Niños, Adolescentes, Jóvenes y Adultos</p>
+                    <div style="font-size:2rem;margin-bottom:6px;">ðŸ«</div>
+                    <h2 style="color:#74b9ff;font-size:1.1rem;margin-bottom:4px;">ACADEMIA BÃBLICA</h2>
+                    <p style="color:rgba(255,255,255,0.45);font-size:0.72rem;line-height:1.4;">Estudios por edades â€”
+                        NiÃ±os, Adolescentes, JÃ³venes y Adultos</p>
                 </div>
             </div>
         </div>
 
-        <!-- ⛪ IGLESIA — Botón rectangular debajo -->
+        <!-- ðŸŒ COMPARTIR APP MUNDIAL -->
+        <div onclick="_compartirAppGlobal()" style="
+            margin: 14px 16px 0;
+            background: linear-gradient(135deg, rgba(232, 65, 24, 0.1) 0%, rgba(194, 54, 22, 0.03) 100%);
+            border: 1.5px solid rgba(232, 65, 24, 0.25);
+            border-radius: 16px;
+            padding: 16px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(232, 65, 24, 0.08);
+            transition: transform 0.2s;
+        " onactive="this.style.transform='scale(0.98)'">
+            <div style="position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:4rem;opacity:0.04;pointer-events:none;">ðŸ’Œ</div>
+            <div style="font-size:1.8rem; animation: ab_pulse 3s infinite;">ðŸ’Œ</div>
+            <div>
+                <h2 style="color:#e84118;font-size:1.1rem;margin:0 0 2px;font-weight:900;">INVITAR A UN AMIGO</h2>
+                <p style="color:rgba(255,255,255,0.45);font-size:0.7rem;line-height:1.3;margin:0;">Comparte Legado BÃ­blico por WhatsApp o Redes Sociales</p>
+            </div>
+            <div style="margin-left:auto;color:rgba(232, 65, 24, 0.4);font-size:1.2rem;">â€º</div>
+        </div>
+
+        <script>
+            function _compartirAppGlobal() {
+                const shareData = {
+                    title: 'Legado BÃ­blico',
+                    text: 'Â¡Hola! ðŸ“– Ãšnete a Legado BÃ­blico para tu crecimiento integral (fÃ­sico, mental y espiritual). Entra gratis aquÃ­:',
+                    url: 'https://legadobiblicopro.com'
+                };
+                if (navigator.share) {
+                    navigator.share(shareData).catch(console.error);
+                } else {
+                    const msj = shareData.text + ' ' + shareData.url;
+                    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msj), '_blank');
+                }
+            }
+        </script>
+
+        <!-- â›ª IGLESIA â€” BotÃ³n rectangular debajo -->
         <div onclick="seleccionarNivel('iglesia')" style="
             margin: 14px 16px 0;
             background: linear-gradient(135deg, rgba(46,213,115,0.1) 0%, rgba(46,213,115,0.03) 100%);
@@ -794,24 +839,24 @@
             position: relative;
             overflow: hidden;
         ">
-            <div style="position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:4rem;opacity:0.04;pointer-events:none;">⛪</div>
-            <div style="font-size:1.8rem;">⛪</div>
+            <div style="position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:4rem;opacity:0.04;pointer-events:none;">â›ª</div>
+            <div style="font-size:1.8rem;">â›ª</div>
             <div>
                 <h2 style="color:#2ed573;font-size:1.1rem;margin:0 0 2px;font-weight:900;">IGLESIA</h2>
                 <p style="color:rgba(255,255,255,0.45);font-size:0.7rem;line-height:1.3;margin:0;">Liturgia, registro de cultos, predicadores y calendario</p>
             </div>
-            <div style="margin-left:auto;color:rgba(46,213,115,0.4);font-size:1.2rem;">›</div>
+            <div style="margin-left:auto;color:rgba(46,213,115,0.4);font-size:1.2rem;">â€º</div>
         </div>
 
-        <!-- 🏫 OVERLAY ACADEMIA BÍBLICA -->
+        <!-- ðŸ« OVERLAY ACADEMIA BÃBLICA -->
         <div id="academia-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,3,20,0.97);z-index:10000;overflow-y:auto;backdrop-filter:blur(20px);">
             <div style="padding:20px;max-width:500px;margin:0 auto;">
                 <!-- Header -->
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-                    <button onclick="cerrarAcademia()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;">←</button>
+                    <button onclick="cerrarAcademia()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;">â†</button>
                     <div style="text-align:center;">
-                        <div style="font-size:1.8rem;margin-bottom:4px;">🏫</div>
-                        <h2 style="color:#74b9ff;font-size:1.2rem;margin:0;letter-spacing:2px;font-weight:900;">ACADEMIA BÍBLICA</h2>
+                        <div style="font-size:1.8rem;margin-bottom:4px;">ðŸ«</div>
+                        <h2 style="color:#74b9ff;font-size:1.2rem;margin:0;letter-spacing:2px;font-weight:900;">ACADEMIA BÃBLICA</h2>
                         <p style="color:rgba(255,255,255,0.35);font-size:0.65rem;margin-top:4px;">Elige tu grupo de estudio</p>
                     </div>
                     <div style="width:40px;"></div>
@@ -819,43 +864,43 @@
 
                 <!-- Grid 2x2 de tarjetas -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <!-- 🎨 NIÑOS -->
+                    <!-- ðŸŽ¨ NIÃ‘OS -->
                     <div class="category-card card-kids" onclick="cerrarAcademia();seleccionarNivel('kids')" style="margin:0;">
-                        <div class="card-bg-icon" style="font-size:4rem;">🎨</div>
+                        <div class="card-bg-icon" style="font-size:4rem;">ðŸŽ¨</div>
                         <div class="card-content" style="justify-content:center; padding:20px;">
-                            <div style="font-size:2.2rem;margin-bottom:8px;">🎨</div>
-                            <h2 style="font-size:1.1rem;margin-bottom:4px;">NIÑOS</h2>
+                            <div style="font-size:2.2rem;margin-bottom:8px;">ðŸŽ¨</div>
+                            <h2 style="font-size:1.1rem;margin-bottom:4px;">NIÃ‘OS</h2>
                             <p style="font-size:0.7rem;line-height:1.3;">Historias animadas con voz y trivia</p>
                         </div>
                     </div>
 
-                    <!-- 🎧 ADOLESCENTES -->
+                    <!-- ðŸŽ§ ADOLESCENTES -->
                     <div class="category-card card-teens" onclick="cerrarAcademia();seleccionarNivel('adolescentes')" style="margin:0;">
-                        <div class="card-bg-icon" style="font-size:4rem;">🎧</div>
+                        <div class="card-bg-icon" style="font-size:4rem;">ðŸŽ§</div>
                         <div class="card-content" style="justify-content:center; padding:20px;">
-                            <div style="font-size:2.2rem;margin-bottom:8px;">🎧</div>
+                            <div style="font-size:2.2rem;margin-bottom:8px;">ðŸŽ§</div>
                             <h2 style="font-size:1.1rem;margin-bottom:4px;">ADOLESCENTES</h2>
-                            <p style="font-size:0.7rem;line-height:1.3;">Retos bíblicos y trivia competitiva</p>
+                            <p style="font-size:0.7rem;line-height:1.3;">Retos bÃ­blicos y trivia competitiva</p>
                         </div>
                     </div>
 
-                    <!-- 🚀 JÓVENES -->
+                    <!-- ðŸš€ JÃ“VENES -->
                     <div class="category-card card-youth" onclick="cerrarAcademia();seleccionarNivel('jovenes')" style="margin:0;">
-                        <div class="card-bg-icon" style="font-size:4rem;">🚀</div>
+                        <div class="card-bg-icon" style="font-size:4rem;">ðŸš€</div>
                         <div class="card-content" style="justify-content:center; padding:20px;">
-                            <div style="font-size:2.2rem;margin-bottom:8px;">🚀</div>
-                            <h2 style="font-size:1.1rem;margin-bottom:4px;">JÓVENES</h2>
-                            <p style="font-size:0.7rem;line-height:1.3;">Análisis profundo y debate real</p>
+                            <div style="font-size:2.2rem;margin-bottom:8px;">ðŸš€</div>
+                            <h2 style="font-size:1.1rem;margin-bottom:4px;">JÃ“VENES</h2>
+                            <p style="font-size:0.7rem;line-height:1.3;">AnÃ¡lisis profundo y debate real</p>
                         </div>
                     </div>
 
-                    <!-- 📜 ADULTOS -->
+                    <!-- ðŸ“œ ADULTOS -->
                     <div class="category-card card-adults" onclick="cerrarAcademia();seleccionarNivel('adultos')" style="margin:0;">
-                        <div class="card-bg-icon" style="font-size:4rem;">📜</div>
+                        <div class="card-bg-icon" style="font-size:4rem;">ðŸ“œ</div>
                         <div class="card-content" style="justify-content:center; padding:20px;">
-                            <div style="font-size:2.2rem;margin-bottom:8px;">📜</div>
+                            <div style="font-size:2.2rem;margin-bottom:8px;">ðŸ“œ</div>
                             <h2 style="font-size:1.1rem;margin-bottom:4px;">ADULTOS</h2>
-                            <p style="font-size:0.7rem;line-height:1.3;">Estudio doctrinal y comentario bíblico</p>
+                            <p style="font-size:0.7rem;line-height:1.3;">Estudio doctrinal y comentario bÃ­blico</p>
                         </div>
                     </div>
                 </div>
@@ -876,33 +921,33 @@
         <div id="bible-home-selector" style="display:none;"></div>
 
 
-        <!-- Script de compartir la App (invitación general) -->
+        <!-- Script de compartir la App (invitaciÃ³n general) -->
         <script>
             function compartirAppGeneral() {
                 const mensaje =
-                    `📖✨ *LEGADO BÍBLICO — Experiencia Digital* ✨📖\n\n` +
+                    `ðŸ“–âœ¨ *LEGADO BÃBLICO â€” Experiencia Digital* âœ¨ðŸ“–\n\n` +
                     `Te invito a explorar esta app cristiana con:\n\n` +
-                    `📖 *Biblia completa* (múltiples versiones)\n` +
-                    `🙏 *Devocionales diarios* con reflexiones profundas\n` +
-                    `📅 *Año Bíblico* (planes de lectura personalizados)\n` +
-                    `⛪ *Módulo de Iglesia* (liturgia, sermones, 28 doctrinas)\n` +
-                    `🎨 *Historias Bíblicas para Niños* (interactivas)\n` +
-                    `🎮 *Trivia y Retos para Adolescentes*\n\n` +
-                    `👉 *Entra aquí:*\n` +
+                    `ðŸ“– *Biblia completa* (mÃºltiples versiones)\n` +
+                    `ðŸ™ *Devocionales diarios* con reflexiones profundas\n` +
+                    `ðŸ“… *AÃ±o BÃ­blico* (planes de lectura personalizados)\n` +
+                    `â›ª *MÃ³dulo de Iglesia* (liturgia, sermones, 28 doctrinas)\n` +
+                    `ðŸŽ¨ *Historias BÃ­blicas para NiÃ±os* (interactivas)\n` +
+                    `ðŸŽ® *Trivia y Retos para Adolescentes*\n\n` +
+                    `ðŸ‘‰ *Entra aquÃ­:*\n` +
                     `https://agendatecnicadigital.com\n\n` +
-                    `📱 Ábrelo en tu navegador y añádelo a tu pantalla de inicio.\n\n` +
-                    `_— Legado Bíblico © 2026_`;
+                    `ðŸ“± Ãbrelo en tu navegador y aÃ±Ã¡delo a tu pantalla de inicio.\n\n` +
+                    `_â€” Legado BÃ­blico Â© 2026_`;
 
                 if (navigator.share) {
                     navigator.share({
-                        title: 'Legado Bíblico - Experiencia Bíblica Digital',
+                        title: 'Legado BÃ­blico - Experiencia BÃ­blica Digital',
                         text: mensaje
                     }).catch(() => { });
                 } else {
                     navigator.clipboard?.writeText(mensaje).then(() => {
-                        mostrarToast('✅ Invitación copiada al portapapeles');
+                        mostrarToast('âœ… InvitaciÃ³n copiada al portapapeles');
                     }).catch(() => {
-                        mostrarToast('❌ No se pudo compartir');
+                        mostrarToast('âŒ No se pudo compartir');
                     });
                 }
             }
@@ -948,15 +993,15 @@
             (function () {
 
                 /* ========================================================
-                   BANCO DE VERSÍCULOS (rotan cada 4 horas = 6 por día)
-                   18 versículos = 3 días de cobertura única
+                   BANCO DE VERSÃCULOS (rotan cada 4 horas = 6 por dÃ­a)
+                   18 versÃ­culos = 3 dÃ­as de cobertura Ãºnica
                 ======================================================== */
                 
                 // LOS DEVOCIONALES SE MOVIERON AL ARCHIVO: datos_devocionales.js
 
 
                 /* ========================================================
-                   LÓGICA TEMPORAL
+                   LÃ“GICA TEMPORAL
                 ======================================================== */
                 function getDiaDelAnio() {
                     const now = new Date();
@@ -989,24 +1034,24 @@
                    RENDER
                 ======================================================== */
                 function render() {
-                    // --- VERSÍCULO (4h) → Solo al HERO ---
+                    // --- VERSÃCULO (4h) â†’ Solo al HERO ---
                     const vIdx = (getDiaDelAnio() * 6 + getBloque4h()) % VERSICULOS.length;
                     const v = VERSICULOS[vIdx];
                     const heroTexto = document.getElementById('hero-vers-texto');
                     const heroRef = document.getElementById('hero-vers-ref');
                     if (heroTexto) heroTexto.textContent = v.t;
-                    if (heroRef) heroRef.textContent = '— ' + v.r;
+                    if (heroRef) heroRef.textContent = 'â€” ' + v.r;
 
-                    // --- DEVOCIONAL (24h) → Datos ocultos + tarjeta visible ---
+                    // --- DEVOCIONAL (24h) â†’ Datos ocultos + tarjeta visible ---
                     const dIdx = getDiaDelAnio() % DEVOCIONALES.length;
                     const d = DEVOCIONALES[dIdx];
                     document.getElementById('dev-icon').textContent = d.icon;
                     document.getElementById('dev-label').textContent = d.titulo;
-                    document.getElementById('dev-versiculo').textContent = d.ref.split('—')[0].trim();
-                    document.getElementById('dev-referencia').textContent = '— ' + d.ref.split('—')[1]?.trim();
+                    document.getElementById('dev-versiculo').textContent = d.ref.split('â€”')[0].trim();
+                    document.getElementById('dev-referencia').textContent = 'â€” ' + d.ref.split('â€”')[1]?.trim();
                     document.getElementById('dev-reflexion').textContent = d.reflexion;
 
-                    // Actualizar la tarjeta visible del devocional con el título del día
+                    // Actualizar la tarjeta visible del devocional con el tÃ­tulo del dÃ­a
                     const tarjetaTitulo = document.getElementById('devocional-card-titulo');
                     if (tarjetaTitulo) tarjetaTitulo.textContent = d.titulo;
                 }
@@ -1017,7 +1062,7 @@
         </script>
 
 
-        <!-- 📲 INVITAR AMIGOS — Cierre de la fachada -->
+        <!-- ðŸ“² INVITAR AMIGOS â€” Cierre de la fachada -->
         <div onclick="compartirAppGeneral()" style="
             margin: 20px 16px 30px;
             background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.08) 100%);
@@ -1032,13 +1077,13 @@
         " ontouchstart="this.style.transform='scale(0.98)'" ontouchend="this.style.transform='scale(1)'">
             <div
                 style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;">
-                📲</div>
+                ðŸ“²</div>
             <div style="flex:1;min-width:0;">
                 <div style="color:#fff;font-size:0.8rem;font-weight:800;">INVITAR AMIGOS</div>
-                <div style="color:rgba(255,255,255,0.4);font-size:0.65rem;margin-top:2px;">Comparte Legado Bíblico con
+                <div style="color:rgba(255,255,255,0.4);font-size:0.65rem;margin-top:2px;">Comparte Legado BÃ­blico con
                     tu comunidad</div>
             </div>
-            <div style="color:rgba(255,255,255,0.2);font-size:1rem;">›</div>
+            <div style="color:rgba(255,255,255,0.2);font-size:1rem;">â€º</div>
         </div>
 
         <!-- Input de nombre oculto (preserva funcionalidad existente) -->
@@ -1046,7 +1091,7 @@
 
     </div>
 
-    <!-- 🎴 PANEL DE ESTUDIO PROFUNDO Y NOTAS (Modo Seminario) -->
+    <!-- ðŸŽ´ PANEL DE ESTUDIO PROFUNDO Y NOTAS (Modo Seminario) -->
     <div id="context-card-doctrinas"
         style="position:fixed; bottom:-100%; left:0; width:100%; height:90vh; background:linear-gradient(180deg, #130f2e 0%, #0a0818 100%); z-index:20000; border-radius:25px 25px 0 0; box-shadow:0 -10px 40px rgba(0,0,0,0.8); transition:0.5s cubic-bezier(0.4, 0, 0.2, 1); padding:25px; box-sizing:border-box; color:#fff; border-top: 1px solid rgba(162,155,254,0.3);">
         <div style="width:50px; height:5px; background:rgba(255,255,255,0.2); border-radius:10px; margin:0 auto 20px; cursor:pointer;"
@@ -1057,25 +1102,25 @@
                 style="font-family:'Segoe UI', sans-serif; font-size:1.1rem; letter-spacing:2px; color:#a29bfe; margin:0;">
                 ESTUDIO PROFUNDO</h2>
             <button onclick="cerrarContextoDoctrinas()"
-                style="background:rgba(255,255,255,0.05); border:none; color:#ff4757; width:35px; height:35px; border-radius:50%; font-weight:bold; cursor:pointer;">✕</button>
+                style="background:rgba(255,255,255,0.05); border:none; color:#ff4797; width:35px; height:35px; border-radius:50%; font-weight:bold; cursor:pointer;">âœ•</button>
         </div>
 
         <div id="context-body-doctrinas" style="margin-bottom:25px;">
-            <!-- Aquí carga el texto completo de la doctrina -->
+            <!-- AquÃ­ carga el texto completo de la doctrina -->
         </div>
 
-        <!-- ÁREA DE NOTAS -->
+        <!-- ÃREA DE NOTAS -->
         <div id="note-edit-area-doctrinas"
             style="background:rgba(255,255,255,0.03); border:1px solid rgba(162,155,254,0.15); border-radius:15px; padding:15px;">
             <label
-                style="color:#a29bfe; font-size:0.75rem; font-weight:900; letter-spacing:1px; display:block; margin-bottom:10px;">📓
-                MI REFLEXIÓN PERSONAL</label>
+                style="color:#a29bfe; font-size:0.75rem; font-weight:900; letter-spacing:1px; display:block; margin-bottom:10px;">ðŸ““
+                MI REFLEXIÃ“N PERSONAL</label>
             <textarea id="personal-note-doctrinas"
                 style="width:100%; height:100px; background:transparent; border:none; color:#fff; font-family:'Segoe UI', sans-serif; font-size:0.95rem; outline:none; resize:none;"
-                placeholder="Escribe aquí tu análisis..."></textarea>
+                placeholder="Escribe aquÃ­ tu anÃ¡lisis..."></textarea>
             <button onclick="guardarNotaGlobal()"
-                style="width:100%; background:linear-gradient(90deg, #6c5ce7, #a29bfe); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; margin-top:10px; cursor:pointer; box-shadow:0 5px 15px rgba(108,92,231,0.3);">💾
-                GUARDAR REFLEXIÓN</button>
+                style="width:100%; background:linear-gradient(90deg, #6c5ce7, #a29bfe); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; margin-top:10px; cursor:pointer; box-shadow:0 5px 15px rgba(108,92,231,0.3);">ðŸ’¾
+                GUARDAR REFLEXIÃ“N</button>
         </div>
     </div>
 
@@ -1136,7 +1181,7 @@
             }
         }
 
-        /* 💎 GLASSMORPHISM CBA PANEL */
+        /* ðŸ’Ž GLASSMORPHISM CBA PANEL */
         #cba-panel {
             position: fixed;
             bottom: -100%;
@@ -1175,49 +1220,66 @@
         }
     </style>
 
-    <!-- 📖 PANEL CBA -->
+    <!-- ðŸ“– PANEL CBA -->
     <div id="cba-panel">
         <div style="width:50px; height:5px; background:rgba(255,255,255,0.2); border-radius:10px; margin:12px auto 0; cursor:pointer;"
             onclick="cerrarCbaPanel()"></div>
         <div class="cba-header">
-            <span style="font-size:1.1rem; color:#55efc4; font-weight:900;">📖 CBA: COMENTARIO ADVENTISTA</span>
+            <span style="font-size:1.1rem; color:#55efc4; font-weight:900;">ðŸ“– CBA: COMENTARIO ADVENTISTA</span>
             <button onclick="cerrarCbaPanel()"
-                style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+                style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">âœ•</button>
         </div>
         <div id="cba-content"></div>
     </div>
 
     <div id="pantalla-estudio" class="container-estudio"></div>
 
-    <script src="./cba_motor.js?v=418"></script>
-    <script src="./firebase-service.js?v=92"></script>
-    <script src="./teen-auth.js?v=92"></script>
-    <script src="./trivia_parte1.js?v=92"></script>
-    <script src="./trivia_parte2.js?v=92"></script>
-    <script src="./trivia_parte3.js?v=92"></script>
-    <script src="./data_motor.js?v=92"></script>
-    <script src="./data_kids_v2.js?v=92"></script>
-    <script src="./kids_cinema.js?v=92"></script>
-    <script src="./data_jovenes.js?v=92"></script>
-    <script src="./data_adultos_v37.js?v=92"></script>
-    <script src="./data_teens_v8.js?v=92"></script>
-    <script src="./_juego_penal_biblico.js?v=233"></script>
-    <script src="./_penal_visual.js?v=234"></script>
-    <script src="./himnario_data.js?v=160"></script>
-    <script src="./data_iglesia_v1.js?v=418"></script>
-    <script src="./_add_eventos_especiales.js?v=418"></script>
-    <script src="./_firebase_sync_iglesia.js?v=331"></script>
-    <script src="./_pdf_eventos.js?v=418"></script>
-    <script src="./_ano_biblico_v2.js?v=413"></script>
-    <!-- ✅ Librerías locales — sin dependencia de CDN externa -->
+    <script src="./cba_motor.js?v=517"></script>
+    <script src="./firebase-service.js?v=517"></script>
+    <script src="./teen-auth.js?v=517"></script>
+    <script src="./trivia_parte1.js?v=517"></script>
+    <script src="./trivia_parte2.js?v=517"></script>
+    <script src="./trivia_parte3.js?v=517"></script>
+    <script src="./biblia_datos.js?v=517"></script>
+    <script src="./biblia_busqueda.js?v=517"></script>
+    <script src="./biblia_lector.js?v=517"></script>
+    <script src="./biblia_wizard.js?v=517"></script>
+    <script src="./data_kids_v2.js?v=517"></script>
+    <script src="./kids_cinema.js?v=517"></script>
+    <script src="./data_jovenes.js?v=517"></script>
+    <script src="./data_adultos_v37.js?v=517"></script>
+    <script src="./data_teens_v8.js?v=517"></script>
+    <script src="./_juego_penal_biblico.js?v=517"></script>
+    <script src="./_penal_visual.js?v=517"></script>
+    <script src="./himnario_data.js?v=517"></script>
+    <script src="./data_iglesia_v1.js?v=517"></script>
+    <script src="./_cultos_regulares.js?v=517"></script>
+    <script src="./_add_eventos_especiales.js?v=517"></script>
+    <script src="./_firebase_sync_iglesia.js?v=517"></script>
+    <script src="./_pdf_eventos.js?v=517"></script>
+    <script src="./_ano_biblico_v2.js?v=517"></script>
+    <!-- âœ… LibrerÃ­as locales â€” sin dependencia de CDN externa -->
     <script src="./html2canvas.min.js"></script>
     <script src="./jspdf.umd.min.js"></script>
-    <script src="./fix_herramientas_culto.js?v=418"></script>
-    <script src="./_nueva_funcion.js?v=418"></script>
-    <script src="./versus_engine.js?v=92"></script>
+    <script src="./fix_herramientas_culto.js?v=517"></script>
+    <script src="./_nueva_funcion.js?v=517"></script>
+    <script src="./versus_engine.js?v=517"></script>
+    <script src="./auth_mundial.js?v=517&safe=vite"></script>
 
-    <script src="ui_core.js?v=406"></script>
+    <script src="ui_core.js?v=517&safe=vite"></script>
+    <script src="pwa_installer.js?v=517"></script>
 
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
