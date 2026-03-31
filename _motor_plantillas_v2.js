@@ -122,7 +122,7 @@ function _buildSabadoHTML(datos, theme) {
             idxColor = (idxColor + 1) % 3;
 
             const burbujaHtml = r.num ?
-                `<div style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:11px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:0.72rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.2);">${r.num}</div>`
+                `<div style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:11px;background:${bColor};color:#fff;font-size:0.75rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.4);box-shadow:0 0 6px ${bColor}80;">${r.num}</div>`
                 : '';
             let detailHtml = r.descripcion ? `<div style="color:${theme.textDetail};font-size:0.85rem;margin-top:4px;font-style:italic;line-height:1.2;text-align:center;">${r.descripcion}</div>` : '';
             let finalName = (r.nombre && r.nombre.trim() !== '') ? r.nombre : '—';
@@ -171,7 +171,7 @@ function _buildSabadoHTML(datos, theme) {
             let bColor = idxC2 === 0 ? theme.border1 : (idxC2 === 1 ? theme.border2 : theme.border3);
             idxC2 = (idxC2 + 1) % 3;
             const burbujaHtml = r.num ?
-                `<div style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:11px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:0.72rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.2);">${r.num}</div>`
+                `<div style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:11px;background:${bColor};color:#fff;font-size:0.75rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.4);box-shadow:0 0 6px ${bColor}80;">${r.num}</div>`
                 : '';
             let detailHtml = r.descripcion ? `<div style="color:${theme.textDetail};font-size:0.85rem;margin-top:4px;font-style:italic;line-height:1.2;text-align:center;">${r.descripcion}</div>` : '';
             let finalName = (r.nombre && r.nombre.trim() !== '') ? r.nombre : '—';
@@ -248,7 +248,7 @@ function _buildSemanaHTML(datos, theme) {
         idxColor = (idxColor + 1) % 3;
 
         const burbujaHtml = r.num ?
-            `<div style="position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);font-size:0.8rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.2);">${r.num}</div>`
+            `<div style="position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:12px;background:${bColor};color:#fff;font-size:0.85rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.4);box-shadow:0 0 8px ${bColor}80;">${r.num}</div>`
             : '';
         let detailHtml = r.descripcion ? `<div style="color:${theme.textDetail};font-size:1.1rem;margin-top:6px;font-style:italic;line-height:1.3;text-align:center;">${r.descripcion}</div>` : '';
         let finalName = (r.nombre && r.nombre.trim() !== '') ? r.nombre : '—';
