@@ -489,41 +489,34 @@ function extraerDatosCompletos(tipoCulto) {
         p.tipo = val('reg-dia') || 'SEMANAL';
         p.ancianas = val('reg-anciano');
 
-        const pushR = (n, r, v, d) => {
-            if(v) p.roles.push({num: n, rol: r, nombre: v, descripcion: d||''});
+        let i = 1;
+        const pushR = (isNumbered, r, v, d) => {
+            if (v) {
+                const numStr = isNumbered ? i++ : '';
+                p.roles.push({num: numStr, rol: r, nombre: v, descripcion: d||''});
+            }
         };
 
         const lecturaTxt = val('reg-lectura-libro') ? `${val('reg-lectura-libro')} ${val('reg-lectura-capitulo')}:${val('reg-lectura-versiculos')}` : '';
 
-        let i = 1;
-        pushR('', 'Diácono(s)', val('reg-diacono'));
-        pushR('', 'Diaconisa(s)', val('reg-diaconisa'));
-        pushR(i++, 'Alabanza', val('reg-alabanza'));
-        pushR(i++, 'Bienvenida', val('reg-bienvenida'));
-        pushR(i++, 'Oración Inicial', val('reg-oracionIni'));
-        pushR(i++, 'Himno Inicial', val('reg-himnoIni-quien'), val('reg-himnoIni') ? '#' + val('reg-himnoIni') + (val('himno-titulo-reg-himnoIni') ? ' — ' + val('himno-titulo-reg-himnoIni') : '') : '');
-        pushR(i++, 'Lectura Bíblica', val('reg-lectura-quien'), lecturaTxt);
-
-        if (val('reg-testimonios') !== '') {
-            pushR(i++, 'Testimonios', val('reg-testimonios'));
-        }
-
-        pushR(i++, 'Música Especial', val('reg-especial'), val('reg-especial-quien') ? 'Anuncia: '+val('reg-especial-quien') : '');
-
-        if (val('reg-predicador-quien')) {
-            pushR(i++, 'Presenta al Predicador', val('reg-predicador-quien'));
-        }
+        pushR(false, 'Diácono(s)', val('reg-diacono'));
+        pushR(false, 'Diaconisa(s)', val('reg-diaconisa'));
+        pushR(true, 'Alabanza', val('reg-alabanza'));
+        pushR(true, 'Bienvenida', val('reg-bienvenida'));
+        pushR(true, 'Oración Inicial', val('reg-oracionIni'));
+        pushR(true, 'Himno Inicial', val('reg-himnoIni-quien'), val('reg-himnoIni') ? '#' + val('reg-himnoIni') + (val('himno-titulo-reg-himnoIni') ? ' — ' + val('himno-titulo-reg-himnoIni') : '') : '');
+        pushR(true, 'Lectura Bíblica', val('reg-lectura-quien'), lecturaTxt);
+        pushR(true, 'Testimonios', val('reg-testimonios'));
+        pushR(true, 'Música Especial', val('reg-especial'), val('reg-especial-quien') ? 'Anuncia: '+val('reg-especial-quien') : '');
+        pushR(true, 'Presenta al Predicador', val('reg-predicador-quien'));
 
         let descMensaje = '';
         if (val('reg-mensaje-tema')) descMensaje = '📌 Tema: "' + val('reg-mensaje-tema') + '"';
-        pushR(i++, 'Predicador', val('reg-mensaje'), descMensaje);
+        pushR(true, 'Predicador', val('reg-mensaje'), descMensaje);
 
-        pushR(i++, 'Himno Final', val('reg-himnoFin-quien') || val('reg-himnoFin'), val('reg-himnoFin-quien') && val('reg-himnoFin') ? '#' + val('reg-himnoFin') + (val('himno-titulo-reg-himnoFin') ? ' — ' + val('himno-titulo-reg-himnoFin') : '') : '');
-        pushR(i++, 'Oración Final', val('reg-oracionFin'));
-
-        if (val('reg-sonido')) {
-            pushR(i++, 'Encargado de Sonido', val('reg-sonido'));
-        }
+        pushR(true, 'Himno Final', val('reg-himnoFin-quien') || val('reg-himnoFin'), val('reg-himnoFin-quien') && val('reg-himnoFin') ? '#' + val('reg-himnoFin') + (val('himno-titulo-reg-himnoFin') ? ' — ' + val('himno-titulo-reg-himnoFin') : '') : '');
+        pushR(true, 'Oración Final', val('reg-oracionFin'));
+        pushR(true, 'Encargado de Sonido', val('reg-sonido'));
     }
 
     return p;
