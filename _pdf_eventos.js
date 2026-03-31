@@ -450,14 +450,20 @@ window.generarPDFEvento = function(eventoId, modo) {
             doc.text(f1 + ' al ' + f2, W/2, 44, { align: 'center' });
         }
 
-        var y = 56, mx = 12;
-        var colW = (W - mx * 2 - 6) / 2;
+        var yOrigen = 56, mx = 12, separacionX = 6;
+        var colW = (W - mx * 2 - separacionX) / 2;
+        var alturasCol = [yOrigen, yOrigen];
 
         diasAExportar.forEach(function(dia, di) {
             var d = dia.datos || {};
             var fechaStr = (typeof _fechaLarga === 'function') ? _fechaLarga(dia.fecha) : dia.fecha;
-            var alturaEstimada = 14 + Object.keys(d).filter(function(k) { return d[k]; }).length * 10 + 10;
-            if (y + alturaEstimada > H - 20 && di > 0) {
+            
+            var colIndex = di % 2;
+            var wActual = colW;
+            var xOffset = mx + (colW + separacionX) * colIndex;
+
+            if (colIndex === 0 && di > 0) {
+                // Nueva hoja obligatoria al iniciar par de días (0, 2, 4...)
                 doc.addPage();
                 doc.setFillColor(15, 12, 35);
                 doc.rect(0, 0, W, 14, 'F');
@@ -465,18 +471,33 @@ window.generarPDFEvento = function(eventoId, modo) {
                 doc.setFontSize(7);
                 doc.setFont('helvetica', 'bold');
                 doc.text(ev.titulo.toUpperCase(), W/2, 9, { align: 'center' });
-                y = 20;
+                alturasCol = [20, 20];
+            }
+
+            var y = alturasCol[colIndex];
+
+            // Verificación por si la columna ya está muy llena antes de empezar (poco común con 2 cols)
+            var alturaEstimada = 14 + Object.keys(d).filter(function(k) { return d[k]; }).length * 10 + 10;
+            if (y + alturaEstimada > H - 20 && y > 30) {
+                 doc.addPage();
+                 doc.setFillColor(15, 12, 35);
+                 doc.rect(0, 0, W, 14, 'F');
+                 doc.setTextColor(eR, eG, eB);
+                 doc.setFontSize(7);
+                 doc.setFont('helvetica', 'bold');
+                 doc.text(ev.titulo.toUpperCase(), W/2, 9, { align: 'center' });
+                 y = 20;
             }
 
             doc.setFillColor(30, 25, 60);
-            doc.roundedRect(mx, y, W - mx*2, 9, 2, 2, 'F');
+            doc.roundedRect(xOffset, y, wActual, 9, 2, 2, 'F');
             doc.setDrawColor(eR, eG, eB);
             doc.setLineWidth(0.5);
-            doc.roundedRect(mx, y, W - mx*2, 9, 2, 2, 'S');
+            doc.roundedRect(xOffset, y, wActual, 9, 2, 2, 'S');
             doc.setTextColor(eR, eG, eB);
-            doc.setFontSize(8);
+            doc.setFontSize(7);
             doc.setFont('helvetica', 'bold');
-            doc.text(fechaStr.toUpperCase(), W/2, y + 6, { align: 'center' });
+            doc.text(fechaStr.toUpperCase(), xOffset + wActual/2, y + 6, { align: 'center' });
             y += 12;
 
             var filas = [];
@@ -554,93 +575,85 @@ window.generarPDFEvento = function(eventoId, modo) {
 
             if (filas.length === 0) {
                 doc.setFont('helvetica', 'italic');
-                doc.setFontSize(7);
+                doc.setFontSize(6);
                 doc.setTextColor(150, 145, 175);
-                doc.text('(Sin informacion registrada para este dia)', W/2, y + 5, { align: 'center' });
+                doc.text('(Sin informacion registrada para este dia)', xOffset + wActual/2, y + 5, { align: 'center' });
                 y += 12;
             } else {
-                var alturaCampo = 14;
+                var alturaCampo = 11;
                 function dibujarCampoEvt(fila) {
                     var label = fila[0], valor = fila[1], destacado = fila[2];
                     // Sección separadora
                     if (destacado === 'seccion') {
-                        if (y + 10 > H - 20) { doc.addPage(); doc.setFillColor(15,12,35); doc.rect(0,0,W,14,'F'); y = 20; }
+                        if (y + 10 > H - 15) { doc.addPage(); doc.setFillColor(15,12,35); doc.rect(0,0,W,14,'F'); y = 20; }
                         doc.setFillColor(eR, eG, eB);
-                        doc.rect(mx, y, W - mx*2, 8, 'F');
+                        doc.rect(xOffset, y, wActual, 7, 'F');
                         doc.setTextColor(0, 0, 0);
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(7);
-                        doc.text(label, W/2, y + 5.5, { align: 'center' });
-                        y += 12;
+                        doc.setFontSize(6);
+                        doc.text(label, xOffset + wActual/2, y + 5, { align: 'center' });
+                        y += 10;
                         return;
                     }
-                    // Estimacion de altura (puede ser multilínea)
+                    
                     var altFila = alturaCampo;
-                    if (valor.length > 45) altFila = alturaCampo + 6;
-                    if (valor.length > 90) altFila = alturaCampo + 12;
-                    if (y + altFila > H - 20) {
+                    if (valor.length > 35) altFila = alturaCampo + 4;
+                    if (valor.length > 70) altFila = alturaCampo + 8;
+                    
+                    if (y + altFila > H - 15) {
                         doc.addPage();
                         doc.setFillColor(15, 12, 35);
                         doc.rect(0, 0, W, 14, 'F');
-                        doc.setTextColor(eR, eG, eB);
-                        doc.setFontSize(7);
-                        doc.setFont('helvetica', 'bold');
-                        doc.text(ev.titulo.toUpperCase(), W/2, 9, { align: 'center' });
                         y = 20;
                     }
+                    
                     if (destacado === true) {
                         doc.setFillColor(255, 248, 220);
-                        doc.roundedRect(mx, y, W - mx*2, altFila, 2, 2, 'F');
+                        doc.roundedRect(xOffset, y, wActual, altFila, 2, 2, 'F');
                         doc.setDrawColor(eR, eG, eB);
-                        doc.setLineWidth(0.6);
-                        doc.roundedRect(mx, y, W - mx*2, altFila, 2, 2, 'S');
+                        doc.setLineWidth(0.5);
+                        doc.roundedRect(xOffset, y, wActual, altFila, 2, 2, 'S');
                         doc.setTextColor(eR, eG, eB);
                     } else {
                         doc.setFillColor(248, 247, 255);
-                        doc.roundedRect(mx, y, W - mx*2, altFila, 2, 2, 'F');
+                        doc.roundedRect(xOffset, y, wActual, altFila, 2, 2, 'F');
                         doc.setDrawColor(220, 215, 245);
                         doc.setLineWidth(0.2);
-                        doc.roundedRect(mx, y, W - mx*2, altFila, 2, 2, 'S');
+                        doc.roundedRect(xOffset, y, wActual, altFila, 2, 2, 'S');
                         doc.setTextColor(60, 40, 140);
                     }
                     doc.setFillColor(eR, eG, eB);
-                    doc.rect(mx, y, 3, altFila, 'F');
+                    doc.rect(xOffset, y, 2.5, altFila, 'F');
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(5);
+                    doc.setFontSize(4.5);
                     doc.setTextColor(destacado===true ? eR : 100, destacado===true ? eG : 80, destacado===true ? eB : 180);
-                    doc.text(label, mx + 6, y + 4.5);
-                    doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(destacado===true ? 9 : 8);
+                    doc.text(label, xOffset + 5, y + 4);
+                    doc.setFontSize(destacado===true ? 7.5 : 7);
                     doc.setTextColor(destacado===true ? 100 : 25, destacado===true ? 60 : 20, destacado===true ? 0 : 60);
-                    // Texto con wrap manual si es muy largo
+                    // Texto con wrap manual ajustado
                     var v = valor;
-                    if (v.length > 55 && altFila > alturaCampo) {
+                    if (v.length > 35 && altFila > alturaCampo) {
                         var mid = Math.floor(v.length / 2);
-                        var sp = v.lastIndexOf(' ', mid);
-                        if (sp > 0) {
-                            doc.text(v.substring(0, sp), mx + 6, y + 9);
-                            doc.text(v.substring(sp+1), mx + 6, y + 9 + (altFila > alturaCampo+6 ? 5 : 4.5));
+                        var sp = v.lastIndexOf(' ', mid + 5);
+                        if (sp > 15) {
+                            doc.text(v.substring(0, sp), xOffset + 5, y + 7.5);
+                            doc.text(v.substring(sp+1), xOffset + 5, y + 7.5 + (altFila > alturaCampo+4 ? 4.5 : 4));
                         } else {
-                            var vShort = v.length > 55 ? v.substring(0,54)+'...' : v;
-                            doc.text(vShort, mx + 6, y + 9);
+                            var vShort = v.length > 35 ? v.substring(0,34)+'...' : v;
+                            doc.text(vShort, xOffset + 5, y + 7.5);
                         }
                     } else {
-                        var vShort = v.length > 70 ? v.substring(0,69)+'...' : v;
-                        doc.text(vShort, mx + 6, y + 9);
+                        var vShort = v.length > 45 ? v.substring(0,44)+'...' : v;
+                        doc.text(vShort, xOffset + 5, y + 7.5);
                     }
-                    y += altFila + 2;
+                    y += altFila + 1.5;
                 }
 
                 filas.forEach(function(f) { dibujarCampoEvt(f); });
                 y += 4;
             }
 
-            if (di < diasAExportar.length - 1) {
-                doc.setDrawColor(eR, eG, eB);
-                doc.setLineWidth(0.3);
-                doc.line(mx + 20, y, W - mx - 20, y);
-                y += 6;
-            }
+            alturasCol[colIndex] = y;
         });
 
         doc.setDrawColor(200, 195, 235);
