@@ -1,4 +1,4 @@
-﻿// ⛔ ALTO: MÓDULO DE CULTO DE SEMANA SELLADO (v559) - NO TOCAR NI OPTIMIZAR BAJO NINGUNA CIRCUNSTANCIA ⛔
+// ⛔ ALTO: MÓDULO DE CULTO DE SEMANA SELLADO (v559) - NO TOCAR NI OPTIMIZAR BAJO NINGUNA CIRCUNSTANCIA ⛔
 
 // ==========================================
 // MÓDULO: CULTOS REGULARES (MIÉRCOLES Y VIERNES)
@@ -453,7 +453,7 @@ function guardarCultoRegular() {
     
     if (regularEditandoId) {
         registros = registros.map(r => String(r.id) === String(regularEditandoId) ? data : r);
-        regularEditandoId = null;
+        // regularEditandoId se mantiene para no crear duplicados si el usuario presiona "Guardar" varias veces
         if (typeof mostrarToast === 'function') mostrarToast("¡Culto Actualizado Exitosamente!"); else alert("¡Culto Actualizado Exitosamente!");
     } else {
         registros.push(data);
