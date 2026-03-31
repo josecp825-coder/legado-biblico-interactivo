@@ -58,7 +58,7 @@ const HIMNARIO_ADVENTISTA = {
     52: "Señor Jesús, el día ya se fue",
     53: "¡Oh amor de Dios!",
     54: "Tan bueno es Dios",
-    55: "Grande, Señor, es tu fidelidad",
+    55: "Grande, Señor, es tu misericordia",
     56: "De tal manera amó",
     57: "Mi Dios me ama",
     58: "Grande es el amor divino",

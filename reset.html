@@ -52,7 +52,7 @@ async function doReset() {
   ['legado_user_name','legado_cultos_semanales','legado_liturgias',
    'legado_font_paso','cal_bio_registered','cal_bio_cred_id','cal_director',
    'plan_ano_biblico','plan_fecha_inicio','plan_dias_leidos',
-   'legado_eventos','legado_predicaciones'
+   'legado_eventos','legado_predicaciones','legado_cultos_regulares'
   ].forEach(function(k) {
     var v = localStorage.getItem(k);
     if (v) saved[k] = v;

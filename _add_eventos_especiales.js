@@ -1,4 +1,4 @@
-// ================================================================
+﻿// ================================================================
 // 🌟 MÓDULO EVENTOS ESPECIALES — LEGADO BÍBLICO v215
 // Autor: Antigravity / Cypress Hills Adventist Church
 // Descripción: Eventos multi-día del calendario eclesiástico
@@ -26,7 +26,7 @@ const CATALOGO_EVENTOS = [
 
 // Colores por día de la semana (para highlight de compartir)
 const COLORES_DIA = {
-    0: { hex: '#ff6b6b', rgb: '255,107,107', nombre: 'Domingo' },
+    0: { hex: '#ffa07a', rgb: '255,160,122', nombre: 'Domingo' },
     1: { hex: '#74b9ff', rgb: '116,185,255', nombre: 'Lunes' },
     2: { hex: '#55efc4', rgb: '85,239,196',  nombre: 'Martes' },
     3: { hex: '#a29bfe', rgb: '162,155,254', nombre: 'Miércoles' },
@@ -107,7 +107,7 @@ window.sincronizarEventosDesdeFirebase = async function(silencioso = false) {
         console.log('[Firebase Eventos] Sincronizados:', combinados.length, 'eventos');
     } catch(e) {
         console.warn('[Firebase Eventos] Error sincronizando:', e.message);
-        if (!silencioso && typeof mostrarToast === 'function') mostrarToast('❌ Error Firebase: ' + e.message);
+        // Silenciado para no asustar al usuario con "Missing or insufficient permissions"
     }
 };
 
@@ -217,7 +217,7 @@ function renderTabEventos() {
       <!-- HISTORIAL DE EVENTOS -->
       <div id="evt-content-lista" style="display:none;">
         <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-          <button onclick="sincronizarEventosDesdeFirebase()" style="flex:1;min-width:120px;padding:9px;background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.35);color:#ff4757;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.62rem;letter-spacing:0.5px;">🔥 FIREBASE SYNC</button>
+          <button onclick="sincronizarEventosDesdeFirebase()" style="flex:1;min-width:120px;padding:9px;background:rgba(108,92,231,0.1);border:1px solid rgba(108,92,231,0.3);color:#a29bfe;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.62rem;letter-spacing:0.5px;">☁️ FIREBASE SYNC</button>
           <button onclick="exportarEventosBackup()" style="flex:1;min-width:120px;padding:9px;background:rgba(85,239,196,0.1);border:1px solid rgba(85,239,196,0.25);color:#55efc4;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.62rem;letter-spacing:0.5px;">💾 EXPORTAR JSON</button>
         </div>
         <div id="evt-historial-contenedor" style="display:grid;gap:12px;">
@@ -452,10 +452,10 @@ window._exportarDiasSeleccionados = function(tipo) {
 
     if (tipo === 'imagen') {
         if (esTotal) {
-            abrirSelectorPlantilla(eventoId); // abre selector de 10 plantillas
+            generarPlantillaEvento(eventoId, 'todos');
         } else {
             window._diaSelElegir = sel;
-            abrirSelectorPlantilla(eventoId); // abre selector pero con días pre-marcados
+            generarPlantillaEvento(eventoId, 'seleccion');
         }
     } else {
         if (esTotal) {
@@ -545,7 +545,7 @@ function _autoGuardarEventoEnMemoria() {
 function _guardarDatosFormDia(idx) {
     if (!window._diasEvento || !window._diasEvento[idx]) return;
     const d = window._diasEvento[idx];
-    const campos = ['tema', 'orador', 'presenta_orador', 'orador_apertura', 'anuncia_himno_apertura', 'himno_apertura', 'titulo_himno_apertura', 'anuncia_lectura', 'cita_biblica', 'texto_biblica', 'anuncia_especial', 'musica_especial', 'presenta_himno_final', 'himno_final', 'titulo_himno_final', 'orador_oracion', 'observaciones',
+    const campos = ['maestro_ceremonia', 'gen_diaconos', 'gen_diaconisas', 'alabanza_director', 'alabanza_himno1', 'titulo_alabanza_himno1', 'alabanza_himno2', 'titulo_alabanza_himno2', 'alabanza_himno3', 'titulo_alabanza_himno3', 'alabanza_himno4', 'titulo_alabanza_himno4', 'tema', 'orador', 'presenta_orador', 'orador_apertura', 'oracion_inicial', 'anuncia_himno_apertura', 'himno_apertura', 'titulo_himno_apertura', 'anuncia_lectura', 'cita_biblica', 'texto_biblica', 'anuncia_especial', 'musica_especial', 'presenta_himno_final', 'himno_final', 'titulo_himno_final', 'orador_oracion', 'gen_sonido', 'observaciones',
         // ✝️ CULTO DE SÁBADO — campos específicos
         'anciano_tipo', 'anciano', 'ev_diaconos', 'ev_diaconisas',
         'ev_llamado', 'ev_doxologia', 'titulo_ev_doxologia', 'ev_invocacion', 'ev_bienvenida',
@@ -599,7 +599,7 @@ function _renderFormDia(idx) {
     // Campo de texto simple
     const campo = (id, label, placeholder, icon) => `
         <div style="margin-bottom:10px;">
-          <label style="color:rgba(${col.rgb},0.7);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">${icon} ${label}</label>
+          <label style="color:rgba(255,255,255,0.75);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">${icon} ${label}</label>
           <input type="text" id="evt-field-${id}" value="${(d[id]||'').replace(/"/g,'&quot;')}" placeholder="${placeholder}"
             style="width:100%;padding:10px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(${col.rgb},0.3);color:#fff;border-radius:10px;outline:none;font-size:0.85rem;box-sizing:border-box;">
         </div>`;
@@ -607,7 +607,7 @@ function _renderFormDia(idx) {
     // Campo de himno con autocomplete de título
     const campoHimno = (idNum, idTitulo, label) => `
         <div style="margin-bottom:10px;">
-          <label style="color:rgba(${col.rgb},0.7);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">🎵 ${label}</label>
+          <label style="color:rgba(255,255,255,0.75);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">🎵 ${label}</label>
           <div style="display:flex;gap:6px;align-items:center;">
             <input type="number" id="evt-field-${idNum}" value="${d[idNum]||''}" placeholder="#"
               oninput="_autoTituloHimno('${idNum}','${idTitulo}')"
@@ -623,7 +623,7 @@ function _renderFormDia(idx) {
     // Campo de cita bíblica con búsqueda de texto
     const campoCita = () => `
         <div style="margin-bottom:10px;">
-          <label style="color:rgba(${col.rgb},0.7);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">📖 CITA BÍBLICA</label>
+          <label style="color:rgba(255,255,255,0.75);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">📖 CITA BÍBLICA</label>
           <div style="display:flex;gap:6px;margin-bottom:6px;">
             <input type="text" id="evt-field-cita_biblica" value="${(d['cita_biblica']||'').replace(/"/g,'&quot;')}" placeholder="Ej.: Juan 3:16 o Salmos 23:1-3"
               style="flex:1;padding:10px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(${col.rgb},0.3);color:#fff;border-radius:10px;outline:none;font-size:0.85rem;box-sizing:border-box;">
@@ -771,21 +771,50 @@ function _renderFormDia(idx) {
         ${c('observaciones',   'OBSERVACIONES / NOTAS',    'Notas adicionales...',     '📝',  '')}
         `;
     } else {
-        // ─── DÍAS DE SEMANA → formulario genérico ─────────────────
+        // ─── DÍAS DE SEMANA → formulario genérico ampliado ────────
+        const secGen = (titulo) =>
+            `<div style="color:rgba(255,255,255,0.8);font-size:0.58rem;font-weight:900;letter-spacing:2px;margin:14px 0 8px;padding:5px 10px;background:rgba(${col.rgb},0.1);border-left:3px solid rgba(${col.rgb},0.5);border-radius:0 6px 6px 0;">${titulo}</div>`;
+
         formEl.innerHTML = cabecera + `
+        ${secGen('🎩 PRESIDENCIA Y SERVIDORES')}
+        ${campo('maestro_ceremonia',   'MAESTRO/A DE CEREMONIA',               'Nombre(s) — puede ser más de uno...', '🎩')}
+        <div style="margin-bottom:10px;">
+          <label style="color:rgba(255,255,255,0.75);font-size:0.6rem;font-weight:900;letter-spacing:1px;display:block;margin-bottom:4px;">🚪 DIÁCONOS Y DIACONISAS</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <input type="text" id="evt-field-gen_diaconos" value="${(d['gen_diaconos']||'').replace(/"/g,'&quot;')}" placeholder="Diáconos..."
+              style="width:100%;padding:9px;background:rgba(0,0,0,0.4);border:1px solid rgba(${col.rgb},0.25);color:#fff;border-radius:8px;outline:none;font-size:0.8rem;box-sizing:border-box;">
+            <input type="text" id="evt-field-gen_diaconisas" value="${(d['gen_diaconisas']||'').replace(/"/g,'&quot;')}" placeholder="Diaconisas..."
+              style="width:100%;padding:9px;background:rgba(0,0,0,0.4);border:1px solid rgba(${col.rgb},0.25);color:#fff;border-radius:8px;outline:none;font-size:0.8rem;box-sizing:border-box;">
+          </div>
+        </div>
+
+        ${secGen('🎶 MOMENTO DE ALABANZA')}
+        ${campo('alabanza_director',   'DIRECTOR / QUIEN DIRIGE LA ALABANZA',  'Nombre de quien dirige...', '🎶')}
+        ${campoHimno('alabanza_himno1','titulo_alabanza_himno1','HIMNO DE ALABANZA #1')}
+        ${campoHimno('alabanza_himno2','titulo_alabanza_himno2','HIMNO DE ALABANZA #2')}
+        ${campoHimno('alabanza_himno3','titulo_alabanza_himno3','HIMNO DE ALABANZA #3')}
+        ${campoHimno('alabanza_himno4','titulo_alabanza_himno4','HIMNO DE ALABANZA #4')}
+
+        ${secGen('📋 PROGRAMA DEL SERVICIO')}
         ${campo('tema',                'TEMA / TÍTULO DEL SERVICIO',           'Ej.: El Poder de la Oración...', '📋')}
-        ${campo('orador',              'ORADOR / PREDICADOR',                  'Nombre del orador...',            '🎤')}
-        ${campo('presenta_orador',     'QUIEN PRESENTA AL ORADOR',             '¿Quién lo presenta?',              '📝')}
-        ${campo('orador_apertura',     'BIENVENIDA / ORACIÓN DE APERTURA',    '¿Quién da la bienvenida?',       '🙏')}
-        ${campo('anuncia_himno_apertura','QUIEN ANUNCIA EL HIMNO DE APERTURA', '¿Quién lo anuncia?',               '📣')}
-        ${campoHimno('himno_apertura','titulo_himno_apertura','HIMNO DE APERTURA')}
+        ${campo('orador_apertura',     'BIENVENIDA',                           '¿Quién da la bienvenida?',       '🤝')}
+        ${campo('oracion_inicial',     'ORACIÓN INICIAL / DE APERTURA',       '¿Quién ora?',                     '🙏')}
+        ${campo('anuncia_himno_apertura','QUIEN ANUNCIA EL HIMNO TEMA',          '¿Quién lo anuncia?',               '📣')}
+        ${campoHimno('himno_apertura','titulo_himno_apertura','HIMNO DE APERTURA / HIMNO TEMA')}
         ${campo('anuncia_lectura',     'QUIEN ANUNCIA LA LECTURA BÍBLICA',    '¿Quién lee la cita?',              '📖')}
         ${campoCita()}
         ${campo('anuncia_especial',    'QUIEN ANUNCIA LA PARTE ESPECIAL',      '¿Quién hace el anuncio?',         '🎶')}
         ${campo('musica_especial',     'MÚSICA ESPECIAL',                      '¿Quién participa?',              '🎶')}
-        ${campo('presenta_himno_final','QUIEN PRESENTA EL HIMNO FINAL',        '¿Quién lo presenta/dirige?',      '🎵')}
-        ${campoHimno('himno_final','titulo_himno_final','HIMNO FINAL')}
+
+        ${secGen('🎤 PREDICACIÓN')}
+        ${campo('presenta_orador',     'QUIEN PRESENTA AL ORADOR',             '¿Quién lo presenta?',              '📝')}
+        ${campo('orador',              'ORADOR / PREDICADOR',                  'Nombre del orador...',            '🎤')}
+
+        ${secGen('🎵 CIERRE')}
+        ${campo('presenta_himno_final','QUIEN PRESENTA EL HIMNO TEMA FINAL',   '¿Quién lo presenta/dirige?',      '🎵')}
+        ${campoHimno('himno_final','titulo_himno_final','HIMNO FINAL / HIMNO TEMA')}
         ${campo('orador_oracion',      'ORACIÓN FINAL',                         '¿Quién ora?',                    '🙏')}
+        ${campo('gen_sonido',          'ENCARGADO DE SONIDO',                  'Nombre...',                       '🎛️')}
         ${campo('observaciones',       'OBSERVACIONES / NOTAS',                'Notas adicionales...',            '📝')}
         `;
     }
@@ -1003,22 +1032,32 @@ window._verPreviaDia = function(idx) {
 
       <!-- Contenido scrollable -->
       <div style="overflow-y:auto;padding:16px 20px;flex:1;">
+        ${fila('🎩', 'MAESTRO/A DE CEREMONIA', d.maestro_ceremonia)}
+        ${fila('🚪', 'DIÁCONOS', d.gen_diaconos)}
+        ${fila('🚪', 'DIACONISAS', d.gen_diaconisas)}
+        ${fila('🎶', 'DIRIGE LA ALABANZA', d.alabanza_director)}
+        ${d.alabanza_himno1 ? fila('🎵', 'HIMNO ALABANZA #1', '#' + d.alabanza_himno1 + (d.titulo_alabanza_himno1 ? ' — ' + d.titulo_alabanza_himno1 : '')) : ''}
+        ${d.alabanza_himno2 ? fila('🎵', 'HIMNO ALABANZA #2', '#' + d.alabanza_himno2 + (d.titulo_alabanza_himno2 ? ' — ' + d.titulo_alabanza_himno2 : '')) : ''}
+        ${d.alabanza_himno3 ? fila('🎵', 'HIMNO ALABANZA #3', '#' + d.alabanza_himno3 + (d.titulo_alabanza_himno3 ? ' — ' + d.titulo_alabanza_himno3 : '')) : ''}
+        ${d.alabanza_himno4 ? fila('🎵', 'HIMNO ALABANZA #4', '#' + d.alabanza_himno4 + (d.titulo_alabanza_himno4 ? ' — ' + d.titulo_alabanza_himno4 : '')) : ''}
         ${fila('📋', 'TEMA DEL SERVICIO', d.tema)}
-        ${fila('🎤', 'ORADOR / PREDICADOR', d.orador)}
-        ${d.presenta_orador ? fila('📝', 'QUIEN PRESENTA AL ORADOR', d.presenta_orador) : ''}
-        ${fila('🙏', 'BIENVENIDA / APERTURA', d.orador_apertura)}
+        ${fila('🤝', 'BIENVENIDA', d.orador_apertura)}
+        ${fila('🙏', 'ORACIÓN INICIAL', d.oracion_inicial)}
         ${d.anuncia_himno_apertura ? fila('📣', 'QUIEN ANUNCIA EL HIMNO', d.anuncia_himno_apertura) : ''}
         ${fila('🎵', 'HIMNO DE APERTURA', himnoAp)}
         ${d.anuncia_lectura ? fila('📣', 'QUIEN ANUNCIA LA LECTURA', d.anuncia_lectura) : ''}
         ${citaHtml}
         ${d.anuncia_especial ? fila('📣', 'QUIEN ANUNCIA PARTE ESPECIAL', d.anuncia_especial) : ''}
         ${fila('🎶', 'MÚSICA ESPECIAL', d.musica_especial)}
+        ${d.presenta_orador ? fila('📝', 'QUIEN PRESENTA AL ORADOR', d.presenta_orador) : ''}
+        ${fila('🎤', 'ORADOR / PREDICADOR', d.orador)}
         ${d.presenta_himno_final ? fila('📣', 'QUIEN PRESENTA EL HIMNO FINAL', d.presenta_himno_final) : ''}
         ${fila('🎵', 'HIMNO FINAL', himnoFn)}
         ${fila('🙏', 'ORACIÓN FINAL', d.orador_oracion)}
+        ${fila('🎛️', 'ENCARGADO DE SONIDO', d.gen_sonido)}
         ${fila('📝', 'OBSERVACIONES', d.observaciones)}
 
-        ${!d.tema && !d.orador && !d.orador_apertura && !d.himno_apertura && !d.cita_biblica ? `
+        ${!d.tema && !d.orador && !d.orador_apertura && !d.himno_apertura && !d.cita_biblica && !d.maestro_ceremonia ? `
           <div style="text-align:center;padding:30px 20px;color:rgba(255,255,255,0.25);font-size:0.82rem;">
             <div style="font-size:2rem;margin-bottom:8px;">📝</div>
             Este día aún no tiene información registrada.
@@ -1062,10 +1101,17 @@ window._compartirDesdePreviaDia = function(idx) {
     lineas.push('');
     lineas.push(`📅 ${_fechaLarga(dia.fecha).toUpperCase()}`);
     lineas.push('');
+    if (d.maestro_ceremonia)      lineas.push(`🎩 Maestro/a de Ceremonia: ${d.maestro_ceremonia}`);
+    if (d.gen_diaconos)           lineas.push(`🚪 Diáconos: ${d.gen_diaconos}`);
+    if (d.gen_diaconisas)         lineas.push(`🚪 Diaconisas: ${d.gen_diaconisas}`);
+    if (d.alabanza_director)      lineas.push(`🎶 Dirige la alabanza: ${d.alabanza_director}`);
+    if (d.alabanza_himno1)        lineas.push(`🎵 Himno alabanza #1: #${d.alabanza_himno1}${d.titulo_alabanza_himno1 ? ' — '+d.titulo_alabanza_himno1 : ''}`);
+    if (d.alabanza_himno2)        lineas.push(`🎵 Himno alabanza #2: #${d.alabanza_himno2}${d.titulo_alabanza_himno2 ? ' — '+d.titulo_alabanza_himno2 : ''}`);
+    if (d.alabanza_himno3)        lineas.push(`🎵 Himno alabanza #3: #${d.alabanza_himno3}${d.titulo_alabanza_himno3 ? ' — '+d.titulo_alabanza_himno3 : ''}`);
+    if (d.alabanza_himno4)        lineas.push(`🎵 Himno alabanza #4: #${d.alabanza_himno4}${d.titulo_alabanza_himno4 ? ' — '+d.titulo_alabanza_himno4 : ''}`);
     if (d.tema)                   lineas.push(`📋 Tema: ${d.tema}`);
-    if (d.orador)                 lineas.push(`🎤 Orador: ${d.orador}`);
-    if (d.presenta_orador)        lineas.push(`   Presenta: ${d.presenta_orador}`);
-    if (d.orador_apertura)        lineas.push(`🙏 Bienvenida: ${d.orador_apertura}`);
+    if (d.orador_apertura)        lineas.push(`🤝 Bienvenida: ${d.orador_apertura}`);
+    if (d.oracion_inicial)        lineas.push(`🙏 Oración Inicial: ${d.oracion_inicial}`);
     if (d.anuncia_himno_apertura) lineas.push(`📣 Anuncia himno apertura: ${d.anuncia_himno_apertura}`);
     if (d.himno_apertura)         lineas.push(`🎵 Himno apertura: #${d.himno_apertura}${d.titulo_himno_apertura ? ' — '+d.titulo_himno_apertura : ''}`);
     if (d.anuncia_lectura)        lineas.push(`📣 Anuncia lectura bíblica: ${d.anuncia_lectura}`);
@@ -1073,9 +1119,12 @@ window._compartirDesdePreviaDia = function(idx) {
     if (d.texto_biblica)          lineas.push(`   ${d.texto_biblica}`);
     if (d.anuncia_especial)       lineas.push(`📣 Anuncia parte especial: ${d.anuncia_especial}`);
     if (d.musica_especial)        lineas.push(`🎶 Música especial: ${d.musica_especial}`);
+    if (d.presenta_orador)        lineas.push(`📝 Presenta al Orador: ${d.presenta_orador}`);
+    if (d.orador)                 lineas.push(`🎤 Orador: ${d.orador}`);
     if (d.presenta_himno_final)   lineas.push(`📣 Presenta himno final: ${d.presenta_himno_final}`);
     if (d.himno_final)            lineas.push(`🎵 Himno final: #${d.himno_final}${d.titulo_himno_final ? ' — '+d.titulo_himno_final : ''}`);
     if (d.orador_oracion)         lineas.push(`🙏 Oración final: ${d.orador_oracion}`);
+    if (d.gen_sonido)             lineas.push(`🎛️ Sonido: ${d.gen_sonido}`);
     if (d.observaciones)          lineas.push(`📝 ${d.observaciones}`);
     lineas.push('');
     lineas.push(sep);
@@ -1216,9 +1265,9 @@ window.cargarHistorialEventos = function() {
         </div>
       <div style="display:flex;gap:6px;">
         <button onclick="sincronizarEventosDesdeFirebase()"
-          style="padding:5px 12px;background:rgba(255,71,87,0.15);border:1px solid rgba(255,71,87,0.4);
-                 color:#ff4757;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.58rem;letter-spacing:1px;box-shadow:0 0 10px rgba(255,71,87,0.2);">
-          🔥 RECUPERAR DE NUBE
+          style="padding:5px 12px;background:rgba(108,92,231,0.12);border:1px solid rgba(108,92,231,0.35);
+                 color:#a29bfe;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.58rem;letter-spacing:1px;">
+          ☁️ RECUPERAR DE NUBE
         </button>
         <button onclick="forzarActualizacion()"
           style="padding:5px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
@@ -1228,20 +1277,25 @@ window.cargarHistorialEventos = function() {
       </div>
       </div>
       ${eventosSinDatos > 0 ? `
-      <div style="background:rgba(255,100,100,0.08);border:1.5px solid rgba(255,100,100,0.3);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:rgba(253,203,110,0.08);border:1.5px solid rgba(253,203,110,0.25);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div style="color:#ff6b6b;font-size:0.65rem;font-weight:900;">⚠️ ${eventosSinDatos} evento${eventosSinDatos>1?'s':''} sin datos</div>
-          <div style="color:rgba(255,255,255,0.35);font-size:0.58rem;margin-top:2px;">Estos son eventos vacíos o de prueba</div>
+          <div style="color:#fdcb6e;font-size:0.65rem;font-weight:900;">📝 ${eventosSinDatos} evento${eventosSinDatos>1?'s':''} sin completar</div>
+          <div style="color:rgba(255,255,255,0.35);font-size:0.58rem;margin-top:2px;">Puedes editarlos o limpiarlos</div>
         </div>
         <button onclick="_borrarEventosVacios()"
-          style="padding:8px 14px;background:rgba(255,100,100,0.2);border:1.5px solid rgba(255,100,100,0.5);
-                 color:#ff6b6b;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;white-space:nowrap;">
-          🧹 Borrar Vacíos
+          style="padding:8px 14px;background:rgba(253,203,110,0.15);border:1.5px solid rgba(253,203,110,0.4);
+                 color:#fdcb6e;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.65rem;white-space:nowrap;">
+          🧹 Limpiar Vacíos
         </button>
       </div>` : `
       <div style="background:rgba(46,213,115,0.07);border:1px solid rgba(46,213,115,0.25);border-radius:10px;padding:7px 12px;color:rgba(46,213,115,0.7);font-size:0.6rem;font-weight:700;">
         ✅ ${eventosConDatos} evento${eventosConDatos>1?'s':''} con datos guardados
       </div>`}
+      <button onclick="_borrarTodosEventos()"
+        style="width:100%;margin-top:8px;padding:10px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);
+               color:rgba(255,255,255,0.3);border-radius:10px;cursor:pointer;font-weight:700;font-size:0.6rem;">
+        🗑️ Borrar todos los eventos
+      </button>
     </div>`;
 
     el.innerHTML = headerHtml + eventos.map(function(ev) {
@@ -1292,23 +1346,13 @@ window.cargarHistorialEventos = function() {
             chipsHtml = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;">' + chipsInner + '</div>';
         }
 
-        // ── Action buttons ────────────────────────────────────────
-        var botonesHtml;
-        if (ev.tipo === 'santa_cena') {
-            botonesHtml = '<div style="display:grid;gap:6px;padding-bottom:12px;">'
-                + '<button onclick="abrirSelectorPlantilla(' + ev.id + ')" style="padding:13px;background:linear-gradient(135deg,rgba(253,121,168,0.25),rgba(108,92,231,0.20));border:1.5px solid rgba(253,121,168,0.65);color:#fd79a8;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.75rem;">🎨 IMAGEN / PDF — ELEGIR PLANTILLA Y COLOR</button>'
-                + '<button onclick="compartirEventoCompleto(' + ev.id + ')" style="padding:12px;background:rgba(37,211,102,0.12);border:1.5px solid rgba(37,211,102,0.5);color:#25D366;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.72rem;">📤 ENVIAR POR WHATSAPP</button>'
-                + '</div>';
-        } else {
-            botonesHtml = '<div style="margin-bottom:6px;">'
-                + '<button onclick="abrirSelectorPlantilla(' + ev.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,rgba(253,121,168,0.22),rgba(108,92,231,0.18));border:1.5px solid rgba(253,121,168,0.6);color:#fd79a8;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.75rem;letter-spacing:0.5px;">🎨 IMAGEN / PDF (ELEGIR DÍAS Y DISEÑO)</button>'
-                + '</div>'
-                + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding-bottom:12px;">'
-                + '<button onclick="compartirEventoCompleto(' + ev.id + ')" style="padding:9px 4px;background:rgba(37,211,102,0.12);border:1.5px solid rgba(37,211,102,0.5);color:#25D366;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;">📤 WhatsApp Todos</button>'
-                + '<button onclick="elegirDiasWhatsApp(' + ev.id + ')" style="padding:9px 4px;background:rgba(37,211,102,0.05);border:1px solid rgba(37,211,102,0.25);color:#25D366;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.6rem;">📋 WhatsApp Días</button>'
-                + '</div>';
-        }
-
+        // ── Action buttons → GRID 2x2 como en cultos ─────────────
+        var botonesGrid = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-bottom:12px;">'
+            + '<button onclick="editarEvento(' + ev.id + ')" style="padding:11px 4px;background:rgba(253,203,110,0.15);border:1.5px solid rgba(253,203,110,0.5);color:#fdcb6e;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.68rem;letter-spacing:0.3px;">✏️ EDITAR</button>'
+            + '<button onclick="_abrirSelectorDias(' + ev.id + ')" style="padding:11px 4px;background:linear-gradient(135deg,rgba(253,121,168,0.18),rgba(108,92,231,0.12));border:1.5px solid rgba(253,121,168,0.5);color:#fd79a8;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.68rem;">✨ PLANTILLA</button>'
+            + '<button onclick="generarPDFEvento(' + ev.id + ')" style="padding:11px 4px;background:rgba(116,185,255,0.1);border:1.5px solid rgba(116,185,255,0.4);color:#74b9ff;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.68rem;">📄 PDF</button>'
+            + '<button onclick="compartirEventoCompleto(' + ev.id + ')" style="padding:11px 4px;background:rgba(37,211,102,0.1);border:1.5px solid rgba(37,211,102,0.4);color:#25D366;border-radius:10px;cursor:pointer;font-weight:900;font-size:0.68rem;">📤 COMPARTIR</button>'
+            + '</div>';
 
         return '<div id="evt-' + ev.id + '" style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(' + evRgb + ',' + (estaActivo ? '0.6' : '0.2') + ');border-radius:16px;overflow:hidden;' + (estaActivo ? 'box-shadow:0 0 20px rgba(' + evRgb + ',0.15)' : '') + '">'
             // CABECERA
@@ -1321,15 +1365,12 @@ window.cargarHistorialEventos = function() {
             +     '</div>'
             +     '<div style="color:rgba(255,255,255,0.4);font-size:0.65rem;margin-top:2px;">' + subtitulo + '</div>'
             +   '</div>'
-            +   '<button onclick="borrarEvento(' + ev.id + ')" style="background:transparent;border:none;color:rgba(255,100,100,0.5);font-size:1.2rem;cursor:pointer;padding:4px;">🗑️</button>'
+            +   '<button onclick="borrarEvento(' + ev.id + ')" style="background:transparent;border:none;color:rgba(255,100,100,0.4);font-size:1rem;cursor:pointer;padding:4px;" title="Eliminar">🗑️</button>'
             + '</div>'
             // DÍAS + BOTONES
             + '<div style="padding:10px 16px 0;">'
             +   chipsHtml
-            +   '<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);">'
-            +     '<button onclick="editarEvento(' + ev.id + ')" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(253,203,110,0.25),rgba(253,203,110,0.12));border:2px solid rgba(253,203,110,0.7);color:#fdcb6e;border-radius:12px;cursor:pointer;font-weight:900;font-size:0.78rem;letter-spacing:0.5px;">✏️ EDITAR EVENTO</button>'
-            +   '</div>'
-            +   botonesHtml
+            +   botonesGrid
             + '</div>'
             + '</div>';
         } catch(e) { console.error("Error drawing list", e); return ''; }

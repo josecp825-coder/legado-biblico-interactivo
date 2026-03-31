@@ -34,7 +34,8 @@ $idx = [regex]::Replace($idx, "const _HTML_VERSION = '\d+';", "const _HTML_VERSI
 # Actualizar cache busters de JS
 $jsFiles = @('_add_eventos_especiales.js','_pdf_eventos.js','_nueva_funcion.js',
              'fix_herramientas_culto.js','data_iglesia_v1.js','style.css',
-             'mobile.css','firebase-config.js','cba_motor.js')
+             'mobile.css','firebase-config.js','cba_motor.js',
+             '_motor_plantillas_v2.js','_cultos_regulares.js')
 foreach ($j in $jsFiles) {
     $pattern = [regex]::Escape($j) + '\?v=\d+'
     $idx = [regex]::Replace($idx, $pattern, ($j + "?v=$VERSION"))
@@ -64,6 +65,8 @@ $archivos = @(
     '_ano_biblico_v2.js',
     '_juego_penal_biblico.js',
     '_penal_visual.js',
+    '_motor_plantillas_v2.js',
+    '_cultos_regulares.js',
     'firebase-config.js', 'firebase-service.js', 'teen-auth.js',
     'versus_engine.js', 'html2canvas.min.js', 'jspdf.umd.min.js',
     'reset.html'

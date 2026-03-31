@@ -2176,10 +2176,13 @@ function renderControlCultosSemana() {
         });
         if (tab === 'cultos') cargarCultosSemana();
         if (tab === 'form') {
-            var s = document.getElementById('selector-tipo-culto');
-            var w = document.getElementById('formulario-sabado-wrapper');
-            if (s) s.style.display = 'block';
-            if (w) w.style.display = 'none';
+            // Si estamos en modo edición, NO resetear al selector
+            if (!window._editandoCultoId) {
+                var s = document.getElementById('selector-tipo-culto');
+                var w = document.getElementById('formulario-sabado-wrapper');
+                if (s) s.style.display = 'block';
+                if (w) w.style.display = 'none';
+            }
         }
         if (tab === 'buscar') { if(typeof actualizarListaParticipantes === 'function') actualizarListaParticipantes(); }
         if (tab === 'eventos') {
@@ -2433,9 +2436,11 @@ function guardarCultoSemana() {
     }
     const _esSab = document.getElementById('culto-tipo')?.value === 'S\u00e1bado';
     const camposSabadoArr = ['sab_doxologia','sab_invocacion','sab_bienvenida','sab_infantil_anuncia','sab_infantil','sab_ofrendas',
-        'sab_anciano_tipo','sab_anciano','sab_llamado','sab_himno_anuncia','sab_himno6','sab_lectura_quien','sab_lectura','sab_oracion_intercesora','sab_musica_especial',
+        'sab_anciano_tipo','sab_anciano','sab_llamado','sab_himno_anuncia','sab_himno6','sab_lectura_quien','sab_lectura','sab_oracion_intercesora','sab_musica_especial','sab_musica_especial_anuncia',
         'sab_pred_anuncia','sab_predicador','sab_tema','sab_himno_final_quien','sab_himno_final',
-        'sab_oracion_final','sab_sonido','sab_obs'];
+        'sab_oracion_final','sab_sonido','sab_obs',
+        'sab_diaconos_puerta','sab_diaconisas_puerta','sab_diaconos_ofrendas','sab_diaconisas_ofrendas',
+        'sab_musica_ante_quien','sab_musica_himno1','sab_musica_himno2','sab_musica_himno3','sab_musica_himno4'];
     const camposNormalArr = ['anciano', 'bienvenida', 'oracion1', 'himno1_quien', 'himno1', 'lectura', 'lectura_quien',
         'especial', 'especial_desc', 'intercesora', 'pred_anuncia', 'predicador', 'pred_tema', 'pred_texto',
         'himno2', 'himno2_quien', 'oracion_final', 'sonido', 'obs'];
@@ -2496,6 +2501,20 @@ function _textoCompartirCulto(reg) {
     if (esSab) {
         // ---- CAMPOS SABADO ----
         if (reg.sab_anciano_tipo || reg.sab_anciano) l.push(`\u{1F9D3} ${reg.sab_anciano_tipo || 'Anciano/a de turno'}: ${reg.sab_anciano || ''}`);
+        if (reg.sab_diaconos_puerta)    l.push(`\u{1F9D1} Di\u00e1cono(s) de Turno: ${reg.sab_diaconos_puerta}`);
+        if (reg.sab_diaconisas_puerta)  l.push(`\u{1F469} Diaconisa(s) de Turno: ${reg.sab_diaconisas_puerta}`);
+        if (reg.sab_musica_ante_quien || reg.sab_musica_himno1) {
+            l.push(`\u{1F3B5} MOMENTO DE ALABANZA:`);
+            if (reg.sab_musica_ante_quien) l.push(`     Dirige: ${reg.sab_musica_ante_quien}`);
+            for (var _hi = 1; _hi <= 4; _hi++) {
+                var _hv = reg['sab_musica_himno' + _hi];
+                if (_hv) {
+                    var _hn = parseInt(String(_hv).replace('#',''));
+                    var _ht = (typeof HIMNARIO_ADVENTISTA !== 'undefined' && HIMNARIO_ADVENTISTA[_hn]) ? ` \u2014 ${HIMNARIO_ADVENTISTA[_hn]}` : '';
+                    l.push(`     ${_hi}. #${_hv}${_ht}`);
+                }
+            }
+        }
         if (reg.sab_llamado)            l.push(`\u{1F4EF}  0. Llamado adoraci\u00f3n: ${reg.sab_llamado}`);
         if (reg.sab_doxologia)          l.push(`\u2728  1. Doxolog\u00eda: ${reg.sab_doxologia}`);
         if (reg.sab_invocacion)         l.push(`\u{1F64F}  2. Invocaci\u00f3n: ${reg.sab_invocacion}`);
@@ -2574,9 +2593,11 @@ window.compartirCultoActual = function () {
     const esSab = tipo === 'S\u00e1bado';
     const ids = esSab
         ? ['sab_anciano_tipo','sab_anciano','sab_llamado','sab_doxologia','sab_invocacion','sab_bienvenida','sab_infantil_anuncia','sab_infantil','sab_ofrendas',
-           'sab_himno_anuncia','sab_himno6','sab_lectura_quien','sab_lectura','sab_oracion_intercesora','sab_musica_especial',
+           'sab_himno_anuncia','sab_himno6','sab_lectura_quien','sab_lectura','sab_oracion_intercesora','sab_musica_especial','sab_musica_especial_anuncia',
            'sab_pred_anuncia','sab_predicador','sab_tema','sab_himno_final_quien','sab_himno_final',
-           'sab_oracion_final','sab_sonido','sab_obs']
+           'sab_oracion_final','sab_sonido','sab_obs',
+           'sab_diaconos_puerta','sab_diaconisas_puerta','sab_diaconos_ofrendas','sab_diaconisas_ofrendas',
+           'sab_musica_ante_quien','sab_musica_himno1','sab_musica_himno2','sab_musica_himno3','sab_musica_himno4']
         : ['anciano','bienvenida','oracion1','himno1_quien','himno1','lectura','lectura_quien',
            'especial','especial_desc','intercesora','pred_anuncia','predicador','pred_tema','pred_texto',
            'himno2','himno2_quien','oracion_final','sonido','obs'];
@@ -2817,11 +2838,14 @@ function cargarCultosSemana() {
                 <summary style="color:rgba(255,255,255,0.4);font-size:0.7rem;cursor:pointer;font-weight:700;">Ver programa completo</summary>
                 <div style="color:rgba(255,255,255,0.55);font-size:0.75rem;line-height:1.8;margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:10px;">${det || '<span style="opacity:0.3">Sin datos</span>'}</div>
             </details>
-            <div style="display:flex;gap:6px;margin-top:10px;">
-                <button onclick="editarCulto(${reg.id})" style="flex:1;padding:8px;background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.2);color:#fdcb6e;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u270F\uFE0F EDITAR</button>
-                <button onclick="descargarCultoPDF(${reg.id})" style="flex:1;padding:8px;background:rgba(85,239,196,0.1);border:1px solid rgba(85,239,196,0.2);color:#55efc4;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4C4} PDF</button>
-                <button onclick="compartirCultoPlantilla(${reg.id})" style="flex:1;padding:8px;background:rgba(162,155,254,0.1);border:1px solid rgba(162,155,254,0.2);color:#a29bfe;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4E4} COMPARTIR</button>
-                <button onclick="borrarCultoSemana(${reg.id})" style="padding:8px 12px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.2);color:#ff6b6b;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F5D1}\uFE0F</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+                <button onclick="editarCulto(${reg.id})" style="padding:8px;background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.2);color:#fdcb6e;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u270F\uFE0F EDITAR</button>
+                <button onclick="generarPlantillaCultoHistorial(${reg.id})" style="padding:8px;background:rgba(9,132,227,0.1);border:1px solid rgba(9,132,227,0.2);color:#0984e3;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u2728 PLANTILLA</button>
+                <button onclick="descargarCultoPDF(${reg.id})" style="padding:8px;background:rgba(85,239,196,0.1);border:1px solid rgba(85,239,196,0.2);color:#55efc4;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4C4} PDF</button>
+                <button onclick="compartirCultoPlantilla(${reg.id})" style="padding:8px;background:rgba(162,155,254,0.1);border:1px solid rgba(162,155,254,0.2);color:#a29bfe;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.65rem;">\u{1F4E4} COMPARTIR</button>
+            </div>
+            <div style="display:flex;justify-content:center;margin-top:6px;">
+                <button onclick="borrarCultoSemana(${reg.id})" style="padding:6px 20px;background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.15);color:#ff6b6b;border-radius:8px;cursor:pointer;font-weight:900;font-size:0.6rem;">\u{1F5D1}\uFE0F ELIMINAR</button>
             </div>
         </div>`;
     }).join('');
@@ -2831,19 +2855,39 @@ window.editarCulto = function (id) {
     const historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
     const culto = historial.find(h => h.id === id);
     if (!culto) return;
+    
+    // Guardar el ID en edición ANTES de todo (para que cambiarTabCulto no resetee)
+    window._editandoCultoId = id;
+    
     document.getElementById('culto-fecha').value = culto.fecha || '';
     const tipoSelect = document.getElementById('culto-tipo');
     if (tipoSelect) tipoSelect.value = culto.tipo || 'Domingo';
-    // Disparar el cambio para que se regeneren los campos dinamicos
-    autoDetectarTipoCulto(culto.fecha || '');
+    
+    const esSab = culto.tipo === 'S\u00e1bado';
+    
+    // Regenerar campos dinámicos según el tipo
+    if (typeof _actualizarFormularioPorDia === 'function') {
+        _actualizarFormularioPorDia(esSab);
+    }
+    
+    // Mostrar directamente el formulario (bypass selector)
+    var selectorTipo = document.getElementById('selector-tipo-culto');
+    var wrapperSab = document.getElementById('formulario-sabado-wrapper');
+    if (selectorTipo) selectorTipo.style.display = 'none';
+    if (wrapperSab) wrapperSab.style.display = 'block';
+    
+    // Activar el tab de formulario
+    cambiarTabCulto('form');
+    
     // Esperar breve para que el DOM se regenere
     setTimeout(function() {
-        const esSab = culto.tipo === 'S\u00e1bado';
         const campos = esSab
             ? ['sab_anciano_tipo','sab_anciano','sab_llamado','sab_doxologia','sab_invocacion','sab_bienvenida','sab_infantil_anuncia','sab_infantil','sab_ofrendas',
-               'sab_himno_anuncia','sab_himno6','sab_lectura_quien','sab_lectura','sab_oracion_intercesora','sab_musica_especial',
+               'sab_himno_anuncia','sab_himno6','sab_lectura_quien','sab_lectura','sab_oracion_intercesora','sab_musica_especial','sab_musica_especial_anuncia',
                'sab_pred_anuncia','sab_predicador','sab_tema','sab_himno_final_quien','sab_himno_final',
-               'sab_oracion_final','sab_sonido','sab_obs']
+               'sab_oracion_final','sab_sonido','sab_obs',
+               'sab_diaconos_puerta','sab_diaconisas_puerta','sab_diaconos_ofrendas','sab_diaconisas_ofrendas',
+               'sab_musica_ante_quien','sab_musica_himno1','sab_musica_himno2','sab_musica_himno3','sab_musica_himno4']
             : ['anciano','bienvenida','oracion1','himno1_quien','himno1','lectura','lectura_quien',
                'especial','especial_desc','intercesora','pred_anuncia','predicador','pred_tema','pred_texto',
                'himno2','himno2_quien','oracion_final','sonido','obs'];
@@ -2854,6 +2898,8 @@ window.editarCulto = function (id) {
         descomponerCitaBiblicaStruct('lectura', culto.lectura);
         descomponerCitaBiblicaStruct('pred_texto', culto.pred_texto);
         descomponerCitaBiblicaStruct('sab_lectura', culto.sab_lectura);
+        
+        // Resolver títulos de himnos (sábado)
         if (culto.sab_himno6) {
             const n = parseInt((culto.sab_himno6||'').replace('#',''));
             const d = document.getElementById('himno-titulo-sab_himno6');
@@ -2864,6 +2910,18 @@ window.editarCulto = function (id) {
             const d = document.getElementById('himno-titulo-sab_himno_final');
             if (d && typeof HIMNARIO_ADVENTISTA!=='undefined' && HIMNARIO_ADVENTISTA[n]) d.textContent = `\u{1F3B5} #${n} \u2014 ${HIMNARIO_ADVENTISTA[n]}`;
         }
+        // Resolver títulos de himnos del ministerio de música (4 himnos)
+        for (var hi = 1; hi <= 4; hi++) {
+            var hVal = culto['sab_musica_himno' + hi];
+            if (hVal) {
+                var hn = parseInt(String(hVal).replace('#',''));
+                var hd = document.getElementById('himno-titulo-sab_musica_himno' + hi);
+                if (hd && typeof HIMNARIO_ADVENTISTA!=='undefined' && HIMNARIO_ADVENTISTA[hn]) {
+                    hd.textContent = `\u{1F3B5} #${hn} \u2014 ${HIMNARIO_ADVENTISTA[hn]}`;
+                }
+            }
+        }
+        // Resolver títulos de himnos (normales)
         if (culto.himno1) {
             const n = parseInt((culto.himno1||'').replace('#',''));
             const d = document.getElementById('himno-titulo-himno1');
@@ -2874,12 +2932,18 @@ window.editarCulto = function (id) {
             const d = document.getElementById('himno-titulo-himno2');
             if (d && typeof HIMNARIO_ADVENTISTA!=='undefined' && HIMNARIO_ADVENTISTA[n]) d.textContent = `\u{1F3B5} #${n} \u2014 ${HIMNARIO_ADVENTISTA[n]}`;
         }
-        cambiarTabCulto('form');
+        
+        // Cambiar botón guardar a modo edición
+        var btnGuardar = document.getElementById('btn-guardar-culto');
+        if (btnGuardar) {
+            btnGuardar.innerHTML = '\u270F\uFE0F ACTUALIZAR CULTO';
+            btnGuardar.style.background = 'linear-gradient(135deg,#e17055,#fdcb6e)';
+        }
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (typeof mostrarToast === 'function') mostrarToast('\u270F\uFE0F Editando culto \u2014 modifica y guarda');
-    }, 120);
-    // Guardar el ID en edicion (NO eliminar hasta que el usuario guarde)
-    window._editandoCultoId = id;
+        if (typeof mostrarToast === 'function') mostrarToast('\u270F\uFE0F Editando culto de ' + (culto.tipo || '') + ' — modifica y guarda');
+    }, 150);
+    
     cargarCultosSemana();
 };
 function borrarCultoSemana(id) {
@@ -3764,6 +3828,24 @@ function descargarLiturgiaPDF(id) {
 }
 
 // ===============================================
+// ✨ PLANTILLA VISUAL DESDE HISTORIAL
+// Lee directamente del localStorage y genera imagen
+// ===============================================
+window.generarPlantillaCultoHistorial = function(id) {
+    var historial = JSON.parse(localStorage.getItem('legado_cultos_semanales') || '[]');
+    var reg = historial.find(function(h) { return h.id === id; });
+    if (!reg) {
+        if (typeof mostrarToast === 'function') mostrarToast('⚠️ Registro no encontrado');
+        return;
+    }
+    if (typeof generarPlantillaDesdeRegistro === 'function') {
+        generarPlantillaDesdeRegistro(reg);
+    } else {
+        if (typeof mostrarToast === 'function') mostrarToast('⚠️ Motor de plantillas no cargado');
+    }
+};
+
+// ===============================================
 // PDF PROFESIONAL PARA REGISTRO DE CULTOS
 // ===============================================
 window.descargarCultoPDF = function(id) {
@@ -3923,6 +4005,17 @@ window.compartirCultoPlantilla = function(id) {
     if (esSab) {
         var f = function(l,v){ if(v) filas.push({label:l, value:v}); };
         f('Anciano de turno', reg.sab_anciano_tipo ? reg.sab_anciano_tipo+': '+(reg.sab_anciano||'') : reg.sab_anciano);
+        f('Diácono(s) de Turno', reg.sab_diaconos_puerta);
+        f('Diaconisa(s) de Turno', reg.sab_diaconisas_puerta);
+        f('Dirige Alabanza', reg.sab_musica_ante_quien);
+        for (var _mh = 1; _mh <= 4; _mh++) {
+            var _mv = reg['sab_musica_himno' + _mh];
+            if (_mv) {
+                var _mn = parseInt(String(_mv).replace('#',''));
+                var _mt = (typeof HIMNARIO_ADVENTISTA !== 'undefined' && HIMNARIO_ADVENTISTA[_mn]) ? ' — ' + HIMNARIO_ADVENTISTA[_mn] : '';
+                f('Himno Alabanza ' + _mh, '#' + _mv + _mt);
+            }
+        }
         f('0. Llamado adoración', reg.sab_llamado);
         f('1. Doxología', reg.sab_doxologia);
         f('2. Invocación', reg.sab_invocacion);
@@ -3930,11 +4023,14 @@ window.compartirCultoPlantilla = function(id) {
         f('Anuncia rincón inf.', reg.sab_infantil_anuncia);
         f('4. Rincón Infantil', reg.sab_infantil);
         f('5. Diezmos y Ofrendas', reg.sab_ofrendas);
+        f('Diáconos (Ofrendas)', reg.sab_diaconos_ofrendas);
+        f('Diaconisas (Ofrendas)', reg.sab_diaconisas_ofrendas);
         f('Anuncia himno', reg.sab_himno_anuncia);
         f('6. Himno Adoración', reg.sab_himno6);
         f('Lector', reg.sab_lectura_quien);
         f('7. Lectura Bíblica', reg.sab_lectura);
         f('8. Oración Intercesora', reg.sab_oracion_intercesora);
+        f('Anuncia música', reg.sab_musica_especial_anuncia);
         f('9. Música Especial', reg.sab_musica_especial);
         f('Presenta predicador', reg.sab_pred_anuncia);
         f('10. Predicador/a', reg.sab_predicador);

@@ -7,7 +7,7 @@
 // ESTRATEGIA: Cache First + Network Update (v368)
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v517';
+const CACHE_NAME = 'legado-biblico-v586';
 
 // ✅ SOLO archivos de LEGADO BÍBLICO (raíz)
 const ARCHIVOS_CACHE = [
@@ -163,6 +163,7 @@ self.addEventListener('fetch', evento => {
     const esHtml = url.pathname === '/' || 
                    url.pathname === '/index.html' || 
                    url.pathname.endsWith('/index.html') ||
+                   url.pathname.endsWith('/') ||
                    url.href.includes('version.json');
 
     if (esHtml) {
@@ -212,3 +213,12 @@ self.addEventListener('fetch', evento => {
         })
     );
 });
+
+
+
+
+
+
+
+
+

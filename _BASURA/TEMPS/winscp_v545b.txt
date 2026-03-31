@@ -1,0 +1,9 @@
+open ftp://legado_sync%40legadobiblicopro.com:LegadoSync2025!@ftp.legadobiblicopro.com/
+cd /fabrica/
+put "index.html"
+put "sw.js"
+put "version.json"
+put "data_iglesia_v1.js"
+put "_cultos_regulares.js"
+put "_motor_plantillas_v2.js"
+exit

@@ -423,10 +423,11 @@
             var h = '<div class="ab-page" style="animation:ab_slidein .2s;padding-bottom:80px;">';
 
             // Cabecera: Volver al menú y Compartir
-            h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">';
+            h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
             h += '<button onclick="abrirAnoBiblico()" style="padding:10px 14px;background:rgba(253,203,110,.1);border:1.5px solid rgba(253,203,110,.4);border-radius:12px;color:#fdcb6e;font-size:.75rem;font-weight:700;cursor:pointer;">← Ver otros Desafíos</button>';
             h += '<button onclick="_AB_compartirProgreso()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;border-radius:12px;color:#fff;font-size:.8rem;font-weight:900;cursor:pointer;box-shadow:0 4px 15px rgba(108,92,231,.3);">📲 Compartir</button>';
             h += '</div>';
+            h += '<button onclick="_AB_mostrarInstrucciones()" style="width:100%;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:.85rem;font-weight:800;cursor:pointer;transition:background .2s;">📖 ¿Cómo funciona este Reto?</button>';
 
             // Nombre del plan + barra progreso
             h += '<div style="text-align:center;margin-bottom:20px;">';
@@ -1000,6 +1001,72 @@
             }
         }
         toast("⚠️ Libro no encontrado en el plan.");
+    };
+
+    // ── MANUAL DE INSTRUCCIONES ──
+    window._AB_mostrarInstrucciones = function() {
+        var ov = overlay(); if(!ov) return;
+        var h = '<div class="ab-page" style="animation:ab_slidein .2s; max-width:560px; margin:0 auto; padding-bottom:60px;">';
+        
+        h += '<button onclick="_AB_volverDashboard(1)" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.7);font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:24px;width:100%;">← Volver al Reto Bíblico</button>';
+        
+        h += '<div style="text-align:center;margin-bottom:24px;">';
+        h += '<div style="font-size:3rem;margin-bottom:10px;">📜</div>';
+        h += '<h2 style="color:#fff;font-weight:900;font-size:1.5rem;margin:0;">Manual del Reto</h2>';
+        h += '<div style="color:rgba(255,255,255,.5);font-size:.85rem;margin-top:6px;">Todo lo que necesitas saber para triunfar</div>';
+        h += '</div>';
+
+        h += '<div class="ab-card" style="margin-bottom:16px;">';
+        h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">';
+        h += '<div style="background:rgba(85,239,196,.15);padding:10px;border-radius:12px;font-size:1.2rem;">🏆</div>';
+        h += '<div style="color:#fff;font-weight:900;font-size:1.1rem;">Tu Victoria Total (100%)</div>';
+        h += '</div>';
+        h += '<div style="color:rgba(255,255,255,.7);font-size:.85rem;line-height:1.6;">Es tu progreso de la Biblia entera. Sube a medida que lees capítulos, sin importar de qué libro sean. Acumula el 100% para lograr la Victoria suprema.</div>';
+        h += '</div>';
+
+        h += '<div class="ab-card" style="margin-bottom:16px;">';
+        h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">';
+        h += '<div style="background:rgba(255,107,107,.15);padding:10px;border-radius:12px;font-size:1.2rem;">🔥</div>';
+        h += '<div style="color:#fff;font-weight:900;font-size:1.1rem;">Tu Fuego (Días Seguidos)</div>';
+        h += '</div>';
+        h += '<div style="color:rgba(255,255,255,.7);font-size:.85rem;line-height:1.6;">Si lees <strong>al menos un capítulo hoy</strong>, tu llama sube y tu racha de días aumenta. Si dejas pasar un día completo sin leer, tu fuego se volverá hielo (🧊 0). ¡Mantén viva la llama diaria!</div>';
+        h += '</div>';
+
+        h += '<div class="ab-card" style="margin-bottom:16px;">';
+        h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">';
+        h += '<div style="background:rgba(162,155,254,.15);padding:10px;border-radius:12px;font-size:1.2rem;">📚</div>';
+        h += '<div style="color:#fff;font-weight:900;font-size:1.1rem;">Lectura Libre o Dirigida</div>';
+        h += '</div>';
+        h += '<div style="color:rgba(255,255,255,.7);font-size:.85rem;line-height:1.6;">Puedes seguir el calendario de misiones del Desafío que elegiste (ej: Sprint de 1 Año)... O puedes leer cualquier libro que te provoque desde la Biblioteca. El sistema guardará tus capítulos leídos universalmente para siempre.</div>';
+        h += '</div>';
+
+        h += '<div class="ab-card" style="margin-bottom:16px;">';
+        h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">';
+        h += '<div style="background:rgba(253,203,110,.15);padding:10px;border-radius:12px;font-size:1.2rem;">🏅</div>';
+        h += '<div style="color:#fff;font-weight:900;font-size:1.1rem;">¿Cómo ganar Galardones?</div>';
+        h += '</div>';
+        h += '<div style="color:rgba(255,255,255,.7);font-size:.85rem;line-height:1.6;margin-bottom:14px;">Hay 6 trofeos espirituales ocultos:</div>';
+        
+        var premios = [
+            {i:'🌍', n:'Orígenes', d:'Lee todos los capítulos de Génesis'},
+            {i:'🎶', n:'El Salmista', d:'Termina los 150 Salmos'},
+            {i:'✝️', n:'El Pescador', d:'Lee Mateo, Marcos, Lucas y Juan'},
+            {i:'🕊️', n:'Revelación', d:'Termina todo Apocalipsis'},
+            {i:'🔥', n:'Fuego 7', d:'Alcanza 7 días de lectura ininterrumpida'},
+            {i:'👑', n:'Discípulo', d:'Logra 21 días de lectura impecable en racha'}
+        ];
+        
+        premios.forEach(function(p) {
+            h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);border-radius:10px;">';
+            h += '<div style="font-size:1.4rem;">' + p.i + '</div>';
+            h += '<div><div style="color:#fdcb6e;font-weight:800;font-size:.85rem;">' + p.n + '</div><div style="color:rgba(255,255,255,.4);font-size:.7rem;">' + p.d + '</div></div>';
+            h += '</div>';
+        });
+        h += '</div>';
+
+        h += '</div>';
+        ov.innerHTML = h;
+        ov.scrollTop = 0;
     };
 
     // 🎧 LÓGICA DEL MODO ZEN (INMERSIÓN)

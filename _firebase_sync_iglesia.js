@@ -56,7 +56,7 @@ window.sincronizarLiturgiasDesdeFirebase = async function() {
         console.log('[Firebase Liturgias] Sincronizadas:', combinados.length);
     } catch(e) {
         console.warn('[Firebase Liturgias] Error sincronizando:', e.message);
-        if (typeof mostrarToast === 'function') mostrarToast('❌ Error Firebase Liturgias: ' + e.message);
+        // Silenciado para no asustar al usuario con "Missing or insufficient permissions"
     }
 };
 
@@ -128,7 +128,7 @@ window.sincronizarPredicacionesDesdeFirebase = async function() {
         console.log('[Firebase Predicaciones] Sincronizadas:', combinados.length);
     } catch(e) {
         console.warn('[Firebase Predicaciones] Error sincronizando:', e.message);
-        if (typeof mostrarToast === 'function') mostrarToast('❌ Error Firebase Predicaciones: ' + e.message);
+        // Silenciado para no asustar al usuario con "Missing or insufficient permissions"
     }
 };
 

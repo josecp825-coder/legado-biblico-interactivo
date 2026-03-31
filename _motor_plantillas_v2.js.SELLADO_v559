@@ -1,0 +1,641 @@
+// ========================================================
+// MOTOR VISUAL DE PLANTILLAS V2 (IMG / HTML2CANVAS)
+// ========================================================
+
+window.accionGuardarRegistro = function(tipoCulto) {
+    if (tipoCulto === 'semana') {
+        if (typeof guardarCultoRegular === 'function') guardarCultoRegular();
+    } else if (tipoCulto === 'sabado') {
+        if (typeof guardarCulto === 'function') guardarCulto();
+    }
+};
+
+/**
+ * Función principal activada por el botón "✨ PLANTILLA"
+ */
+window.accionGenerarPlantilla = async function(tipoCulto) {
+    if (typeof mostrarToast === 'function') mostrarToast('Generando plantilla de alta reolución...', 1000);
+    
+    // 1. Extraer Datos del DOM activo
+    const datos = extraerDatosCompletos(tipoCulto);
+    if (!datos) return;
+
+    // 2. Determinar el "Tema Visual" de acuerdo al tipo de culto
+    let theme = {};
+    if (tipoCulto === 'sabado') {
+        theme.bg = '#08140C'; // Verde musgo oscuro
+        theme.cardBg = '#112217'; // Variante iluminada
+        theme.dateGrad = 'linear-gradient(135deg, #1A3423, #152B1D)';
+        theme.titleGrad = 'linear-gradient(135deg, #244931, #1C3926)';
+        theme.textTitle = '#FFE484'; // Amarillo/Oro
+        theme.textMain = '#FFFFFF';
+        theme.textDetail = '#B2D8C3';
+        theme.border1 = '#E74C3C'; // Rojo (Ancianas/Lectura)
+        theme.border2 = '#2ECC71'; // Verde (Adoracion/Ofrendas)
+        theme.border3 = '#F1C40F'; // Amarillo
+    } else {
+        theme.bg = '#0A0818'; // Azul / Morado Noche (Igual al app)
+        theme.cardBg = '#120F2B';
+        theme.dateGrad = 'linear-gradient(135deg, #1C1645, #151034)';
+        theme.titleGrad = 'linear-gradient(135deg, #2A216A, #1F184E)';
+        theme.textTitle = '#74B9FF'; // Cyan/Azul claro
+        theme.textMain = '#FFFFFF';
+        theme.textDetail = '#A29BFE';
+        theme.border1 = '#A55EEA'; // Violeta vibrante
+        theme.border2 = '#00CEC9'; // Cyan
+        theme.border3 = '#FF9F43'; // Naranja
+    }
+
+    // 3. Crear el HTML dinámicamente
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    div.id = 'plantilla-temp-render';
+    
+    // Lo sacamos de la vista pero permitimos que html2canvas lo dibuje
+    div.style.position = 'absolute';
+    div.style.left = '-9999px';
+    div.style.top = '0px';
+    div.style.width = '700px'; // Fijo para garantizar legibilidad alta (tipo tablet)
+    
+    // Variables globales para la cabecera
+    const nombreAncianas = datos.ancianas ? datos.ancianas : "—";
+    const tipoTitulo = tipoCulto === 'sabado' ? '† CULTO DIVINO' : '✝ CULTO DE ' + datos.tipo.toUpperCase();
+    const fechaText = formatearFechaAgradable(datos.fechaStr);
+
+    let html = `
+    <div style="font-family:'Segoe UI',sans-serif;background-color:${theme.bg};padding:30px;min-height:1000px;">
+        <div style="display:flex;flex-direction:column;gap:15px;">
+            
+            <div style="background:${theme.dateGrad};color:${theme.textTitle};text-align:center;padding:18px;border-radius:14px;font-size:1.6rem;font-weight:900;letter-spacing:1px;box-shadow:0 8px 16px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.06);">
+                ${fechaText}
+            </div>
+
+            <div style="background:${theme.titleGrad};color:${theme.textTitle};text-align:center;padding:20px;border-radius:14px;font-size:1.9rem;font-weight:900;box-shadow:0 8px 16px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);">
+                ${tipoTitulo}
+            </div>
+
+            <div style="background:rgba(255,255,255,0.03);text-align:center;padding:12px;border-radius:12px;border-top:3px solid ${theme.border1};margin-bottom:10px;">
+                <div style="color:${theme.border1};font-size:1.1rem;font-weight:900;letter-spacing:1px;">ANCIANO(S) DE TURNO</div>
+                <div style="color:${theme.textMain};font-size:1.5rem;font-weight:700;margin-top:4px;">${nombreAncianas}</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    `;
+
+    // Llenar Columnas (Generando las tarjetas)
+    let idxColor = 0;
+    const totalRoles = datos.roles.length;
+    
+    datos.roles.forEach((r, idx) => {
+        let bColor = idxColor === 0 ? theme.border1 : (idxColor === 1 ? theme.border2 : theme.border3);
+        idxColor = (idxColor + 1) % 3;
+        
+        // Numeracion estilo burbuja
+        const burbujaHtml = r.num ? 
+            `<div style="position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);font-size:0.8rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.2);">${r.num}</div>` 
+            : '';
+
+        let detailHtml = r.descripcion ? `<div style="color:${theme.textDetail};font-size:1.1rem;margin-top:6px;font-style:italic;line-height:1.3;text-align:center;">${r.descripcion}</div>` : '';
+
+        // Corregir texto para que si "nombre" está vacío no se quiebre, ponga guiones
+        let finalName = (r.nombre && r.nombre.trim() !== '') ? r.nombre : '—';
+        
+        let extraStyle = '';
+        if (idx === totalRoles - 1 && totalRoles % 2 !== 0) {
+            extraStyle = 'grid-column: 1 / -1; max-width: 80%; margin: 0 auto; width: 100%; box-sizing: border-box;';
+        }
+
+        html += `
+            <div style="background-color:${theme.cardBg};border-radius:12px;padding:22px;border-left:8px solid ${bColor};position:relative;display:flex;flex-direction:column;justify-content:center;min-height:90px;box-shadow:0 6px 12px rgba(0,0,0,0.4);${extraStyle}">
+                ${burbujaHtml}
+                <div style="color:${theme.textTitle};font-size:1.05rem;font-weight:900;text-transform:uppercase;text-align:center;letter-spacing:0.5px;margin-bottom:8px;">
+                    ${r.rol}
+                </div>
+                <div style="color:${theme.textMain};font-size:1.4rem;font-weight:800;text-align:center;line-height:1.2;">
+                    ${finalName}
+                </div>
+                ${detailHtml}
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+            <div style="text-align:center;color:rgba(255,255,255,0.4);font-size:1.1rem;font-weight:800;margin-top:30px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.1);">
+                Legado Biblico — Iglesia Adventista Cypress Hills — Brooklyn, NY
+            </div>
+        </div>
+    </div>`;
+
+    div.innerHTML = html;
+
+    // 4. Renderizar con html2canvas
+    try {
+        if (typeof html2canvas === 'undefined') {
+            alert('Librería de imágenes no disponible aún. Refresca la página o contacta soporte.');
+            div.remove();
+            return;
+        }
+
+        const canvas = await html2canvas(div, {
+            scale: 2, // Alta resolución
+            useCORS: true,
+            backgroundColor: theme.bg
+        });
+
+        div.remove(); // Limpiamos el DOM oculto
+
+        // 5. Mostrar visor/modal de compartir
+        mostrarModalImagenRenderizada(canvas, tipoCulto, datos.fechaStr);
+
+    } catch (e) {
+        console.error("Error html2canvas", e);
+        if (typeof mostrarToast === 'function') mostrarToast('Hubo un problema al dibujar la imagen', 3000);
+        div.remove();
+    }
+};
+
+/**
+ * Muestra un modal elegante que permite previsualizar la imagen generada
+ * y compartirla o guardarla igual que con el motor anterior.
+ */
+function mostrarModalImagenRenderizada(canvas, tipoCulto, fechaTxt) {
+    canvas.toBlob(function(blob) {
+        if (!blob) {
+            if (typeof mostrarToast === 'function') mostrarToast('Error comprimiendo la imagen');
+            return;
+        }
+
+        const blobUrl = URL.createObjectURL(blob);
+        const fileName = 'Culto_' + tipoCulto.toUpperCase() + '_' + fechaTxt + '.png';
+
+        const old = document.getElementById('visor-plantilla-v2');
+        if (old) old.remove();
+
+        // Color para los botones del modal según tipo
+        const bgBtn = tipoCulto === 'sabado' ? 'rgba(46, 204, 113, 0.2)' : 'rgba(162, 155, 254, 0.2)';
+        const cBtn = tipoCulto === 'sabado' ? '#2ecc71' : '#a29bfe';
+
+        const modal = document.createElement('div');
+        modal.id = 'visor-plantilla-v2';
+        modal.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;align-items:center;';
+        modal.innerHTML = `
+            <div style="width:100%;padding:18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.08);background:#000;">
+                <div style="color:${cBtn};font-weight:900;font-size:1.1rem;letter-spacing:1px;">✅ PLANTILLA LISTA</div>
+                <button id="cerrar-visor-plantilla" style="background:rgba(255,255,255,0.1);border:none;color:white;padding:8px 16px;border-radius:8px;font-weight:900;font-size:1rem;cursor:pointer;">✕ CERRAR</button>
+            </div>
+            <div style="flex:1;overflow-y:auto;width:100%;display:flex;justify-content:center;padding:15px;box-sizing:border-box;">
+                <img src="${blobUrl}" style="max-width:100%;height:auto;object-fit:contain;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.8);">
+            </div>
+            <div style="width:100%;padding:15px;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#000;border-top:1px solid rgba(255,255,255,0.08);">
+                <button id="btn-share-img" style="padding:16px;background:${bgBtn};border:1.5px solid ${cBtn};color:${cBtn};border-radius:14px;cursor:pointer;font-weight:900;font-size:1.1rem;box-shadow:0 4px 15px ${bgBtn};">📤 ENVIAR</button>
+                <button id="btn-save-img" style="padding:16px;background:rgba(116,185,255,0.15);border:1.5px solid #74b9ff;color:#74b9ff;border-radius:14px;cursor:pointer;font-weight:900;font-size:1.1rem;">💾 GUARDAR FOTO</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Eventos
+        document.getElementById('cerrar-visor-plantilla').onclick = () => {
+            modal.remove(); URL.revokeObjectURL(blobUrl);
+        };
+
+        const executeShare = () => {
+            const file = new File([blob], fileName, { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ title: 'Programa ' + tipoCulto, files: [file] })
+                    .then(() => { modal.remove(); URL.revokeObjectURL(blobUrl); })
+                    .catch(e => { if (e.name !== 'AbortError') window.open(blobUrl, '_blank'); });
+            } else {
+                window.open(blobUrl, '_blank');
+            }
+        };
+
+        document.getElementById('btn-share-img').onclick = executeShare;
+
+        document.getElementById('btn-save-img').onclick = () => {
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            a.click();
+        };
+    }, 'image/png', 0.95);
+}
+
+/**
+ * Función centralizada que abstrae la diferencia de IDs entre
+ * Culto Semanal y Culto de Sábado.
+ */
+function extraerDatosCompletos(tipoCulto) {
+    const val = id => {
+        const el = document.getElementById(id);
+        if (!el) return '';
+        if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+            return el.value.trim();
+        }
+        return el.innerText.trim();
+    };
+
+    let p = {
+        fechaStr: '',
+        tipo: '',
+        ancianas: '',
+        roles: []
+    };
+
+    if (tipoCulto === 'sabado') {
+        p.fechaStr = val('culto-fecha');
+        p.tipo = 'SÁBADO';
+        p.ancianas = val('sab_anciano');
+        
+        // Agregar tarjetas exactas en orden de Sábado
+        const pushR = (n, r, v, d) => {
+            if(v) p.roles.push({num: n, rol: r, nombre: v, descripcion: d||''});
+        };
+
+        pushR('', 'Diáconos (Puerta)', val('sab_diaconos_puerta'));
+        pushR('', 'Diaconisas (Puerta)', val('sab_diaconisas_puerta'));
+        pushR('1', 'Llamado Adoración', val('sab_llamado'));
+        pushR('2', 'Doxología', val('sab_doxologia_quien'), val('sab_doxologia') ? '#' + val('sab_doxologia') + (val('himno-titulo-sab_doxologia') ? ' — ' + val('himno-titulo-sab_doxologia') : '') : '');
+        pushR('3', 'Invocación', val('sab_invocacion'));
+        pushR('4', 'Bienvenida', val('sab_bienvenida'));
+        pushR('5', 'Rincón Infantil', val('sab_infantil_historia'), val('sab_infantil_anuncia') ? 'Anuncia: ' + val('sab_infantil_anuncia') : '');
+        pushR('6', 'Diezmos y Ofrendas (Anuncia)', val('sab_diezmos_anuncia'));
+        pushR('', 'Diáconos (Ofrendas)', val('sab_diaconos_ofrenda'));
+        pushR('', 'Diaconisas (Ofrendas)', val('sab_diaconisas_ofrenda'));
+        pushR('7', 'Himno de Adoración', val('sab_himno1_quien'), val('sab_himno1') ? '#' + val('sab_himno1') + (val('himno-titulo-sab_himno1') ? ' — ' + val('himno-titulo-sab_himno1') : '') : '');
+        pushR('8', 'Lectura Bíblica', val('sab_lectura_quien'), val('sab_lectura'));
+        pushR('9', 'Oración Intercesora', val('sab_intercesora'));
+        pushR('10', 'Parte Especial', val('sab_especial'), val('sab_especial_desc') || (val('sab_especial_quien') ? 'Anuncia: '+val('sab_especial_quien') : ''));
+        pushR('', 'Presenta al Predicador', val('sab_pred_anuncia'));
+        pushR('11', 'Predicador/a', val('sab_predicador'));
+        pushR('', 'Tema del Sermón', val('sab_pred_tema') ? '"' + val('sab_pred_tema') + '"' : '');
+        pushR('12', 'Himno Final', val('sab_himno2_quien'), val('sab_himno2') ? '#' + val('sab_himno2') + (val('himno-titulo-sab_himno2') ? ' — ' + val('himno-titulo-sab_himno2') : '') : '');
+        pushR('13', 'Oración Final', val('sab_oracion_final'));
+        pushR('14', 'Encargado de Sonido', val('sab_sonido'));
+        
+    } else {
+        // SEMANAL
+        p.fechaStr = val('reg-fecha');
+        p.tipo = val('reg-dia') || 'SEMANAL';
+        p.ancianas = val('reg-anciano');
+
+        const pushR = (n, r, v, d) => {
+            if(v) p.roles.push({num: n, rol: r, nombre: v, descripcion: d||''});
+        };
+
+        const lecturaTxt = val('reg-lectura-libro') ? `${val('reg-lectura-libro')} ${val('reg-lectura-capitulo')}:${val('reg-lectura-versiculos')}` : '';
+
+        let i = 1;
+        pushR('', 'Diácono(s)', val('reg-diacono'));
+        pushR('', 'Diaconisa(s)', val('reg-diaconisa'));
+        pushR(i++, 'Alabanza', val('reg-alabanza'));
+        pushR(i++, 'Bienvenida', val('reg-bienvenida'));
+        pushR(i++, 'Oración Inicial', val('reg-oracionIni'));
+        pushR(i++, 'Himno Inicial', val('reg-himnoIni-quien'), val('reg-himnoIni') ? '#' + val('reg-himnoIni') + (val('himno-titulo-reg-himnoIni') ? ' — ' + val('himno-titulo-reg-himnoIni') : '') : '');
+        pushR(i++, 'Lectura Bíblica', val('reg-lectura-quien'), lecturaTxt);
+        
+        if (val('reg-testimonios') !== '') {
+            pushR(i++, 'Testimonios', val('reg-testimonios'));
+        }
+        
+        pushR(i++, 'Música Especial', val('reg-especial'), val('reg-especial-quien') ? 'Anuncia: '+val('reg-especial-quien') : '');
+        
+        // Separar "Presenta al Predicador" en su propio bloque
+        if (val('reg-predicador-quien')) {
+            pushR(i++, 'Presenta al Predicador', val('reg-predicador-quien'));
+        }
+        
+        let descMensaje = '';
+        if (val('reg-mensaje-tema')) descMensaje = '📌 Tema: "' + val('reg-mensaje-tema') + '"';
+        pushR(i++, 'Predicador', val('reg-mensaje'), descMensaje);
+        
+        pushR(i++, 'Himno Final', val('reg-himnoFin-quien') || val('reg-himnoFin'), val('reg-himnoFin-quien') && val('reg-himnoFin') ? '#' + val('reg-himnoFin') + (val('himno-titulo-reg-himnoFin') ? ' — ' + val('himno-titulo-reg-himnoFin') : '') : '');
+        pushR(i++, 'Oración Final', val('reg-oracionFin'));
+        
+        if (val('reg-sonido')) {
+            pushR(i++, 'Encargado de Sonido', val('reg-sonido'));
+        }
+    }
+
+    return p;
+}
+
+function formatearFechaAgradable(fechaStr) {
+    if (!fechaStr) return "Sábado, Próximo";
+    try {
+        const p = fechaStr.split('-');
+        const f = new Date(p[0], p[1]-1, p[2]);
+        const req = f.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        return req.toUpperCase();
+    } catch(e) {
+        return fechaStr;
+    }
+}
+
+// ==========================================
+// 📄 MOTOR DE EXPORTACIÓN PDF
+// Genera internamente el Canvas pero lo empotra en PDF
+// ==========================================
+window.accionGenerarPDF = async function(tipoCulto) {
+    if (typeof mostrarToast === 'function') mostrarToast('Armando documento PDF...', 2000);
+    
+    // Anclamos temporalmente a la misma lógica de "generar imagen oculta",
+    // pero sobreescribimos la función final (mostrarModalImagenRenderizada) para inyectar a jsPDF.
+    
+    // Almacenamos el viejo ref para no perderlo
+    const viejaFn = mostrarModalImagenRenderizada;
+    
+    // Sobrescribimos
+    mostrarModalImagenRenderizada = function(canvas, t, fTxt) {
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+            alert('Librería PDF no cargada. Refresca e intenta de nuevo.');
+            mostrarModalImagenRenderizada = viejaFn; // restauramos
+            return;
+        }
+
+        try {
+            const doc = new window.jspdf.jsPDF('p', 'mm', 'letter');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            
+            // Convertir canvas a imagen y calcular dimensiones para que encaje
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            
+            // Usamos márgenes de 10mm
+            const margin = 10;
+            const w = pageWidth - (margin * 2);
+            const h = (canvas.height * w) / canvas.width;
+            
+            const finalBg = tipoCulto === 'sabado' ? '#08140C' : '#0A0818';
+            doc.setFillColor(finalBg); 
+            doc.rect(0, 0, pageWidth, pageHeight, 'F'); // Fondo relleno page complete
+            doc.addImage(imgData, 'PNG', margin, margin, w, h);
+            
+            doc.save('Culto_' + t.toUpperCase() + '_' + fTxt + '.pdf');
+            if (typeof mostrarToast === 'function') mostrarToast('✅ PDF Descargado Exitosamente', 2000);
+            
+        } catch(e) {
+            console.error('Error generando PDF', e);
+            alert('Hubo un problema procesando el PDF.');
+        }
+
+        // Restaurar la funcion original global Inmediatamente
+        mostrarModalImagenRenderizada = viejaFn;
+    };
+
+    // Ahora llamamos a la misma funcion princiapl, que desencadenará 'mostrarModalImagen...'
+    await window.accionGenerarPlantilla(tipoCulto);
+};
+
+// ==========================================
+// 📲 DELEGAR CULTO (Enviar Plantilla Base)
+// Permite mandar el esqueleto vía WhatsApp
+// ==========================================
+// ==========================================
+// 🎯 FUNCIONES DIRECTAS DESDE REGISTRO (SIN DOM)
+// Para uso desde el historial — lee de localStorage
+// ==========================================
+
+/**
+ * Convierte un objeto de registro de culto semanal en la estructura
+ * que usa el motor de plantillas, SIN leer del DOM.
+ */
+function convertirRegistroADatos(reg) {
+    let p = {
+        fechaStr: reg.fecha || '',
+        tipo: reg.dia || 'SEMANAL',
+        ancianas: reg.anciano || '—',
+        roles: []
+    };
+
+    const pushR = (n, r, v, d) => {
+        if(v && v !== '-' && v.trim() !== '') p.roles.push({num: n, rol: r, nombre: v, descripcion: d||''});
+    };
+
+    const lecturaTxt = reg.lectura || '';
+
+    // Reconstruir descripción de himnos
+    let h1Desc = '';
+    if (reg.himnoIni && reg.himnoIni !== '-') {
+        h1Desc = '#' + reg.himnoIni;
+        if (reg.himnoIni_titulo) h1Desc += ' — ' + reg.himnoIni_titulo;
+    }
+    let h2Desc = '';
+    if (reg.himnoFin && reg.himnoFin !== '-') {
+        h2Desc = '#' + reg.himnoFin;
+        if (reg.himnoFin_titulo) h2Desc += ' — ' + reg.himnoFin_titulo;
+    }
+
+    let i = 1;
+    pushR('', 'Diácono(s)', reg.diacono);
+    pushR('', 'Diaconisa(s)', reg.diaconisa);
+    pushR(i++, 'Alabanza', reg.alabanza);
+    pushR(i++, 'Bienvenida', reg.bienvenida);
+    pushR(i++, 'Oración Inicial', reg.oracionIni);
+    pushR(i++, 'Himno Inicial', reg.himnoIni_quien || reg.himnoIni, h1Desc || '');
+    pushR(i++, 'Lectura Bíblica', reg.lectura_quien, lecturaTxt !== '-' ? lecturaTxt : '');
+
+    if (reg.dia === 'miercoles' && reg.testimonios && reg.testimonios !== '-') {
+        pushR(i++, 'Testimonios', reg.testimonios);
+    }
+
+    pushR(i++, 'Música Especial', reg.especial, reg.especial_quien && reg.especial_quien !== '-' ? 'Anuncia: '+reg.especial_quien : '');
+    
+    // Separar "Presenta al Predicador" en su propio bloque
+    if (reg.predicador_quien && reg.predicador_quien !== '-') {
+        pushR(i++, 'Presenta al Predicador', reg.predicador_quien);
+    }
+    
+    let descMensajeHist = '';
+    if (reg.mensaje_tema && reg.mensaje_tema !== '-') descMensajeHist = '📌 Tema: "' + reg.mensaje_tema + '"';
+    pushR(i++, 'Predicador', reg.mensaje, descMensajeHist);
+    
+    pushR(i++, 'Himno Final', reg.himnoFin_quien || reg.himnoFin, (reg.himnoFin_quien && reg.himnoFin && reg.himnoFin !== '-' && h2Desc) ? h2Desc : '');
+    pushR(i++, 'Oración Final', reg.oracionFin);
+    
+    if (reg.sonido && reg.sonido !== '-') {
+        pushR(i++, 'Encargado de Sonido', reg.sonido);
+    }
+
+    return p;
+}
+
+/**
+ * Genera la plantilla visual (imagen) directamente desde un registro de localStorage.
+ * NO abre el formulario. NO depende del DOM.
+ */
+window.generarPlantillaDesdeRegistro = async function(reg) {
+    if (typeof mostrarToast === 'function') mostrarToast('Generando plantilla de alta resolución...', 1000);
+
+    const datos = convertirRegistroADatos(reg);
+    if (!datos || datos.roles.length === 0) {
+        if (typeof mostrarToast === 'function') mostrarToast('⚠️ No hay datos suficientes para generar plantilla');
+        return;
+    }
+
+    // Tema visual para cultos de semana
+    let theme = {
+        bg: '#0A0818',
+        cardBg: '#120F2B',
+        dateGrad: 'linear-gradient(135deg, #1C1645, #151034)',
+        titleGrad: 'linear-gradient(135deg, #2A216A, #1F184E)',
+        textTitle: '#74B9FF',
+        textMain: '#FFFFFF',
+        textDetail: '#A29BFE',
+        border1: '#A55EEA',
+        border2: '#00CEC9',
+        border3: '#FF9F43'
+    };
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    div.id = 'plantilla-temp-render';
+    div.style.position = 'absolute';
+    div.style.left = '-9999px';
+    div.style.top = '0px';
+    div.style.width = '700px';
+
+    const tipoTitulo = '✝ CULTO DE ' + datos.tipo.toUpperCase();
+    const fechaText = formatearFechaAgradable(datos.fechaStr);
+
+    let html = `
+    <div style="font-family:'Segoe UI',sans-serif;background-color:${theme.bg};padding:30px;min-height:1000px;">
+        <div style="display:flex;flex-direction:column;gap:15px;">
+            <div style="background:${theme.dateGrad};color:${theme.textTitle};text-align:center;padding:18px;border-radius:14px;font-size:1.6rem;font-weight:900;letter-spacing:1px;box-shadow:0 8px 16px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.06);">
+                ${fechaText}
+            </div>
+            <div style="background:${theme.titleGrad};color:${theme.textTitle};text-align:center;padding:20px;border-radius:14px;font-size:1.9rem;font-weight:900;box-shadow:0 8px 16px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);">
+                ${tipoTitulo}
+            </div>
+            <div style="background:rgba(255,255,255,0.03);text-align:center;padding:12px;border-radius:12px;border-top:3px solid ${theme.border1};margin-bottom:10px;">
+                <div style="color:${theme.border1};font-size:1.1rem;font-weight:900;letter-spacing:1px;">ANCIANO(S) DE TURNO</div>
+                <div style="color:${theme.textMain};font-size:1.5rem;font-weight:700;margin-top:4px;">${datos.ancianas}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    `;
+
+    let idxColor = 0;
+    const totalRoles = datos.roles.length;
+    
+    datos.roles.forEach((r, idx) => {
+        let bColor = idxColor === 0 ? theme.border1 : (idxColor === 1 ? theme.border2 : theme.border3);
+        idxColor = (idxColor + 1) % 3;
+        const burbujaHtml = r.num ?
+            `<div style="position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);font-size:0.8rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:1px solid rgba(255,255,255,0.2);">${r.num}</div>`
+            : '';
+        let detailHtml = r.descripcion ? `<div style="color:${theme.textDetail};font-size:1.1rem;margin-top:6px;font-style:italic;line-height:1.3;text-align:center;">${r.descripcion}</div>` : '';
+        let finalName = (r.nombre && r.nombre.trim() !== '') ? r.nombre : '—';
+        
+        let extraStyle = '';
+        if (idx === totalRoles - 1 && totalRoles % 2 !== 0) {
+            extraStyle = 'grid-column: 1 / -1; max-width: 80%; margin: 0 auto; width: 100%; box-sizing: border-box;';
+        }
+
+        html += `
+            <div style="background-color:${theme.cardBg};border-radius:12px;padding:22px;border-left:8px solid ${bColor};position:relative;display:flex;flex-direction:column;justify-content:center;min-height:90px;box-shadow:0 6px 12px rgba(0,0,0,0.4);${extraStyle}">
+                ${burbujaHtml}
+                <div style="color:${theme.textTitle};font-size:1.05rem;font-weight:900;text-transform:uppercase;text-align:center;letter-spacing:0.5px;margin-bottom:8px;">
+                    ${r.rol}
+                </div>
+                <div style="color:${theme.textMain};font-size:1.4rem;font-weight:800;text-align:center;line-height:1.2;">
+                    ${finalName}
+                </div>
+                ${detailHtml}
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+            <div style="text-align:center;color:rgba(255,255,255,0.4);font-size:1.1rem;font-weight:800;margin-top:30px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.1);">
+                Legado Biblico — Iglesia Adventista Cypress Hills — Brooklyn, NY
+            </div>
+        </div>
+    </div>`;
+
+    div.innerHTML = html;
+
+    try {
+        if (typeof html2canvas === 'undefined') {
+            alert('Librería de imágenes no disponible. Refresca la página.');
+            div.remove();
+            return;
+        }
+        const canvas = await html2canvas(div, { scale: 2, useCORS: true, backgroundColor: theme.bg });
+        div.remove();
+        mostrarModalImagenRenderizada(canvas, 'semana', datos.fechaStr);
+    } catch (e) {
+        console.error("Error html2canvas", e);
+        if (typeof mostrarToast === 'function') mostrarToast('Hubo un problema al dibujar la imagen', 3000);
+        div.remove();
+    }
+};
+
+/**
+ * Genera PDF directamente desde un registro de localStorage.
+ * NO abre el formulario. NO depende del DOM.
+ */
+window.generarPDFDesdeRegistro = async function(reg) {
+    if (typeof mostrarToast === 'function') mostrarToast('Armando documento PDF...', 2000);
+
+    const datos = convertirRegistroADatos(reg);
+    if (!datos || datos.roles.length === 0) {
+        if (typeof mostrarToast === 'function') mostrarToast('⚠️ No hay datos suficientes para generar PDF');
+        return;
+    }
+
+    // Reutilizamos generarPlantillaDesdeRegistro pero interceptando el modal
+    const viejaFn = mostrarModalImagenRenderizada;
+
+    mostrarModalImagenRenderizada = function(canvas, t, fTxt) {
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+            alert('Librería PDF no cargada. Refresca e intenta de nuevo.');
+            mostrarModalImagenRenderizada = viejaFn;
+            return;
+        }
+        try {
+            const doc = new window.jspdf.jsPDF('p', 'mm', 'letter');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            const margin = 10;
+            const w = pageWidth - (margin * 2);
+            const h = (canvas.height * w) / canvas.width;
+            doc.setFillColor('#0A0818');
+            doc.rect(0, 0, pageWidth, pageHeight, 'F');
+            doc.addImage(imgData, 'PNG', margin, margin, w, h);
+            doc.save('Culto_SEMANA_' + fTxt + '.pdf');
+            if (typeof mostrarToast === 'function') mostrarToast('✅ PDF Descargado Exitosamente', 2000);
+        } catch(e) {
+            console.error('Error generando PDF', e);
+            alert('Hubo un problema procesando el PDF.');
+        }
+        mostrarModalImagenRenderizada = viejaFn;
+    };
+
+    await window.generarPlantillaDesdeRegistro(reg);
+};
+
+window.accionDelegarCulto = function(tipoCulto) {
+    const datos = extraerDatosCompletos(tipoCulto);
+    if (!datos) return;
+
+    let txt = `🌟 *IGLESIA ADVENTISTA CYPRESS HILLS* 🌟\n`;
+    txt += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
+    txt += `📝 *PROGRAMA A DELEGAR* | *${datos.tipo}*\n`;
+    txt += `📅 *Fecha:* ${formatearFechaAgradable(datos.fechaStr)}\n`;
+    txt += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n`;
+    txt += `_(Por favor copiar este formato, completar los nombres al lado del guión y enviarlo de vuelta al grupo)_\n\n`;
+    txt += `*Anciano(a) de Turno:* —\n`;
+    
+    datos.roles.forEach(r => {
+        let n = r.num ? r.num + '. ' : '';
+        txt += `*${n}${r.rol}:* —\n`;
+    });
+    
+    txt += `\n*Observaciones Adicionales:* —\n`;
+    txt += `\n*Aprobado Por:* —\n`;
+
+    const wUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(txt);
+    window.open(wUrl, '_blank');
+};

@@ -1,0 +1,43 @@
+. 2026-03-30 14:21:02.928 --------------------------------------------------------------------------
+. 2026-03-30 14:21:02.930 WinSCP Versión 6.5.5 (Compilación 16453 2025-11-19) (OS 10.0.26200 – Windows 11 Home)
+. 2026-03-30 14:21:02.930 Configuration: nul
+. 2026-03-30 14:21:02.930 Log level: Normal
+. 2026-03-30 14:21:02.930 Local account: ENGELCANDELARIO\jhose
+. 2026-03-30 14:21:02.930 Working directory: C:\Users\jhose\OneDrive\Desktop\PROYECTO DE CODIGO\LEGADO_BIBLICO_PROD
+. 2026-03-30 14:21:02.930 Process ID: 13860
+. 2026-03-30 14:21:02.954 Ancestor processes: WinSCP, powershell, Antigravity, Antigravity, explorer, ...
+. 2026-03-30 14:21:02.954 Command-line: "C:\Program Files (x86)\WinSCP\WinSCP.exe" /console=6.5.5 /consoleinstance=_18928_101 "/ini=nul" "/script=winscp_v545b.txt" "/log=winscp_log.txt" 
+. 2026-03-30 14:21:02.954 Time zone: Current: GMT-4, Standard: GMT-5 (Horario estándar de Haití), DST: GMT-4 (Hora de verano de Haití), DST Start: 8/3/2026, DST End: 1/11/2026
+. 2026-03-30 14:21:02.954 Login time: lunes, 30 de marzo de 2026 2:21:02 p. m.
+. 2026-03-30 14:21:02.954 --------------------------------------------------------------------------
+. 2026-03-30 14:21:02.954 Script: Retrospectively logging previous script records:
+> 2026-03-30 14:21:02.954 Script: open ftp://legado_sync%40legadobiblicopro.com:***@ftp.legadobiblicopro.com/
+. 2026-03-30 14:21:02.954 --------------------------------------------------------------------------
+. 2026-03-30 14:21:02.954 Session name: legado_sync@legadobiblicopro.com@ftp.legadobiblicopro.com (Ad-Hoc site)
+. 2026-03-30 14:21:02.954 Host name: ftp.legadobiblicopro.com (Port: 21)
+. 2026-03-30 14:21:02.955 User name: legado_sync@legadobiblicopro.com (Password: Yes, Key file: No, Passphrase: No)
+. 2026-03-30 14:21:02.955 Transfer Protocol: FTP
+. 2026-03-30 14:21:02.955 Ping type: Dummy, Ping interval: 30 sec; Timeout: 15 sec
+. 2026-03-30 14:21:02.955 Disable Nagle: No
+. 2026-03-30 14:21:02.955 Proxy: None
+. 2026-03-30 14:21:02.955 Send buffer: 262144
+. 2026-03-30 14:21:02.955 UTF: Auto
+. 2026-03-30 14:21:02.955 FTPS: None [Client certificate: No]
+. 2026-03-30 14:21:02.955 FTP: Passive: Yes [Force IP: Auto]; MLSD: Auto [List all: Auto]; HOST: Auto
+. 2026-03-30 14:21:02.955 Local directory: default, Remote directory: home, Update: Yes, Cache: Yes
+. 2026-03-30 14:21:02.955 Cache directory changes: Yes, Permanent: Yes
+. 2026-03-30 14:21:02.955 Recycle bin: Delete to: No, Overwritten to: No, Bin path: 
+. 2026-03-30 14:21:02.955 Timezone offset: 0h 0m
+. 2026-03-30 14:21:02.955 --------------------------------------------------------------------------
+< 2026-03-30 14:21:02.981 Script: Conectando con ftp.legadobiblicopro.com...
+. 2026-03-30 14:21:02.983 Conectando con ftp.legadobiblicopro.com...
+. 2026-03-30 14:21:03.077 Conectado con ftp.legadobiblicopro.com. Esperando bienvenida...
+< 2026-03-30 14:21:03.148 220 FTP Server ready.
+> 2026-03-30 14:21:03.148 USER legado_sync@legadobiblicopro.com
+< 2026-03-30 14:21:03.177 331 Password required for legado_sync@legadobiblicopro.com
+> 2026-03-30 14:21:03.177 PASS ***************
+< 2026-03-30 14:21:08.417 530 Login incorrect.
+. 2026-03-30 14:21:08.417 Error de conexión.
+< 2026-03-30 14:21:08.422 Script: Acceso denegado.
+. 2026-03-30 14:21:08.422 Password prompt (last login attempt failed)
+< 2026-03-30 14:21:08.426 Script: Autenticación fallida.

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantilla Culto Divino</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05160E; /* Fondo oscuro muy elegante */
+            --card-bg: #0C2419;
+            --card-bg-hover: #113626;
+            --text-title: #E5C07B; /* Dorado suave */
+            --text-main: #F0F0F0;
+            --text-detail: #98B8A6;
+            
+            /* Colores de los bordes izquierdo e indicadores */
+            --border-red: #E06C75;
+            --border-green: #98C379;
+            --border-yellow: #E5C07B;
+            --border-blue: #61AFEF;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px 10px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .liturgia-container {
+            width: 100%;
+            max-width: 480px; /* Tamaño ideal para celulares */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .header-date {
+            background: linear-gradient(135deg, #182C17 0%, #102111 100%);
+            color: #D6CA5C;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: 1px solid #2B4628;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+
+        .header-title {
+            background: linear-gradient(135deg, #183021 0%, #0F1E15 100%);
+            color: #E5C07B;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid #24412E;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border-left: 5px solid #fff; /* Borde por defecto */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Efecto sutil de glassmorphism hover */
+        .card:hover {
+            background-color: var(--card-bg-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+        }
+
+        .card.border-red { border-left-color: var(--border-red); }
+        .card.border-green { border-left-color: var(--border-green); }
+        .card.border-yellow { border-left-color: var(--border-yellow); }
+        .card.border-blue { border-left-color: var(--border-blue); }
+
+        .card.nuevo-campo {
+            border: 1px dashed var(--border-blue);
+            border-left: 5px solid var(--border-blue);
+            background-color: rgba(97, 175, 239, 0.08);
+        }
+
+        .card-role {
+            color: var(--text-title);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .card-name {
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .card-detail {
+            color: var(--text-detail);
+            font-size: 0.85rem;
+            font-weight: 400;
+            text-align: center;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="liturgia-container">
+        <!-- Date Header -->
+        <div class="header-date">
+            SABADO 21 DE MARZO 2026
+        </div>
+
+        <!-- Section Title -->
+        <div class="header-title">
+            ✝ CULTO DIVINO
+        </div>
+
+        <!-- Items -->
+        <div class="card border-red">
+            <div class="card-role">ANCIANO(S) DE TURNO</div>
+            <div class="card-name">Nerllys Maza / Cecilia Wilson</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">DIÁCONOS (PUERTA Y ORDEN)</div>
+            <div class="card-name">Marcos Figueroa</div>
+        </div>
+
+        <div class="card border-red">
+            <div class="card-role">DIACONISAS (PUERTA Y ORDEN)</div>
+            <div class="card-name">Yulima Maza</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">1. LLAMADO A LA ADORACION</div>
+            <div class="card-name">Haston Vargas</div>
+        </div>
+
+        <div class="card border-red">
+            <div class="card-role">2. DOXOLOGIA</div>
+            <div class="card-name">#55 — Grande, Señor, es tu misericordia</div>
+        </div>
+
+        <div class="card border-yellow">
+            <div class="card-role">3. INVOCACION</div>
+            <div class="card-name">Pr. Rafael Solano</div>
+        </div>
+
+        <div class="card border-red">
+            <div class="card-role">4. BIENVENIDA</div>
+            <div class="card-name">Cecilia Wilson</div>
+        </div>
+
+        <!-- CAMPO NUEVO 1 (Llamó mi atención que en la imagen salta del 4 al 6, así que dejé este espacio aquí) -->
+        <div class="card nuevo-campo">
+            <div class="card-role">[ CAMPO NUEVO 1 ]</div>
+            <div class="card-name">Nombre / Descripción</div>
+            <div class="card-detail">Agregado según lo solicitado. ¿Qué título llevará?</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">6. DIEZMOS Y OFRENDAS (ANUNCIA)</div>
+            <div class="card-name">Haston Tomas</div>
+        </div>
+
+        <div class="card border-red">
+            <div class="card-role">DIÁCONOS (OFRENDAS)</div>
+            <div class="card-name">Logan Vargas</div>
+        </div>
+
+        <div class="card border-yellow">
+            <div class="card-role">DIACONISAS (OFRENDAS)</div>
+            <div class="card-name">Fermin Hernandez</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">7. HIMNO DE ADORACION</div>
+            <div class="card-name">Cecilia Wilson</div>
+            <div class="card-detail">#248 — Que mi vida entera esté</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">8. LECTURA BIBLICA</div>
+            <div class="card-name">Luz Lopez</div>
+            <div class="card-detail">Juan 6: 48-50</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">9. ORACION INTERCESORA</div>
+            <div class="card-name">Nerlys Maza</div>
+        </div>
+
+        <!-- CAMPO NUEVO 2 (En la imagen no hay número 10, va del 9 a 'Presenta al Predicador' y luego al 11) -->
+        <div class="card nuevo-campo">
+            <div class="card-role">[ CAMPO NUEVO 2 ]</div>
+            <div class="card-name">Nombre / Descripción</div>
+            <div class="card-detail">Agregado según lo solicitado. ¿Qué título llevará?</div>
+        </div>
+
+        <div class="card border-yellow">
+            <div class="card-role">PRESENTA AL PREDICADOR</div>
+            <div class="card-name">Cecilia Wilson</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">11. PREDICADOR/A</div>
+            <div class="card-name">Pr. Rafael Solano</div>
+        </div>
+
+        <div class="card border-yellow">
+            <div class="card-role">TEMA DEL SERMON</div>
+            <div class="card-name">El Pan De Vida</div>
+        </div>
+
+        <div class="card border-red">
+            <div class="card-role">12. HIMNO FINAL</div>
+            <div class="card-name">Nerlys Maza</div>
+            <div class="card-detail">#293 — ¿Quieres ser salvo de toda maldad?</div>
+        </div>
+
+        <div class="card border-green">
+            <div class="card-role">13. ORACION FINAL</div>
+            <div class="card-name">Pr. Rafael Solano</div>
+        </div>
+
+        <div class="card border-red">
+            <div class="card-role">14. ENCARGADO DE SONIDO</div>
+            <div class="card-name">Freddy</div>
+        </div>
+
+    </div>
+</body>
+</html>

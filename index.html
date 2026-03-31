@@ -2,8 +2,9 @@
 <html lang="es">
 
 <head>
-    <script src="versiculos_hero.js?v=517"></script>
-    <script src="datos_devocionales.js?v=517"></script>
+    <meta charset="UTF-8">
+    <script src="versiculos_hero.js?v=586"></script>
+    <script src="datos_devocionales.js?v=586"></script>
     <script>
         // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // ðŸ›¡ï¸ ESCUDO ANTI-LOOP DE RECARGA v84
@@ -43,7 +44,7 @@
         // -----------------------------------------------------
         // âœ… GESTIÃ“N DE VERSIÃ“N Y ACTUALIZACIONES PWA (ATÃ“MICO Y ESTABLE)
         // -----------------------------------------------------
-        const _HTML_VERSION = '517'; // â† CAMBIAR EN CADA DEPLOY
+        const _HTML_VERSION = '586'; // â† CAMBIAR EN CADA DEPLOY
 
         async function checkVersion() {
             const versionGuardada = localStorage.getItem('legado_v3') || '0';
@@ -126,22 +127,8 @@
         };
 
         window.mostrarBannerActualizacion = function (nuevaVersion) {
-            window._ocultarSplash();
-            const prev = document.getElementById('bnnr-update');
-            if (prev) return;
-            const div = document.createElement('div');
-            div.id = 'bnnr-update';
-            div.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00b894,#55efc4);color:#000;padding:25px 20px;border-radius:24px;z-index:9999999;box-shadow:0 10px 50px rgba(0,200,100,0.5);width:90%;max-width:400px;text-align:center;animation:fadeInUp 0.5s ease-out;font-family:'Outfit',sans-serif;";
-            div.innerHTML = `
-                <div style="font-size:3.5rem;margin-bottom:5px;">ðŸš€</div>
-                <div style="font-weight:900;font-size:1.3rem;margin-bottom:8px;letter-spacing:1px;color:#000;">NUEVA ACTUALIZACIÃ“N</div>
-                <div style="font-size:0.85rem;color:#111;margin-bottom:18px;line-height:1.4;font-weight:700;">Hemos instalado mejoras y solucionado varios errores.<br><br>Toca el botÃ³n para refrescar la App y aplicar los cambios sin desinstalar.</div>
-                <div style="display:flex;gap:10px;">
-                    <button onclick="document.getElementById('bnnr-update').remove()" style="padding:14px;background:rgba(0,0,0,0.05);color:#000;border:2px solid rgba(0,0,0,0.2);border-radius:14px;font-weight:900;font-size:0.85rem;cursor:pointer;opacity:0.6;">CERRAR</button>
-                    <button onclick="superHuracanUpdate();this.innerText='Cargando..';this.disabled=true;this.style.background='#333';this.style.color='#fff';" style="flex:1;padding:14px;background:#000;color:#55efc4;border:none;border-radius:14px;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:1px;box-shadow:0 8px 20px rgba(0,0,0,0.3);transition:0.2s;">ðŸ”„ ACTUALIZAR</button>
-                </div>
-            `;
-            document.body.appendChild(div);
+            // POPUP DESHABILITADO POR COMPLETO Y ELIMINADO
+            return;
         };
 
     </script>
@@ -167,7 +154,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="./firebase-config.js?v=517"></script>
+    <script src="./firebase-config.js?v=586"></script>
     <script>
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -248,7 +235,7 @@
                  'legado_font_paso','cal_bio_registered','cal_bio_cred_id','cal_director',
                  'plan_ano_biblico','plan_fecha_inicio','plan_dias_leidos',
                  'ab_caps_leidos','ab_marcador','ab_font_size',
-                 'legado_eventos','legado_predicaciones'].forEach(k => {
+                 'legado_eventos','legado_predicaciones','legado_cultos_regulares'].forEach(k => {
                     const v = localStorage.getItem(k);
                     if (v) _save[k] = v;
                 });
@@ -1234,40 +1221,162 @@
 
     <div id="pantalla-estudio" class="container-estudio"></div>
 
-    <script src="./cba_motor.js?v=517"></script>
-    <script src="./firebase-service.js?v=517"></script>
-    <script src="./teen-auth.js?v=517"></script>
-    <script src="./trivia_parte1.js?v=517"></script>
-    <script src="./trivia_parte2.js?v=517"></script>
-    <script src="./trivia_parte3.js?v=517"></script>
-    <script src="./biblia_datos.js?v=517"></script>
-    <script src="./biblia_busqueda.js?v=517"></script>
-    <script src="./biblia_lector.js?v=517"></script>
-    <script src="./biblia_wizard.js?v=517"></script>
-    <script src="./data_kids_v2.js?v=517"></script>
-    <script src="./kids_cinema.js?v=517"></script>
-    <script src="./data_jovenes.js?v=517"></script>
-    <script src="./data_adultos_v37.js?v=517"></script>
-    <script src="./data_teens_v8.js?v=517"></script>
-    <script src="./_juego_penal_biblico.js?v=517"></script>
-    <script src="./_penal_visual.js?v=517"></script>
-    <script src="./himnario_data.js?v=517"></script>
-    <script src="./data_iglesia_v1.js?v=517"></script>
-    <script src="./_cultos_regulares.js?v=517"></script>
-    <script src="./_add_eventos_especiales.js?v=517"></script>
-    <script src="./_firebase_sync_iglesia.js?v=517"></script>
-    <script src="./_pdf_eventos.js?v=517"></script>
-    <script src="./_ano_biblico_v2.js?v=517"></script>
+    <script src="./cba_motor.js?v=586"></script>
+    <script src="./firebase-service.js?v=586"></script>
+    <script src="./teen-auth.js?v=586"></script>
+    <script src="./trivia_parte1.js?v=586"></script>
+    <script src="./trivia_parte2.js?v=586"></script>
+    <script src="./trivia_parte3.js?v=586"></script>
+    <script src="./biblia_datos.js?v=586"></script>
+    <script src="./biblia_busqueda.js?v=586"></script>
+    <script src="./biblia_lector.js?v=586"></script>
+    <script src="./biblia_wizard.js?v=586"></script>
+    <script src="./data_kids_v2.js?v=586"></script>
+    <script src="./kids_cinema.js?v=586"></script>
+    <script src="./data_jovenes.js?v=586"></script>
+    <script src="./data_adultos_v37.js?v=586"></script>
+    <script src="./data_teens_v8.js?v=586"></script>
+    <script src="./_juego_penal_biblico.js?v=586"></script>
+    <script src="./_penal_visual.js?v=586"></script>
+    <script src="./himnario_data.js?v=586"></script>
+    <script src="./data_iglesia_v1.js?v=586"></script>
+    <script src="./_cultos_regulares.js?v=586"></script>
+    <script src="./_motor_plantillas_v2.js?v=586"></script>
+    <script src="./_add_eventos_especiales.js?v=586"></script>
+    <script src="./_firebase_sync_iglesia.js?v=586"></script>
+    <script src="./_pdf_eventos.js?v=586"></script>
+    <script src="./_inyectar_mayordomia.js?v=586"></script>
+    <script src="./_inyectar_santacena.js?v=586"></script>
+    <script src="./_ano_biblico_v2.js?v=586"></script>
     <!-- âœ… LibrerÃ­as locales â€” sin dependencia de CDN externa -->
     <script src="./html2canvas.min.js"></script>
     <script src="./jspdf.umd.min.js"></script>
-    <script src="./fix_herramientas_culto.js?v=517"></script>
-    <script src="./_nueva_funcion.js?v=517"></script>
-    <script src="./versus_engine.js?v=517"></script>
-    <script src="./auth_mundial.js?v=517&safe=vite"></script>
+    <script src="./fix_herramientas_culto.js?v=586"></script>
+    <script src="./_nueva_funcion.js?v=586"></script>
+    <script src="./versus_engine.js?v=586"></script>
+    <script src="./auth_mundial.js?v=586&safe=vite"></script>
 
-    <script src="ui_core.js?v=517&safe=vite"></script>
-    <script src="pwa_installer.js?v=517"></script>
+    <script src="ui_core.js?v=586&safe=vite"></script>
+    <script src="pwa_installer.js?v=586"></script>
+    <!-- 🛡️ FIX DEFINITIVO v550: Edición de Culto de Semana -->
+    <!-- Este script inline NO depende del caché del SW - se ejecuta siempre fresco -->
+    <script>
+    // FIX: definir función faltante que causa el crash
+    if (typeof cargarHimnosRegulares === 'undefined') {
+        window.cargarHimnosRegulares = function() {};
+    }
+    
+    // SOBREESCRIBIR manejarEdicionExternaRegular con implementación COMPLETA
+    // No depende de editarCultoRegular ni de ninguna función cacheada
+    window.manejarEdicionExternaRegular = function(id) {
+        if (typeof renderCultosRegulares !== 'function') {
+            alert('Módulo no cargado. Recarga la página.');
+            return;
+        }
+        
+        // 1. Marcar edición
+        window.regularEditandoId = id;
+        
+        // 2. Renderizar formulario (envuelto en try-catch para que el setTimeout SIEMPRE corra)
+        try { renderCultosRegulares(); } catch(e) { console.warn('render:', e.message); }
+        
+        // 3. LLENAR DIRECTAMENTE después de que el DOM se estabilice
+        //    SIN depender de editarCultoRegular (que puede estar cacheada vieja)
+        setTimeout(function() {
+            try {
+                var registros = JSON.parse(localStorage.getItem('legado_cultos_regulares') || '[]');
+                var reg = null;
+                for (var i = 0; i < registros.length; i++) {
+                    if (String(registros[i].id) === String(id)) { reg = registros[i]; break; }
+                }
+                if (!reg) {
+                    if (typeof mostrarToast === 'function') mostrarToast('⚠️ Registro no encontrado');
+                    return;
+                }
+                
+                // Setear globalmente
+                window.regularEditandoId = id;
+                try { regularEditandoId = id; } catch(e) {}
+                
+                // LLENAR TODOS los campos del formulario directamente
+                var campos = {
+                    'reg-fecha': reg.fecha,
+                    'reg-dia': reg.dia || 'miercoles',
+                    'reg-anciano': reg.anciano,
+                    'reg-diacono': reg.diacono,
+                    'reg-diaconisa': reg.diaconisa,
+                    'reg-alabanza': reg.alabanza,
+                    'reg-bienvenida': reg.bienvenida,
+                    'reg-oracionIni': reg.oracionIni,
+                    'reg-himnoIni-quien': reg.himnoIni_quien,
+                    'reg-himnoIni': reg.himnoIni,
+                    'reg-lectura-quien': reg.lectura_quien,
+                    'reg-especial-quien': reg.especial_quien,
+                    'reg-especial': reg.especial,
+                    'reg-predicador-quien': reg.predicador_quien,
+                    'reg-mensaje': reg.mensaje,
+                    'reg-mensaje-tema': reg.mensaje_tema,
+                    'reg-himnoFin-quien': reg.himnoFin_quien,
+                    'reg-himnoFin': reg.himnoFin,
+                    'reg-oracionFin': reg.oracionFin,
+                    'reg-testimonios': reg.testimonios,
+                    'reg-sonido': reg.sonido
+                };
+                
+                for (var key in campos) {
+                    var el = document.getElementById(key);
+                    if (el) {
+                        var val = campos[key];
+                        el.value = (val && val !== '-') ? val : '';
+                    }
+                }
+                
+                // Descomponer lectura bíblica
+                if (reg.lectura && reg.lectura !== '-') {
+                    var match = reg.lectura.match(/^([^0-9]+)\s*(\d+)?(?:\s*:\s*(.*))?$/);
+                    if (match) {
+                        var eL = document.getElementById('reg-lectura-libro');
+                        var eC = document.getElementById('reg-lectura-capitulo');
+                        var eV = document.getElementById('reg-lectura-versiculos');
+                        if(eL) eL.value = match[1].trim();
+                        if(eC) eC.value = match[2] || '';
+                        if(eV) eV.value = match[3] || '';
+                    }
+                }
+                
+                // Actualizar visibilidad testimonios
+                if (typeof actualizarVisibilidadTestimonios === 'function') {
+                    try { actualizarVisibilidadTestimonios(); } catch(e) {}
+                }
+                
+                // Títulos de himnos
+                if (reg.himnoIni && typeof HIMNARIO_ADVENTISTA !== 'undefined') {
+                    var n1 = parseInt((reg.himnoIni||'').replace('#',''));
+                    var d1 = document.getElementById('himno-titulo-reg-himnoIni');
+                    if (d1 && HIMNARIO_ADVENTISTA[n1]) d1.textContent = '🎵 #' + n1 + ' — ' + HIMNARIO_ADVENTISTA[n1];
+                }
+                if (reg.himnoFin && typeof HIMNARIO_ADVENTISTA !== 'undefined') {
+                    var n2 = parseInt((reg.himnoFin||'').replace('#',''));
+                    var d2 = document.getElementById('himno-titulo-reg-himnoFin');
+                    if (d2 && HIMNARIO_ADVENTISTA[n2]) d2.textContent = '🎵 #' + n2 + ' — ' + HIMNARIO_ADVENTISTA[n2];
+                }
+                
+                // Cambiar botón a ACTUALIZAR
+                var btn = document.getElementById('btn-guardar-reg');
+                if (btn) {
+                    btn.innerHTML = '✏️ ACTUALIZAR REGISTRO';
+                    btn.style.background = 'linear-gradient(135deg,#e17055,#fdcb6e)';
+                }
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (typeof mostrarToast === 'function') mostrarToast('Editando culto del ' + (reg.fecha || ''));
+                
+            } catch(err) {
+                if (typeof mostrarToast === 'function') mostrarToast('Error: ' + err.message);
+            }
+        }, 400);
+    };
+    </script>
 
 </body>
 

@@ -226,6 +226,108 @@ window.abrirOpcionesExportEvento = function(eventoId) {
     if (typeof mostrarToast === 'function') mostrarToast('Usa los botones directos del evento');
 };
 
+// ================================================================
+// SELECTOR SIMPLE DE DÍAS (sin paleta de colores)
+// ================================================================
+window._abrirSelectorDias = function(eventoId) {
+    var eventos = JSON.parse(localStorage.getItem('legado_eventos') || '[]');
+    var ev = eventos.find(function(e) { return e.id === eventoId; });
+    if (!ev || !ev.dias) return;
+
+    var colorEv = ev.color || '#00b894';
+
+    var old = document.getElementById('evt-dia-selector');
+    if (old) old.remove();
+
+    // Estado: todos los días con datos están pre-seleccionados
+    var diasChecked = ev.dias.map(function(dia) {
+        return dia.datos && Object.keys(dia.datos).some(function(k){ return k !== 'anciano_tipo' && !!dia.datos[k]; });
+    });
+
+    window._sdState = { eventoId: eventoId, diasChecked: diasChecked, total: ev.dias.length };
+
+    // HTML de días como pills
+    var diasHtml = ev.dias.map(function(dia, i) {
+        var col = (typeof COLORES_DIA !== 'undefined') ? COLORES_DIA[dia.diaSemana] : {hex:'#74b9ff',rgb:'116,185,255'};
+        var f = (typeof _fechaCorta === 'function') ? _fechaCorta(dia.fecha) : dia.fecha;
+        var tieneDatos = dia.datos && Object.keys(dia.datos).some(function(k){ return k !== 'anciano_tipo' && !!dia.datos[k]; });
+        var isOn = diasChecked[i];
+        return '<span id="sd-dia-'+i+'" onclick="_sdDiaToggle('+i+',\''+col.rgb+'\')" '
+            + 'style="display:inline-flex;align-items:center;gap:4px;padding:8px 12px;'
+            + 'background:rgba('+col.rgb+','+(isOn?'0.25':'0.05')+');border:2px solid rgba('+col.rgb+','+(isOn?'0.9':'0.2')+');'
+            + 'color:'+col.hex+';border-radius:10px;cursor:pointer;font-weight:900;font-size:0.75rem;margin:3px;position:relative;'
+            + (isOn?'':'opacity:0.45;') + '">'
+            + '<span id="sd-ck-'+i+'" style="font-size:0.8rem;">'+(isOn?'✓':'')+'</span> '+f
+            + (tieneDatos ? '<span style="position:absolute;top:-5px;right:-3px;background:#2ed573;width:8px;height:8px;border-radius:50%;"></span>' : '')
+            + '</span>';
+    }).join('');
+
+    var modal = document.createElement('div');
+    modal.id = 'evt-dia-selector';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10006;background:rgba(0,0,0,0.93);display:flex;align-items:center;justify-content:center;';
+
+    modal.innerHTML = '<div style="background:linear-gradient(180deg,#0d0b22,#05040f);border-radius:20px;width:90%;max-width:420px;padding:20px;border:2px solid '+colorEv+';">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+        + '<div style="color:'+colorEv+';font-size:0.75rem;font-weight:900;letter-spacing:1px;">📅 SELECCIONAR DÍAS</div>'
+        + '<button onclick="document.getElementById(\'evt-dia-selector\').remove()" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.5);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:1rem;">✕</button>'
+        + '</div>'
+        + '<div style="color:rgba(255,255,255,0.4);font-size:0.6rem;font-weight:700;margin-bottom:10px;">🟢 = con datos  •  Toca para seleccionar/deseleccionar</div>'
+        + '<div style="line-height:2.2;margin-bottom:16px;">'+diasHtml+'</div>'
+        + '<div style="display:flex;gap:8px;margin-bottom:14px;">'
+        + '<button onclick="_sdTodos()" style="flex:1;padding:8px;background:rgba('+colorEv.replace('#','').match(/../g).map(function(h){return parseInt(h,16)}).join(',')+',0.15);border:1px solid '+colorEv+';color:'+colorEv+';border-radius:10px;cursor:pointer;font-weight:900;font-size:0.7rem;">✅ Todos</button>'
+        + '<button onclick="_sdNinguno()" style="flex:1;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.4);border-radius:10px;cursor:pointer;font-weight:900;font-size:0.7rem;">☐ Ninguno</button>'
+        + '</div>'
+        + '<button onclick="_sdGenerar()" style="width:100%;padding:14px;background:linear-gradient(135deg,'+colorEv+',rgba('+colorEv.replace('#','').match(/../g).map(function(h){return parseInt(h,16)}).join(',')+',0.6));border:none;color:#000;border-radius:14px;cursor:pointer;font-weight:900;font-size:0.9rem;">🖼️ GENERAR PLANTILLA</button>'
+        + '</div>';
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e){ if (e.target === modal) modal.remove(); });
+};
+
+window._sdDiaToggle = function(idx, rgb) {
+    window._sdState.diasChecked[idx] = !window._sdState.diasChecked[idx];
+    var span = document.getElementById('sd-dia-'+idx);
+    var ck = document.getElementById('sd-ck-'+idx);
+    var on = window._sdState.diasChecked[idx];
+    if (ck) ck.textContent = on ? '✓' : '';
+    if (span) {
+        span.style.background = 'rgba('+rgb+','+(on?'0.25':'0.05')+')';
+        span.style.border = (on?'2px':'1px')+' solid rgba('+rgb+','+(on?'0.9':'0.2')+')';
+        span.style.opacity = on ? '1' : '0.45';
+    }
+};
+
+window._sdTodos = function() {
+    for (var i = 0; i < window._sdState.total; i++) {
+        if (!window._sdState.diasChecked[i]) _sdDiaToggle(i, '116,185,255');
+    }
+};
+
+window._sdNinguno = function() {
+    for (var i = 0; i < window._sdState.total; i++) {
+        if (window._sdState.diasChecked[i]) _sdDiaToggle(i, '116,185,255');
+    }
+};
+
+window._sdGenerar = function() {
+    var sel = [];
+    (window._sdState.diasChecked || []).forEach(function(v, i){ if (v) sel.push(i); });
+    if (sel.length === 0) {
+        if (typeof mostrarToast === 'function') mostrarToast('⚠️ Selecciona al menos un día');
+        return;
+    }
+    var evId = window._sdState.eventoId;
+    document.getElementById('evt-dia-selector').remove();
+
+    var esTotal = (sel.length === window._sdState.total);
+    if (esTotal) {
+        generarPlantillaEvento(evId, 'todos');
+    } else {
+        window._diaSelElegir = sel;
+        generarPlantillaEvento(evId, 'seleccion');
+    }
+};
+
 window._evtSelAll = function(val) {
     document.querySelectorAll('[id^="evt-chk-dia-"]').forEach(function(chk) { chk.checked = val; });
 };
@@ -423,20 +525,31 @@ window.generarPDFEvento = function(eventoId, modo) {
                 if (d.sc_oracion_final) filas.push(['ORACION FINAL',  d.sc_oracion_final, false]);
             } else {
                 // ── Evento genérico (semana) ──
+                function _hT(n) { var num=parseInt(String(n||'').replace('#','')); return (typeof HIMNARIO_ADVENTISTA!=='undefined'&&HIMNARIO_ADVENTISTA[num])||''; }
+                if (d.maestro_ceremonia)       filas.push(['MAESTRO/A DE CEREMONIA',   d.maestro_ceremonia, true]);
+                if (d.gen_diaconos)            filas.push(['DIACONOS',                 d.gen_diaconos, false]);
+                if (d.gen_diaconisas)          filas.push(['DIACONISAS',               d.gen_diaconisas, false]);
+                if (d.alabanza_director)       filas.push(['DIRIGE LA ALABANZA',       d.alabanza_director, false]);
+                if (d.alabanza_himno1)         { var _t1=d.titulo_alabanza_himno1||_hT(d.alabanza_himno1); filas.push(['HIMNO ALABANZA #1', '#'+d.alabanza_himno1+(_t1?' - '+_t1:''), false]); }
+                if (d.alabanza_himno2)         { var _t2=d.titulo_alabanza_himno2||_hT(d.alabanza_himno2); filas.push(['HIMNO ALABANZA #2', '#'+d.alabanza_himno2+(_t2?' - '+_t2:''), false]); }
+                if (d.alabanza_himno3)         { var _t3=d.titulo_alabanza_himno3||_hT(d.alabanza_himno3); filas.push(['HIMNO ALABANZA #3', '#'+d.alabanza_himno3+(_t3?' - '+_t3:''), false]); }
+                if (d.alabanza_himno4)         { var _t4=d.titulo_alabanza_himno4||_hT(d.alabanza_himno4); filas.push(['HIMNO ALABANZA #4', '#'+d.alabanza_himno4+(_t4?' - '+_t4:''), false]); }
                 if (d.tema)                   filas.push(['TEMA DEL SERVICIO',       d.tema,        true]);
-                if (d.orador)                 filas.push(['ORADOR / PREDICADOR',      d.orador,      true]);
-                if (d.presenta_orador)        filas.push(['PRESENTA AL ORADOR',       d.presenta_orador, false]);
-                if (d.orador_apertura)        filas.push(['BIENVENIDA / APERTURA',    d.orador_apertura, false]);
-                if (d.anuncia_himno_apertura) filas.push(['ANUNCIA HIMNO APERTURA',  d.anuncia_himno_apertura, false]);
-                if (d.himno_apertura)         filas.push(['HIMNO APERTURA', '#' + d.himno_apertura + (d.titulo_himno_apertura ? ' - ' + d.titulo_himno_apertura : ''), false]);
-                if (d.anuncia_lectura)        filas.push(['ANUNCIA LECTURA BIBLICA',  d.anuncia_lectura, false]);
-                if (d.cita_biblica)           filas.push(['CITA BIBLICA',             d.cita_biblica, false]);
-                if (d.anuncia_especial)       filas.push(['ANUNCIA PARTE ESPECIAL',   d.anuncia_especial, false]);
-                if (d.musica_especial)        filas.push(['MUSICA ESPECIAL',          d.musica_especial, false]);
-                if (d.presenta_himno_final)   filas.push(['PRESENTA HIMNO FINAL',     d.presenta_himno_final, false]);
-                if (d.himno_final)            filas.push(['HIMNO FINAL', '#' + d.himno_final + (d.titulo_himno_final ? ' - ' + d.titulo_himno_final : ''), false]);
-                if (d.orador_oracion)         filas.push(['ORACION FINAL',            d.orador_oracion, false]);
-                if (d.observaciones)          filas.push(['OBSERVACIONES',            d.observaciones, false]);
+                if (d.orador_apertura)        filas.push(['BIENVENIDA',              d.orador_apertura, false]);
+                if (d.oracion_inicial)        filas.push(['ORACION INICIAL',         d.oracion_inicial, false]);
+                if (d.anuncia_himno_apertura) filas.push(['ANUNCIA HIMNO TEMA',      d.anuncia_himno_apertura, false]);
+                if (d.himno_apertura)         { var _tHA=d.titulo_himno_apertura||_hT(d.himno_apertura); filas.push(['HIMNO APERTURA / TEMA', '#'+d.himno_apertura+(_tHA?' - '+_tHA:''), false]); }
+                if (d.anuncia_lectura)        filas.push(['LECTURA BIBLICA',         d.anuncia_lectura, false]);
+                if (d.cita_biblica)           filas.push(['CITA BIBLICA',            d.cita_biblica, false]);
+                if (d.anuncia_especial)       filas.push(['PARTE ESPECIAL',          d.anuncia_especial, false]);
+                if (d.musica_especial)        filas.push(['MUSICA ESPECIAL',         d.musica_especial, false]);
+                if (d.presenta_orador)        filas.push(['PRESENTA AL ORADOR',      d.presenta_orador, false]);
+                if (d.orador)                 filas.push(['ORADOR / PREDICADOR',     d.orador,      true]);
+                if (d.presenta_himno_final)   filas.push(['PRESENTA HIMNO FINAL',    d.presenta_himno_final, false]);
+                if (d.himno_final)            { var _tHF=d.titulo_himno_final||_hT(d.himno_final); filas.push(['HIMNO FINAL / TEMA', '#'+d.himno_final+(_tHF?' - '+_tHF:''), false]); }
+                if (d.orador_oracion)         filas.push(['ORACION FINAL',           d.orador_oracion, false]);
+                if (d.gen_sonido)             filas.push(['ENCARGADO DE SONIDO',     d.gen_sonido, false]);
+                if (d.observaciones)          filas.push(['OBSERVACIONES',           d.observaciones, false]);
             }
 
             if (filas.length === 0) {
@@ -612,6 +725,186 @@ window.generarPlantillaEvento = function(eventoId, modo, colorOverride, isPdfFor
     }
     if (typeof mostrarToast === 'function') mostrarToast('🖼️ Generando imagen con ' + dias.length + ' día(s)...');
 
+    // ═══════════════════════════════════════════════════════════════
+    // Builder HTML por zonas — genera UNA IMAGEN POR DÍA
+    // ═══════════════════════════════════════════════════════════════
+    var esSantaCena = (ev.tipo === 'santa_cena')
+        || (ev.titulo && ev.titulo.toLowerCase().indexOf('santa cena') !== -1);
+
+    if (!esSantaCena && !isPdfFormat) {
+        var C = colorOverride || ev.color || '#00b894';
+        function _hexRgbArr(hex) {
+            var h = hex.replace('#','');
+            return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+        }
+        var cArr = _hexRgbArr(C);
+        var evTheme = {
+            bg: '#0A0F18', cardBg: '#111A28',
+            dateGrad: 'linear-gradient(135deg, rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.25), rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.10))',
+            titleGrad: 'linear-gradient(135deg, rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.30), rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.12))',
+            textTitle: C, textMain: '#FFFFFF',
+            border1: C, border2: '#00CEC9', border3: '#fdcb6e'
+        };
+
+        function _tH(n) { var num=parseInt(String(n||'').replace('#','')); return (typeof HIMNARIO_ADVENTISTA!=='undefined'&&HIMNARIO_ADVENTISTA[num])||''; }
+
+        // ── Construir HTML de UN solo día ──
+        function _buildDiaHTML(dia) {
+            var d = dia.datos || {};
+            var fechaStr = (typeof _fechaLarga === 'function') ? _fechaLarga(dia.fecha) : dia.fecha;
+            var h = '<div style="font-family:\'Segoe UI\',sans-serif;background-color:'+evTheme.bg+';padding:28px;min-height:400px;">';
+            h += '<div style="display:flex;flex-direction:column;gap:14px;">';
+
+            // TITULO
+            h += '<div style="background:'+evTheme.titleGrad+';color:'+evTheme.textTitle+';text-align:center;padding:14px;border-radius:14px;font-size:1.5rem;font-weight:900;box-shadow:0 8px 16px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);">';
+            h += (ev.emoji||'⭐') + ' ' + ev.titulo.toUpperCase() + '</div>';
+            h += '<div style="text-align:center;color:rgba(255,255,255,0.5);font-size:0.85rem;font-weight:700;letter-spacing:1px;">⛪ Iglesia Adventista Cypress Hills — Brooklyn, NY</div>';
+
+            // FECHA
+            h += '<div style="background:'+evTheme.dateGrad+';color:'+evTheme.textTitle+';text-align:center;padding:14px;border-radius:14px;font-size:1.4rem;font-weight:900;letter-spacing:1px;box-shadow:0 6px 12px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);">';
+            h += '📅 ' + fechaStr.toUpperCase() + '</div>';
+
+            // SERVIDORES (2 cols)
+            var serv = [];
+            if (d.maestro_ceremonia) serv.push({rol:'Maestro/a de Ceremonia', nombre:d.maestro_ceremonia});
+            if (d.gen_diaconos) serv.push({rol:'Diáconos', nombre:d.gen_diaconos});
+            if (d.gen_diaconisas) serv.push({rol:'Diaconisas', nombre:d.gen_diaconisas});
+            if (d.oracion_inicial) serv.push({rol:'Oración Inicial', nombre:d.oracion_inicial});
+            if (serv.length) {
+                h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+                serv.forEach(function(s,si){
+                    var bC = [evTheme.border1,evTheme.border2,evTheme.border3][si%3];
+                    var ex = (si===serv.length-1&&serv.length%2!==0)?'grid-column:1/-1;max-width:80%;margin:0 auto;width:100%;box-sizing:border-box;':'';
+                    h+='<div style="background-color:'+evTheme.cardBg+';border-radius:10px;padding:14px;border-left:6px solid '+bC+';text-align:center;box-shadow:0 4px 10px rgba(0,0,0,0.3);'+ex+'">';
+                    h+='<div style="color:'+bC+';font-size:0.8rem;font-weight:900;text-transform:uppercase;margin-bottom:5px;">'+s.rol+'</div>';
+                    h+='<div style="color:'+evTheme.textMain+';font-size:1.1rem;font-weight:700;">'+s.nombre+'</div></div>';
+                });
+                h += '</div>';
+            }
+
+            // ALABANZA
+            var tieneAlab = d.alabanza_director||d.alabanza_himno1||d.alabanza_himno2||d.alabanza_himno3||d.alabanza_himno4;
+            if (tieneAlab) {
+                var hArr=[];
+                [1,2,3,4].forEach(function(n){ if(d['alabanza_himno'+n]){var t=d['titulo_alabanza_himno'+n]||_tH(d['alabanza_himno'+n]); hArr.push('#'+d['alabanza_himno'+n]+(t?' — '+t:''));} });
+                h+='<div style="background:linear-gradient(135deg,rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.12),rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.04));border:2px solid rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.4);border-radius:14px;padding:18px;text-align:center;">';
+                h+='<div style="color:'+C+';font-size:1.3rem;font-weight:900;letter-spacing:2px;margin-bottom:8px;">🎵 MOMENTO DE ALABANZA</div>';
+                if(d.alabanza_director) h+='<div style="color:'+evTheme.textMain+';font-size:1.1rem;font-weight:700;margin-bottom:6px;">Dirige: '+d.alabanza_director+'</div>';
+                if(hArr.length) h+='<div style="color:rgba('+cArr[0]+','+cArr[1]+','+cArr[2]+',0.85);font-size:1rem;font-weight:600;line-height:1.6;font-style:italic;">'+hArr.join('  •  ')+'</div>';
+                h+='</div>';
+            }
+
+            // PROGRAMA (2 cols)
+            var roles = [];
+            if(d.orador_apertura) roles.push({rol:'Bienvenida',nombre:d.orador_apertura});
+            if(d.anuncia_himno_apertura) roles.push({rol:'Anuncia Himno Tema',nombre:d.anuncia_himno_apertura});
+            if(d.himno_apertura){var tHA=d.titulo_himno_apertura||_tH(d.himno_apertura); roles.push({rol:'Himno Apertura / Tema',nombre:'#'+d.himno_apertura+(tHA?' — '+tHA:'')});}
+            if(d.anuncia_lectura) roles.push({rol:'Lectura Bíblica',nombre:d.anuncia_lectura});
+            if(d.cita_biblica) roles.push({rol:'Cita Bíblica',nombre:d.cita_biblica});
+            if(d.anuncia_especial) roles.push({rol:'Parte Especial',nombre:d.anuncia_especial});
+            if(d.musica_especial) roles.push({rol:'Música Especial',nombre:d.musica_especial});
+            if(roles.length) {
+                h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+                roles.forEach(function(r,ri){
+                    var bC = [evTheme.border1,evTheme.border2,evTheme.border3][ri%3];
+                    var ex = (ri===roles.length-1&&roles.length%2!==0)?'grid-column:1/-1;max-width:80%;margin:0 auto;width:100%;box-sizing:border-box;':'';
+                    h+='<div style="background-color:'+evTheme.cardBg+';border-radius:12px;padding:18px;border-left:8px solid '+bC+';display:flex;flex-direction:column;justify-content:center;min-height:70px;box-shadow:0 6px 12px rgba(0,0,0,0.4);'+ex+'">';
+                    h+='<div style="color:'+evTheme.textTitle+';font-size:0.9rem;font-weight:900;text-transform:uppercase;text-align:center;margin-bottom:6px;">'+r.rol+'</div>';
+                    h+='<div style="color:'+evTheme.textMain+';font-size:1.2rem;font-weight:800;text-align:center;line-height:1.2;">'+r.nombre+'</div></div>';
+                });
+                h+='</div>';
+            }
+
+            // PREDICACIÓN
+            if(d.orador||d.tema){
+                h+='<div style="background:linear-gradient(135deg,rgba(253,203,110,0.15),rgba(253,203,110,0.05));border:2px solid rgba(253,203,110,0.5);border-radius:14px;padding:20px;text-align:center;box-shadow:0 6px 20px rgba(253,203,110,0.1);">';
+                h+='<div style="color:#fdcb6e;font-size:1.3rem;font-weight:900;letter-spacing:2px;margin-bottom:10px;">🎤 PREDICACIÓN</div>';
+                if(d.presenta_orador) h+='<div style="color:rgba(255,255,255,0.5);font-size:0.95rem;margin-bottom:4px;">Presenta: <span style="color:'+evTheme.textMain+';font-weight:600;">'+d.presenta_orador+'</span></div>';
+                if(d.orador) h+='<div style="color:'+evTheme.textMain+';font-size:1.6rem;font-weight:900;margin-bottom:6px;">'+d.orador+'</div>';
+                if(d.tema) h+='<div style="color:rgba(253,203,110,0.8);font-size:1.15rem;font-style:italic;line-height:1.3;">"'+d.tema+'"</div>';
+                h+='</div>';
+            }
+
+            // CIERRE
+            var cierre=[];
+            if(d.presenta_himno_final) cierre.push({rol:'Presenta Himno Final',nombre:d.presenta_himno_final});
+            if(d.himno_final){var tHF=d.titulo_himno_final||_tH(d.himno_final); cierre.push({rol:'Himno Final / Tema',nombre:'#'+d.himno_final+(tHF?' — '+tHF:'')});}
+            if(d.orador_oracion) cierre.push({rol:'Oración Final',nombre:d.orador_oracion});
+            if(cierre.length){
+                var colCnt=Math.min(cierre.length,3);
+                h+='<div style="display:grid;grid-template-columns:repeat('+colCnt+',1fr);gap:10px;">';
+                cierre.forEach(function(c,ci){
+                    var bC=[evTheme.border1,evTheme.border2,evTheme.border3][ci%3];
+                    h+='<div style="background-color:'+evTheme.cardBg+';border-radius:10px;padding:14px 10px;border-left:6px solid '+bC+';min-height:60px;box-shadow:0 4px 10px rgba(0,0,0,0.35);text-align:center;display:flex;flex-direction:column;justify-content:center;">';
+                    h+='<div style="color:'+evTheme.textTitle+';font-size:0.78rem;font-weight:900;text-transform:uppercase;margin-bottom:5px;">'+c.rol+'</div>';
+                    h+='<div style="color:'+evTheme.textMain+';font-size:1.05rem;font-weight:800;">'+c.nombre+'</div></div>';
+                });
+                h+='</div>';
+            }
+
+            // SONIDO
+            if(d.gen_sonido){
+                h+='<div style="background-color:'+evTheme.cardBg+';border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.08);">';
+                h+='<span style="color:rgba(255,255,255,0.4);font-size:0.9rem;font-weight:700;">🎛️ Sonido:</span>';
+                h+='<span style="color:'+evTheme.textMain+';font-size:1rem;font-weight:700;margin-left:6px;">'+d.gen_sonido+'</span></div>';
+            }
+            // OBSERVACIONES
+            if(d.observaciones){
+                h+='<div style="background-color:'+evTheme.cardBg+';border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.08);">';
+                h+='<span style="color:rgba(255,255,255,0.4);font-size:0.9rem;font-weight:700;">📝 Notas:</span>';
+                h+='<span style="color:'+evTheme.textMain+';font-size:1rem;font-weight:700;margin-left:6px;">'+d.observaciones+'</span></div>';
+            }
+
+            // FOOTER
+            h+='<div style="text-align:center;color:rgba(255,255,255,0.35);font-size:0.85rem;font-weight:800;margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">';
+            h+='Legado Bíblico — Iglesia Adventista Cypress Hills — Brooklyn, NY</div>';
+            h+='</div></div>';
+            return h;
+        }
+
+        // ── Renderizar días en secuencia (uno por uno) ──
+        function _renderDia(idx) {
+            if (idx >= dias.length) return; // Ya terminó
+            var dia = dias[idx];
+            var fechaCorta = (typeof _fechaCorta === 'function') ? _fechaCorta(dia.fecha) : dia.fecha;
+
+            if (typeof mostrarToast === 'function') mostrarToast('🖼️ Día ' + (idx+1) + '/' + dias.length + ': ' + fechaCorta);
+
+            var divR = document.createElement('div');
+            document.body.appendChild(divR);
+            divR.id = 'evt-render-temp';
+            divR.style.cssText = 'position:absolute;left:-9999px;top:0px;width:700px;';
+            divR.innerHTML = _buildDiaHTML(dia);
+
+            html2canvas(divR, { scale: 2, useCORS: true, backgroundColor: evTheme.bg }).then(function(canvas) {
+                divR.remove();
+                if (typeof mostrarModalImagenRenderizada === 'function') {
+                    mostrarModalImagenRenderizada(canvas, 'evento', fechaCorta);
+                    // Cuando cierre el modal, generar el siguiente día
+                    if (idx < dias.length - 1) {
+                        var _checkNext = setInterval(function() {
+                            if (!document.getElementById('visor-plantilla-v2')) {
+                                clearInterval(_checkNext);
+                                setTimeout(function(){ _renderDia(idx + 1); }, 300);
+                            }
+                        }, 500);
+                    }
+                }
+            }).catch(function(e) {
+                console.error('Error html2canvas día ' + idx + ':', e);
+                divR.remove();
+                if (typeof mostrarToast === 'function') mostrarToast('Error: ' + e.message);
+            });
+        }
+
+        if (typeof html2canvas === 'undefined') {
+            if (typeof mostrarToast === 'function') mostrarToast('⚠️ Librería html2canvas no disponible');
+            return;
+        }
+
+        _renderDia(0); // Iniciar con el primer día
+        return; // No continuar al canvas antiguo
+    }
 
     try {
         var C = colorOverride || ev.color || '#00b894'; // ← Plantilla elegida
@@ -694,10 +987,16 @@ window.generarPlantillaEvento = function(eventoId, modo, colorOverride, isPdfFor
         'sc_lectura_pan','sc_cita_pan','sc_oracion_pan',
         'sc_lectura_vino','sc_cita_vino','sc_oracion_vino','sc_ordenador','sc_oracion_final'
     ];
-    var CAMPOS_GENERICO = ['orador_apertura','anuncia_himno_apertura','himno_apertura',
-        'anuncia_lectura','cita_biblica','orador','presenta_orador','tema',
-        'anuncia_especial','musica_especial','presenta_himno_final',
-        'himno_final','orador_oracion','observaciones'];
+    var CAMPOS_GENERICO = [
+        'maestro_ceremonia','gen_diaconos','gen_diaconisas',
+        'alabanza_director','alabanza_himno1','alabanza_himno2','alabanza_himno3','alabanza_himno4',
+        'tema','orador_apertura','oracion_inicial',
+        'anuncia_himno_apertura','himno_apertura',
+        'anuncia_lectura','cita_biblica',
+        'anuncia_especial','musica_especial',
+        'presenta_orador','orador',
+        'presenta_himno_final','himno_final',
+        'orador_oracion','gen_sonido','observaciones'];
 
     var esSantaCenaCanvas = (ev.tipo === 'santa_cena')
         || (ev.titulo && ev.titulo.toLowerCase().indexOf('santa cena') !== -1);
@@ -753,19 +1052,29 @@ window.generarPlantillaEvento = function(eventoId, modo, colorOverride, isPdfFor
         'sc_ordenador':          'Orador / Predicador',
         'sc_oracion_final':      'Oracion Final',
         // Generico
-        'orador_apertura':       'Apertura',
-        'anuncia_himno_apertura':'Anuncia himno',
-        'himno_apertura':        'Himno apertura',
-        'anuncia_lectura':       'Lectura biblica',
+        'maestro_ceremonia':     'Maestro/a de Ceremonia',
+        'gen_diaconos':          'Diáconos',
+        'gen_diaconisas':        'Diaconisas',
+        'alabanza_director':     'Dirige la Alabanza',
+        'alabanza_himno1':       'Himno Alabanza #1',
+        'alabanza_himno2':       'Himno Alabanza #2',
+        'alabanza_himno3':       'Himno Alabanza #3',
+        'alabanza_himno4':       'Himno Alabanza #4',
+        'orador_apertura':       'Bienvenida',
+        'oracion_inicial':       'Oración Inicial',
+        'anuncia_himno_apertura':'Anuncia Himno Tema',
+        'himno_apertura':        'Himno de Apertura / Tema',
+        'anuncia_lectura':       'Lectura Bíblica',
         'cita_biblica':          'Cita',
         'orador':                'Orador / Predicador',
-        'presenta_orador':       'Presenta orador',
-        'tema':                  'Tema',
-        'anuncia_especial':      'Parte especial',
-        'musica_especial':       'Musica especial',
-        'presenta_himno_final':  'Presenta himno final',
-        'himno_final':           'Himno final',
-        'orador_oracion':        'Oracion final',
+        'presenta_orador':       'Presenta al Orador',
+        'tema':                  'Tema del Servicio',
+        'anuncia_especial':      'Parte Especial',
+        'musica_especial':       'Música Especial',
+        'presenta_himno_final':  'Presenta Himno Final',
+        'himno_final':           'Himno Final / Tema',
+        'orador_oracion':        'Oración Final',
+        'gen_sonido':            'Encargado de Sonido',
         'observaciones':         'Notas'
     };
 
@@ -818,6 +1127,13 @@ window.generarPlantillaEvento = function(eventoId, modo, colorOverride, isPdfFor
         if (campo === 'himno_final' && d.himno_final) {
             var t4 = d.titulo_himno_final || _tituloHimno(d.himno_final);
             return '#' + d.himno_final + (t4 ? ' \u2014 ' + t4 : '');
+        }
+        // Himnos de alabanza genéricos
+        var _alabMatch = campo.match(/^alabanza_himno(\d)$/);
+        if (_alabMatch && d[campo]) {
+            var _aIdx = _alabMatch[1];
+            var _aTit = d['titulo_alabanza_himno'+_aIdx] || _tituloHimno(d[campo]);
+            return '#' + d[campo] + (_aTit ? ' \u2014 ' + _aTit : '');
         }
         // Nombre diácono/diaconiza + función
         var _scDnMatch = campo.match(/^sc_(diacono|diaconiza)_(\d)_nombre$/);
