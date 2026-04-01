@@ -153,19 +153,13 @@ function renderCultosRegulares() {
     cargarListaCultosRegulares();
     cargarHimnosRegulares();
     
-    // EDICIÓN SINCRÓNICA: Si hay un ID pendiente, llenar el formulario AHORA MISMO
-    // sin ningún setTimeout (el innerHTML ya creó los elementos del DOM)
-    console.log('[CULTO-DEBUG] renderCultosRegulares - regularEditandoId:', window.regularEditandoId);
+    // EDICIÓN SINCRÓNICA: Si hay un ID pendiente (viene de "Editar" en historial)
     if (window.regularEditandoId) {
-        console.log('[CULTO-DEBUG] Llamando editarCultoRegular con ID:', window.regularEditandoId);
         editarCultoRegular(window.regularEditandoId);
         if(typeof autoSincronizarDia === 'function') autoSincronizarDia();
     } else {
-        console.log('[CULTO-DEBUG] No hay ID pendiente, precargando ultimo culto');
-        setTimeout(() => {
-            if(typeof autoSincronizarDia === 'function') autoSincronizarDia();
-            precargarUltimoCultoSemanal();
-        }, 100);
+        // FORMULARIO LIMPIO — No precargar nada
+        if(typeof autoSincronizarDia === 'function') autoSincronizarDia();
     }
     window.scrollTo(0, 0);
 }
@@ -453,13 +447,10 @@ function guardarCultoRegular() {
     
     if (regularEditandoId) {
         registros = registros.map(r => String(r.id) === String(regularEditandoId) ? data : r);
-        // regularEditandoId se mantiene para no crear duplicados si el usuario presiona "Guardar" varias veces
-        if (typeof mostrarToast === 'function') mostrarToast("¡Culto Actualizado Exitosamente!"); else alert("¡Culto Actualizado Exitosamente!");
+        if (typeof mostrarToast === 'function') mostrarToast("¡Culto Actualizado!"); else alert("¡Culto Actualizado!");
     } else {
         registros.push(data);
-        regularEditandoId = data.id;
-        if (typeof mostrarToast === 'function') mostrarToast("¡Culto Guardado Exitosamente!"); else alert("¡Culto Guardado Exitosamente!");
-        
+        if (typeof mostrarToast === 'function') mostrarToast("¡Culto Guardado!"); else alert("¡Culto Guardado!");
         
         // 🔥 FIREBASE SYNC - GUARD SECURITY
         if (typeof _syncCultoRegularFirebase === 'function') {
@@ -469,6 +460,31 @@ function guardarCultoRegular() {
 
     registros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
     localStorage.setItem('legado_cultos_regulares', JSON.stringify(registros));
+    
+    // LIMPIAR formulario después de guardar
+    regularEditandoId = null;
+    window.regularEditandoId = null;
+    const camposLimpiar = ['reg-anciano','reg-diacono','reg-diaconisa','reg-alabanza','reg-bienvenida',
+        'reg-oracionIni','reg-himnoIni-quien','reg-himnoIni','reg-lectura-quien',
+        'reg-lectura-libro','reg-lectura-capitulo','reg-lectura-versiculos',
+        'reg-testimonios','reg-especial-quien','reg-especial',
+        'reg-predicador-quien','reg-mensaje','reg-mensaje-tema',
+        'reg-himnoFin-quien','reg-himnoFin','reg-oracionFin','reg-sonido'];
+    camposLimpiar.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    document.querySelectorAll('[id^="himno-titulo-"]').forEach(d => d.textContent = '');
+    
+    // Restaurar botón a GUARDAR
+    const btn = document.getElementById('btn-guardar-reg');
+    if (btn) {
+        btn.innerHTML = '1. 💾 GUARDAR REGISTRO';
+        btn.style.background = 'linear-gradient(135deg,#8854d0,#a55eea)';
+    }
+    
+    // Poner fecha de hoy
+    const hoy = new Date();
+    const elFecha = document.getElementById('reg-fecha');
+    if(elFecha) elFecha.value = hoy.toISOString().split('T')[0];
+    if(typeof autoSincronizarDia === 'function') autoSincronizarDia();
         
     cargarListaCultosRegulares();
 }
