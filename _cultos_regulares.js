@@ -14,7 +14,7 @@ function renderCultosRegulares() {
     contenedor.innerHTML = `
         <div style="min-height:100vh;background:linear-gradient(170deg,#0a0818,#0d1117,#0a0818);font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
             <div style="background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(136, 84, 208, 0.4);">
-                <button onclick="if(typeof renderControlCultosSemana === 'function') renderControlCultosSemana(); else renderModuloIglesia();" style="background:rgba(136, 84, 208, 0.15);border:1px solid #8854d0;color:#a55eea;padding:8px 15px;border-radius:8px;font-weight:900;">&#x2B05;&#xFE0F; VOLVER</button>
+                <button onclick="regularEditandoId = null; window.regularEditandoId = null; if(typeof renderControlCultosSemana === 'function') renderControlCultosSemana(); else renderModuloIglesia();" style="background:rgba(136, 84, 208, 0.15);border:1px solid #8854d0;color:#a55eea;padding:8px 15px;border-radius:8px;font-weight:900;">&#x2B05;&#xFE0F; VOLVER</button>
                 <div style="flex:1;">
                     <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:0.9rem;">CULTOS SEMANALES</div>
                     <div style="color:#a55eea;font-size:0.6rem;letter-spacing:1px;font-weight:bold;">MIÉRCOLES Y VIERNES</div>
@@ -178,34 +178,34 @@ function precargarUltimoCultoSemanal() {
     const registros = JSON.parse(localStorage.getItem('legado_cultos_regulares') || '[]');
     if (registros.length === 0) return;
     
-    // Cargar el más reciente (el que se guardó de último)
+    // Cargar el más reciente como PLANTILLA (solo lectura visual, NO modo edición)
     const ultimo = registros[registros.length - 1];
     if (typeof editarCultoRegular === 'function') {
         editarCultoRegular(ultimo.id);
-        
-        // Desvincularlo para que actúe como plantilla nueva, no sobre-escriba
-        window.regularEditandoId = null;
-        
-        // Poner la fecha de hoy por defecto
-        const f = new Date();
-        const yyyy = f.getFullYear();
-        const mm = String(f.getMonth() + 1).padStart(2, '0');
-        const dd = String(f.getDate()).padStart(2, '0');
-        const hoyStr = `${yyyy}-${mm}-${dd}`;
-        
-        const elFecha = document.getElementById('reg-fecha');
-        if(elFecha) {
-            elFecha.value = hoyStr;
-            if(typeof autoSincronizarDia === 'function') autoSincronizarDia();
-        }
-        
-        // Restaurar el estilo del botón original (editarCultoRegular lo cambia a naranja)
-        const btn = document.querySelector("button[onclick='guardarCultoRegular()']");
-        if (btn) {
-            btn.innerHTML = '1. 💾 GUARDAR REGISTRO';
-            btn.style.background = 'rgba(136, 84, 208, 0.2)';
-        }
-        if(typeof mostrarToast === 'function') mostrarToast('Plantilla del último culto cargada automáticamente');
+    }
+    
+    // IMPORTANTE: Limpiar el modo edición para que actúe como plantilla nueva
+    regularEditandoId = null;
+    window.regularEditandoId = null;
+    
+    // Poner la fecha de hoy por defecto
+    const f = new Date();
+    const yyyy = f.getFullYear();
+    const mm = String(f.getMonth() + 1).padStart(2, '0');
+    const dd = String(f.getDate()).padStart(2, '0');
+    const hoyStr = `${yyyy}-${mm}-${dd}`;
+    
+    const elFecha = document.getElementById('reg-fecha');
+    if(elFecha) {
+        elFecha.value = hoyStr;
+        if(typeof autoSincronizarDia === 'function') autoSincronizarDia();
+    }
+    
+    // Restaurar el estilo del botón a GUARDAR (no ACTUALIZAR)
+    const btn = document.getElementById('btn-guardar-reg');
+    if (btn) {
+        btn.innerHTML = '1. 💾 GUARDAR REGISTRO';
+        btn.style.background = 'linear-gradient(135deg,#8854d0,#a55eea)';
     }
 }
 
@@ -552,7 +552,8 @@ function editarCultoRegular(id) {
             'reg-himnoFin-quien': reg.himnoFin_quien,
             'reg-himnoFin': reg.himnoFin,
             'reg-oracionFin': reg.oracionFin,
-            'reg-testimonios': reg.testimonios
+            'reg-testimonios': reg.testimonios,
+            'reg-sonido': reg.sonido
         };
 
         for (const [key, val] of Object.entries(mapaInput)) {
