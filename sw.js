@@ -7,7 +7,7 @@
 // ESTRATEGIA: Cache First + Network Update (v368)
 // ==========================================
 
-const CACHE_NAME = 'legado-biblico-v594';
+const CACHE_NAME = 'legado-biblico-v595';
 
 // ✅ SOLO archivos de LEGADO BÍBLICO (raíz)
 const ARCHIVOS_CACHE = [
@@ -32,6 +32,8 @@ const ARCHIVOS_CACHE = [
     './data_teens_v8.js',
     './himnario_data.js',
     './data_iglesia_v1.js',
+    './_cultos_regulares.js',
+    './_motor_plantillas_v2.js',
     './_add_eventos_especiales.js',
     './_pdf_eventos.js',
     './html2canvas.min.js',
@@ -52,7 +54,10 @@ const ARCHIVOS_CACHE = [
     './fix_herramientas_culto.js',
     './_juego_penal_biblico.js',
     './_penal_visual.js',
-    './_firebase_sync_iglesia.js'
+    './_firebase_sync_iglesia.js',
+    './_inyectar_mayordomia.js',
+    './_inyectar_santacena.js',
+    './ui_core.js'
 ];
 
 // ─── INSTALL: llenar caché uno por uno ───────────────────────────
