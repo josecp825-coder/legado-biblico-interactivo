@@ -517,11 +517,10 @@ function editarCultoRegular(id) {
         let reg = registros.find(r => String(r.id) === String(id));
         if (!reg) {
             console.error('[CULTO-DEBUG] NO se encontró registro con ID:', id);
-            if (typeof mostrarToast === 'function') mostrarToast('DEBUG: Registro ' + id + ' NO encontrado en ' + registros.length + ' registros');
+            if (typeof mostrarToast === 'function') mostrarToast('⚠️ Registro no encontrado');
             return;
         }
         console.log('[CULTO-DEBUG] Registro encontrado:', reg.fecha, reg.dia, 'Anciano:', reg.anciano);
-        if (typeof mostrarToast === 'function') mostrarToast('DEBUG: Cargando ' + reg.fecha + ' - ' + reg.dia);
 
         regularEditandoId = id;
         
@@ -612,7 +611,6 @@ function editarCultoRegular(id) {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (typeof mostrarToast === 'function') mostrarToast("Editando registro...");
     } catch(err) {
         if (typeof mostrarToast === 'function') mostrarToast("Error leyendo datos: " + err.message);
         else alert("Error crítico al editar: " + err.message);
