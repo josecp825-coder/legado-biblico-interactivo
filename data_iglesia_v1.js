@@ -2980,18 +2980,8 @@ function _actualizarFormularioPorDia(esSabado) {
     const select = document.getElementById('culto-tipo');
     const dStr = select ? select.value : '';
     if (dStr === 'Miércoles' || dStr === 'Viernes' || dStr === 'Mi\u00e9rcoles') {
-        if (typeof renderCultosRegulares === 'function') {
-            const fechaStr = document.getElementById('culto-fecha') ? document.getElementById('culto-fecha').value : '';
-            renderCultosRegulares();
-            setTimeout(() => {
-                if (document.getElementById('reg-dia')) {
-                    document.getElementById('reg-dia').value = (dStr.toLowerCase() === 'viernes') ? 'viernes' : 'miercoles';
-                    if (typeof actualizarVisibilidadTestimonios === 'function') actualizarVisibilidadTestimonios();
-                }
-                if (document.getElementById('reg-fecha') && fechaStr) document.getElementById('reg-fecha').value = fechaStr;
-            }, 100);
-            return;
-        }
+        // NO saltar a renderCultosRegulares() — destruye las pestañas.
+        return;
     }
     const realSab = (esSabado === true || dStr === 'Sábado' || dStr === 'S\u00e1bado');
     cont.innerHTML = realSab ? _html12PasosSabado() : _htmlCamposNormal();

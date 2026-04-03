@@ -14,7 +14,7 @@ function renderCultosRegulares() {
     contenedor.innerHTML = `
         <div style="min-height:100vh;background:linear-gradient(170deg,#0a0818,#0d1117,#0a0818);font-family:'Segoe UI',sans-serif;padding-bottom:100px;">
             <div style="background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);padding:15px;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(136, 84, 208, 0.4);">
-                <button onclick="regularEditandoId = null; window.regularEditandoId = null; renderModuloIglesia();" style="background:rgba(136, 84, 208, 0.15);border:1px solid #8854d0;color:#a55eea;padding:8px 15px;border-radius:8px;font-weight:900;">&#x2B05;&#xFE0F; VOLVER</button>
+                <button onclick="regularEditandoId = null; window.regularEditandoId = null; try{ renderControlCultosSemana(); } catch(e){ try{ renderModuloIglesia(); } catch(e2){ location.reload(); } }" style="background:rgba(136, 84, 208, 0.15);border:1px solid #8854d0;color:#a55eea;padding:8px 15px;border-radius:8px;font-weight:900;">&#x2B05;&#xFE0F; VOLVER</button>
                 <div style="flex:1;">
                     <div style="color:#fff;font-weight:900;letter-spacing:1px;font-size:0.9rem;">CULTOS SEMANALES</div>
                     <div style="color:#a55eea;font-size:0.6rem;letter-spacing:1px;font-weight:bold;">MIÉRCOLES Y VIERNES</div>

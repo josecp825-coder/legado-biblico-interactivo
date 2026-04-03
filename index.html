@@ -1239,15 +1239,21 @@
     <script src="./_juego_penal_biblico.js?v=596"></script>
     <script src="./_penal_visual.js?v=596"></script>
     <script src="./himnario_data.js?v=596"></script>
-    <script src="./data_iglesia_v1.js?v=596"></script>
-    <script src="./_cultos_regulares.js?v=596"></script>
-    <script src="./_motor_plantillas_v2.js?v=596"></script>
-    <script src="./_add_eventos_especiales.js?v=596"></script>
-    <script src="./_firebase_sync_iglesia.js?v=596"></script>
-    <script src="./_pdf_eventos.js?v=596"></script>
-    <script src="./_inyectar_mayordomia.js?v=596"></script>
-    <script src="./_inyectar_santacena.js?v=596"></script>
-    <script src="./_ano_biblico_v2.js?v=596"></script>
+    <script src="./data_iglesia_v1.js?v=599"></script>
+    <script>
+    // 🛡️ GUARDAR la función ORIGINAL antes de que sea parcheada
+    if (typeof renderControlCultosSemana === 'function') {
+        window.__originalRenderControlCultos = renderControlCultosSemana;
+    }
+    </script>
+    <script src="./_cultos_regulares.js?v=599"></script>
+    <script src="./_motor_plantillas_v2.js?v=599"></script>
+    <script src="./_add_eventos_especiales.js?v=599"></script>
+    <script src="./_firebase_sync_iglesia.js?v=599"></script>
+    <script src="./_pdf_eventos.js?v=599"></script>
+    <script src="./_inyectar_mayordomia.js?v=599"></script>
+    <script src="./_inyectar_santacena.js?v=599"></script>
+    <script src="./_ano_biblico_v2.js?v=599"></script>
     <!-- âœ… LibrerÃ­as locales â€” sin dependencia de CDN externa -->
     <script src="./html2canvas.min.js"></script>
     <script src="./jspdf.umd.min.js"></script>
@@ -1376,6 +1382,73 @@
             }
         }, 400);
     };
+    </script>
+
+    <!-- 🛡️ FIX v599 INDESTRUCTIBLE: Funciona aunque el SW sirva archivos viejos -->
+    <script>
+    // === FIX A: Interceptar onclick buggy ===
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        var oc = btn.getAttribute('onclick') || '';
+        if (oc.indexOf('if(typeof renderControlCultosSemana') !== -1) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+            window.regularEditandoId = null;
+            try { renderControlCultosSemana(); } catch(err) { 
+                try { renderModuloIglesia(); } catch(e2) { location.reload(); }
+            }
+            return false;
+        }
+    }, true);
+
+    // === FIX B: SOBREESCRIBIR _actualizarFormularioPorDia ===
+    // La versión vieja (cacheada) llama renderCultosRegulares() en miércoles/viernes,
+    // lo que DESTRUYE las pestañas. Esta versión inline SIEMPRE gana.
+    window._actualizarFormularioPorDia = function(esSabado) {
+        var cont = document.getElementById('culto-campos-dinamicos');
+        if (!cont) return;
+        var select = document.getElementById('culto-tipo');
+        var dStr = select ? select.value : '';
+        // Miércoles/Viernes: NO auto-redirigir — el usuario elige desde el selector
+        if (dStr === 'Miércoles' || dStr === 'Viernes' || dStr === 'Mi\u00e9rcoles') return;
+        var realSab = (esSabado === true || dStr === 'Sábado' || dStr === 'S\u00e1bado');
+        cont.innerHTML = realSab && typeof _html12PasosSabado === 'function' 
+            ? _html12PasosSabado() 
+            : (typeof _htmlCamposNormal === 'function' ? _htmlCamposNormal() : '');
+    };
+
+    // === FIX C: Restaurar renderControlCultosSemana con la original (pestañas) ===
+    (function() {
+        setTimeout(function() {
+            if (!window.__originalRenderControlCultos) return;
+            var origSrc = window.__originalRenderControlCultos.toString();
+            if (origSrc.indexOf('tabs-culto') === -1) return;
+            var goodOriginal = window.__originalRenderControlCultos;
+            window.renderControlCultosSemana = function() {
+                goodOriginal();
+                setTimeout(function() {
+                    var tabsBar = document.getElementById('tabs-culto');
+                    if (!tabsBar || document.getElementById('tab-btn-eventos')) return;
+                    if (typeof renderTabEventos !== 'function') return;
+                    var btnEvt = document.createElement('button');
+                    btnEvt.id = 'tab-btn-eventos';
+                    btnEvt.onclick = function() { cambiarTabCulto('eventos'); };
+                    btnEvt.style.cssText = 'flex:1;padding:11px 4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:10px;cursor:pointer;font-weight:700;font-size:0.7rem;';
+                    btnEvt.innerHTML = '⭐<br>Programas<br>Especiales';
+                    tabsBar.appendChild(btnEvt);
+                    var parent = document.getElementById('tab-content-cultos');
+                    if (parent && parent.parentNode) {
+                        var divEvt = document.createElement('div');
+                        divEvt.id = 'tab-content-eventos';
+                        divEvt.style.display = 'none';
+                        divEvt.innerHTML = renderTabEventos();
+                        parent.parentNode.appendChild(divEvt);
+                    }
+                }, 50);
+            };
+            console.log('[FIX-v599] ✅ Módulo cultos restaurado completamente');
+        }, 300);
+    })();
     </script>
 
 </body>
